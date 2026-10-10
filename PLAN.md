@@ -1,3 +1,7 @@
+# Current scope — October 10, 2026
+
+The user requested all recovered complete opening fields, source selection, daily conditioning on completed games, an equal-source average, and a logistic ensemble learned only from prior years in the same competition. Silver Bulletin is limited to women 2024. Partial/late fields are excluded. [SOURCE-MODEL.md](data-preparation/SOURCE-MODEL.md) defines the current method and acceptance checks; this supersedes the original single-source probability scope recorded below. Original forecasts remain intact as separate evidence.
+
 # Tournament Atlas
 
 ## Request and intended use

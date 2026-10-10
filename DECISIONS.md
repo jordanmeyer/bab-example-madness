@@ -23,3 +23,10 @@ The user rejected connected central cards. One shared coordinate tree now owns a
 ## Apply the complete fidelity checklist
 
 2026-10-09: Replace the automatic-favorite resting state, node-only hover, duplicate date controls and stretched geometry with the original’s clean/preview/pin behavior and one fixed drawing. Generate abbreviations with the data so all years share one naming policy. Snapshot status is based on recorded certainties and actual game records, retaining date-only precision. The user explicitly requested a continuous single-hue numerical heat scale; preserve brand colors elsewhere. Expand independent acceptance to all seasons, multiple desktop widths, phone, late forecasts and Results because the earlier bounded passes missed these failures.
+
+
+## October 10, 2026 — complete opening fields and source blends
+
+Use 37 complete opening fields; exclude partial ESPN and late Neil Paine data per the user's clarification. Maximum-entropy bracket inversion identifies a fixed matchup matrix from rounded advancement marginals; subsequent dates condition only on completed games. Published updates are not claimed. Preserve originals, disclose rounding and missing First Four assumptions, and retain exact provenance.
+
+Fit men and women separately using strictly earlier years, equal seasonal weights, fixed ridge 0.02, and no intercept. Require previous observations for every current source before exposing the all-source ensemble. Historical missing features use the game-specific mean available log-odds. Validate chronologically and report negative improvement. See SOURCE-MODEL.md for reproducible definitions and limitations.

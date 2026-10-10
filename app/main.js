@@ -8,7 +8,7 @@ echarts.use([LineChart, GridComponent, TooltipComponent, AriaComponent, SVGRende
 import { echartsTheme } from './theme/echarts.js';
 import { STAGES, probabilityLabel, exactProbability, probabilitiesFor, resultPath, teamHistory, bracketCandidates, sortTeams, snapshotDay, nearestSnapshot, snapshotStatus, unresolvedStages, lostAtStage, resultStatus } from './model.js';
 
-const DATA_REVISION = '2026-10-10-womens';
+const DATA_REVISION = '2026-10-10-source-blends';
 const $ = selector => document.querySelector(selector);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const dateLabel = (value, year = false) => new Date(`${value.slice(0, 10)}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', ...(year ? { year: 'numeric' } : {}), timeZone: 'UTC' });
@@ -18,6 +18,8 @@ let catalog, data, selectedId, gender = 'mens', snapshotIndex = 0, mode = 'forec
 let explicitView = false, previewId, previewRound, slots = [];
 let sort = { key: 'p6', direction: -1 }, timer, request = 0, chart, observer, pathMap;
 const cache = new Map();
+let sourceId = 'fivethirtyeight';
+const activeSource = () => data.forecastOptions?.find(option => option.id === sourceId);
 const competitionName = () => gender === 'womens' ? 'Women’s' : 'Men’s';
 const currentP = id => pathMap.get(id);
 const teamById = id => data.teams.find(team => team.id === id);
@@ -45,6 +47,7 @@ async function loadYear(year, competition = gender) {
   stopPlaying();
   disposeChart();
   $('#explorer').setAttribute('aria-busy', 'true');
+  $('#source').disabled = true;
   $('#workspace').hidden = true;
   $('#cancelled').hidden = true;
   $('#loading').hidden = false;
@@ -57,7 +60,11 @@ async function loadYear(year, competition = gender) {
       cache.set(key, await response.json());
     }
     if (thisRequest !== request) return;
-    data = cache.get(key);
+    data = {...cache.get(key)};
+    const options = data.forecastOptions ?? [];
+    $('#source').innerHTML = options.length ? options.map(option => `<option value="${escape(option.id)}">${escape(option.name)}</option>`).join('') : '<option>No forecasts</option>';
+    $('#source').disabled = !options.length;
+    if(options.length) applySource(options.some(option => option.id === sourceId) ? sourceId : options[0].id);
     snapshotIndex = 0;
     mode = data.forecasts?.length ? 'forecast' : 'results';
     selectedId = null;
@@ -113,10 +120,10 @@ function render() {
   $('#table-view').setAttribute('aria-pressed', view === 'table');
   $('#timeline').hidden = mode !== 'forecast' || data.forecasts.length === 1;
   $('#single-snapshot').hidden = mode !== 'forecast' || data.forecasts.length !== 1;
-  if (data.forecasts.length === 1) $('#single-snapshot').textContent = `One pre-tournament forecast · ${dateLabel(data.forecasts[0].date, true)} · ${reconstructed()?'reconstructed model':provider()}`;
+  if (data.forecasts.length === 1) $('#single-snapshot').textContent = `${dateLabel(data.forecasts[0].date, true)} · ${provider()}`;
   $('#results-heading').hidden = mode !== 'results';
   $('#coverage-note').hidden = data.forecasts.length > 0 && (!reconstructed() || mode !== 'forecast');
-  $('#coverage-note').textContent = data.forecasts.length ? 'Reconstructed from pre-tournament T-Rank ratings using log5. This is a separate model, not a FiveThirtyEight or published T-Rank bracket forecast.' : 'Results only · No verified pre-tournament forecast is bundled for this year.';
+  $('#coverage-note').textContent = data.forecasts.length ? `${provider()} · Reconstructed opening odds, updated for completed games.` : 'Results only · No verified pre-tournament forecast is bundled for this year.';
   if (mode === 'forecast') {
     const status = snapshotStatus(data, snapshotIndex);
     $('#snapshot-title').textContent = snapshotName();
@@ -379,7 +386,7 @@ function renderDetail() {
 
 function historyMarkup() {
   const history=teamHistory(data,selectedId).slice(0,snapshotIndex+1);
-  if(history.length===1) return `<h3>The forecast, in motion.</h3><p class="single-point"><strong title="${exactProbability(history[0].p?.[6])}">${percent(history[0].p?.[6])}</strong> title chance on ${dateLabel(history[0].date,true)}.</p><p class="chart-note">${data.forecasts.length===1?'One reconstructed pre-tournament snapshot is available; there is no historical replay for this model.':'Move along the date track to reveal how the forecast changed.'}</p>`;
+  if(history.length===1) return `<h3>The forecast, in motion.</h3><p class="single-point"><strong title="${exactProbability(history[0].p?.[6])}">${percent(history[0].p?.[6])}</strong> title chance on ${dateLabel(history[0].date,true)}.</p><p class="chart-note">${data.forecasts.length===1?'Only one forecast date is available.':'Move along the date track to reveal how the forecast changed.'}</p>`;
   return `<div class="history-heading"><h3>The forecast, in motion.</h3><span>Title chance · %</span></div><div id="history-chart" role="img" aria-label="${escape(teamById(selectedId).name)} championship probability through the selected snapshot. Readable percentages in the table below; full precision in the data download."></div><p class="chart-note">The line ends at the selected snapshot. Spacing follows elapsed days; recorded dates are not precise tip-off timestamps.</p><details class="history-details"><summary>Read forecast history as a table</summary><div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">Snapshot</th><th scope="col">Title chance</th></tr></thead><tbody>${history.map(point=>`<tr><th scope="row">${dateLabel(point.date,true)}</th><td title="${exactProbability(point.p?.[6])}">${percent(point.p?.[6])}</td></tr>`).join('')}</tbody></table></div></details>`;
 }
 
@@ -407,16 +414,39 @@ function gamesMarkup() {
   return `<h3>The games behind the result.</h3><ul class="game-list">${games.map(game=>{const index=game.teamIds.indexOf(selectedId),opponent=teamById(game.teamIds[1-index]);return `<li><small>${escape(game.roundName??(game.round===0?'First Four':STAGES[game.round-1]))}<br>${gameDate(game.date)}</small><span>vs. ${escape(opponent?.name??'Unknown')}<br><small>${game.status==='no-contest'?(game.winnerId===selectedId?'No contest · advanced by rule':'No contest · did not advance'):game.winnerId===selectedId?'Won':'Lost'}</small></span><strong>${game.status==='no-contest'?'No score':`${game.scores[index]}–${game.scores[1-index]}`}</strong></li>`;}).join('')}</ul>`;
 }
 
+function applySource(id) {
+  sourceId = id;
+  const option = activeSource();
+  data.forecasts = option.forecasts;
+  data.forecastProvider = option.name;
+  $('#source').value = id;
+}
+
 function renderSources() {
-  const forecasts=data.forecasts?.length??0;
-  $('#about-coverage').textContent=data.status==='cancelled'?'2020 has no bracket because the tournament was cancelled.':forecasts?reconstructed() ? `${data.year} uses one reconstructed forecast from pre-tournament T-Rank ratings and a neutral-court log5 win-probability model. It is not a published FiveThirtyEight or T-Rank tournament forecast. Actual results are shown separately.` : `${data.year} includes ${forecasts} archived ${provider()} snapshots, from ${dateLabel(data.forecasts[0].date)} through ${dateLabel(data.forecasts.at(-1).date)}. The last available forecast may precede the championship game. Actual results are shown separately.`:`${data.year} includes the actual bracket and results. Archived FiveThirtyEight forecasts are unavailable, so there is no probability timeline for this year.`;
-  const sources=(data.sources??[]).map(source=>typeof source==='string'?{url:source,label:source}:source);
-  $('#source-list').innerHTML=`<p>${competitionName()} · ${data.year}. ${forecasts?reconstructed() ? 'One reconstructed pre-tournament forecast.' : `${forecasts} genuine archived forecasts.`:data.status==='cancelled'?'Tournament cancelled.':'Results only; no replacement forecasts.'}</p>${data.modelNote?`<p>${escape(data.modelNote)}</p>`:''}${data.forecastNote?`<p>${escape(data.forecastNote)}</p>`:''}<ul>${sources.map(source=>`<li>${source.url?`<a href="${escape(source.url)}" target="_blank" rel="noreferrer">${escape(source.label??source.name??source.title??source.provider??source.url)}</a>`:escape(source.label??source.name??source.title??'Source')}${source.license?` · ${escape(source.license)}`:''}${source.methodUrl?` · <a href="${escape(source.methodUrl)}" target="_blank" rel="noreferrer">Rating method</a>`:''}${source.bulkDataGuideUrl?` · <a href="${escape(source.bulkDataGuideUrl)}" target="_blank" rel="noreferrer">Source data guide</a>`:''}</li>`).join('')}</ul><p><a href="${import.meta.env.BASE_URL}data/${catalog.competitions[gender].years.find(entry=>entry.year===data.year).file}" download="tournament-${gender}-${data.year}.json">Download this year’s bundled data</a></p>${data.corrections?.length?`<details><summary>Data reconciliation notes (${data.corrections.length})</summary><ul>${data.corrections.map(note=>`<li>${escape(typeof note==='string'?note:note.reason??JSON.stringify(note))}</li>`).join('')}</ul></details>`:''}`;
+  const option = activeSource(), report = data.ensembleReport;
+  const sourceOptions = (data.forecastOptions ?? []).filter(o => o.url);
+  const sourceNames = Object.fromEntries(sourceOptions.map(o => [o.id, o.name]));
+  const names = id => sourceNames[id] ?? (id === 'average' ? 'All source average' : 'All source ensemble');
+  $('#about-coverage').textContent = data.status === 'cancelled' ? '2020 has no bracket because the tournament was cancelled.' : `${competitionName()} ${data.year}: ${sourceOptions.length} complete opening ${sourceOptions.length === 1 ? 'source' : 'sources'}. The timeline recomputes odds after each day’s completed games. These are this app’s reconstructions, not the publishers’ later updates. Team strength is not updated from winning margins or injuries.`;
+  const sources = (data.sources ?? []).map(source => typeof source === 'string' ? {url: source, label: source} : source);
+  $('#source-list').innerHTML = `<p>${competitionName()} · ${data.year}${option ? ` · Selected: ${escape(option.name)}` : ''}</p>${sourceOptions.length ? `<p>Opening advancement probabilities are fitted to a bracket-specific matchup model. Missing First Four odds are inferred from the teams’ Round of 32 shares. Rounded values are reconciled to a valid bracket; the underlying matchup model is not uniquely determined by published advancement odds. Venue effects present in the opening forecasts are implicit in this fit, not independently estimated.</p><ul>${sourceOptions.map(o => `<li><a href="${escape(o.url)}" target="_blank" rel="noreferrer">${escape(o.name)}</a> · ${o.dateKnown ? dateLabel(o.date, true) : 'Publisher’s undated Pre-Tourney option; timeline begins the day before play'} · Largest opening adjustment: ${(100*o.fit.maxError).toFixed(3)} percentage points.${o.id === 'silver' ? ' The published LSU/UCLA half-region totals 100.7% to reach the Elite Eight; the reconstruction normalizes that inconsistency.' : ''}</li>`).join('')}</ul>` : ''}<details><summary>Original archives and recorded results</summary><ul>${sources.map(source => `<li>${source.url ? `<a href="${escape(source.url)}" target="_blank" rel="noreferrer">${escape(source.label ?? source.name ?? source.title ?? source.provider ?? source.url)}</a>` : escape(source.label ?? source.name ?? 'Source')}</li>`).join('')}</ul>${data.corrections?.length ? `<p>Recorded source reconciliation:</p><ul>${data.corrections.map(c => `<li>${escape(c.reason)}</li>`).join('')}</ul>` : ''}</details><p><a href="${import.meta.env.BASE_URL}data/${catalog.competitions[gender].years.find(entry => entry.year === data.year).file}" download="tournament-${gender}-${data.year}.json">Download this year’s bundled data</a></p>`;
+  $('#ensemble-review').hidden = data.status === 'cancelled';
+  if(!report) { $('#ensemble-comparison').textContent = ''; return; }
+  const ensemble = data.forecastOptions.find(o => o.id === 'ensemble');
+  const availability = ensemble ? `The ${data.year} blend is fitted using ${ensemble.trainingGames} games from ${ensemble.trainingYears.join(', ')}. No ${data.year} outcomes enter its fitted weights.` : report.trainingYears.length ? `No all-source ensemble is available: ${report.missingInputs.map(names).join(', ')} has no prior-season observations. The comparison below evaluates the historically available inputs.` : 'No ensemble is available because these source inputs have no prior-season observations in this competition.';
+  const signed = value => `${value > 0 ? '+' : ''}${value.toFixed(4)}`;
+  $('#ensemble-comparison').innerHTML = `<p><strong>${competitionName()} · ${data.year}</strong>. ${escape(availability)}</p><p>The arithmetic average gives each source equal weight. The ensemble fits a regularized logistic model to source-derived matchup log-odds. Missing historical source inputs use the mean available log-odds for that game. Men and women are fitted separately; every current input must have earlier observations.</p>${report.rows.length ? `<p>Each historical season is tested using only seasons before it for training. Scores are averaged equally across tested seasons. Lower Brier score (squared probability error) and log loss are better. Positive improvement means the ensemble did better; negative means it did worse. Each row compares exactly the same games. The available source combination varies by historical season.</p><div class="table-scroll" tabindex="0" aria-label="Historical forecast comparison"><table class="comparison-table"><caption>Earlier-season game predictions · ${report.folds.map(f => f.year).join(', ')}</caption><thead><tr><th scope="col">Source</th><th scope="col">Test years</th><th scope="col">Games</th><th scope="col">Brier</th><th scope="col">Ensemble Brier</th><th scope="col">Improvement</th><th scope="col">Log loss</th><th scope="col">Ensemble log loss</th></tr></thead><tbody>${report.rows.map(r => `<tr><th scope="row">${escape(names(r.id))}</th><td>${r.years.join(', ')}</td><td>${r.games}</td><td>${r.brier.toFixed(4)}</td><td>${r.ensembleBrier.toFixed(4)}</td><td>${signed(r.improvement)}</td><td>${r.logLoss.toFixed(4)}</td><td>${r.ensembleLogLoss.toFixed(4)}</td></tr>`).join('')}</tbody></table></div><p>This tests the historical blending procedure, not the displayed year’s fitted coefficients. It measures game prediction, not guaranteed improvement in championship forecasts.</p>` : '<p>No earlier season can yet be independently tested after training on an even earlier season. Training accuracy is not presented as evidence of improvement.</p>'}${ensemble ? `<details><summary>Fitted coefficients</summary><p>No intercept is used, so reversing teams complements their win probabilities. Coefficients act on log-odds; they are not percentage shares.</p><ul>${ensemble.sourceIds.map((id,i) => `<li>${escape(names(id))}: ${ensemble.weights[i].toFixed(4)}</li>`).join('')}</ul></details>` : ''}`;
 }
 
 for (const competition of ['mens','womens']) $(`#${competition}`).addEventListener('click',()=>loadYear(Number($('#year').value),competition));
 $('#year').addEventListener('change',event=>loadYear(Number(event.target.value)));
-$('#forecast-mode').addEventListener('click',()=>{stopPlaying();mode='forecast';render();announce(reconstructed()?'Reconstructed pre-tournament forecast shown.':'Archived forecasts shown.');});
+$('#source').addEventListener('change', event => {
+  const date = data.forecasts[snapshotIndex]?.date;
+  stopPlaying(); disposeChart(); applySource(event.target.value);
+  snapshotIndex = date ? nearestSnapshot(data.forecasts, snapshotDay(date)) : 0;
+  renderSources(); render(); announce(`${provider()} selected. ${snapshotName()}.`);
+});
+$('#forecast-mode').addEventListener('click',()=>{stopPlaying();mode='forecast';render();announce(`${provider()} reconstructed timeline shown.`);});
 $('#results-mode').addEventListener('click',()=>{stopPlaying();mode='results';render();announce('Actual tournament results shown.');});
 $('#bracket-view').addEventListener('click',()=>{explicitView=true;view='bracket';render();});
 $('#table-view').addEventListener('click',()=>{explicitView=true;view='table';render();});

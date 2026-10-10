@@ -1,3 +1,7 @@
+# Current multi-source interface
+
+See [SOURCE-MODEL.md](SOURCE-MODEL.md) for the current 37 opening fields, reconstructed timelines, blends and reproduction. The material below documents the original archives and rating-based release, retained as source history; it does not describe the current selector.
+
 # Men’s and women’s tournament source data, 2016–2026
 
 Retrieved October 9, 2026. These are build-time research utilities, not application runtime dependencies. The published browser application needs only the bundled `index.json` and year JSON files.

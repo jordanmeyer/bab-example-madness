@@ -1,0 +1,659 @@
+[
+  {
+    "competition": "mens",
+    "year": 2016,
+    "sources": [
+      "kenpom",
+      "fivethirtyeight",
+      "average"
+    ],
+    "trainingYears": [],
+    "missingInputs": [
+      "kenpom",
+      "fivethirtyeight"
+    ],
+    "validationYears": [],
+    "sourceFit": [
+      {
+        "id": "kenpom",
+        "maxError": 0.0007924605414262875,
+        "meanError": 0.00003408458296514803,
+        "maxNodeResidual": 9.862676120242497e-9
+      },
+      {
+        "id": "fivethirtyeight",
+        "maxError": 8.826861352950743e-9,
+        "meanError": 4.0069568300892615e-10,
+        "maxNodeResidual": 9.61493435217009e-9
+      }
+    ]
+  },
+  {
+    "competition": "mens",
+    "year": 2017,
+    "sources": [
+      "kenpom",
+      "espn",
+      "fivethirtyeight",
+      "average"
+    ],
+    "trainingYears": [
+      2016
+    ],
+    "missingInputs": [
+      "espn"
+    ],
+    "validationYears": [],
+    "sourceFit": [
+      {
+        "id": "kenpom",
+        "maxError": 0.000967033192281197,
+        "meanError": 0.000049436385089409564,
+        "maxNodeResidual": 1.6960000516127417e-8
+      },
+      {
+        "id": "espn",
+        "maxError": 0.0011480905329190882,
+        "meanError": 0.0000517018508678976,
+        "maxNodeResidual": 0.000015516928015296694
+      },
+      {
+        "id": "fivethirtyeight",
+        "maxError": 2.929612108459878e-10,
+        "meanError": 6.393809154102914e-11,
+        "maxNodeResidual": 6.728263945987578e-9
+      }
+    ]
+  },
+  {
+    "competition": "mens",
+    "year": 2018,
+    "sources": [
+      "kenpom",
+      "torvik",
+      "fivethirtyeight",
+      "average"
+    ],
+    "trainingYears": [
+      2016,
+      2017
+    ],
+    "missingInputs": [
+      "torvik"
+    ],
+    "validationYears": [
+      2017
+    ],
+    "sourceFit": [
+      {
+        "id": "kenpom",
+        "maxError": 0.0008021979565169257,
+        "meanError": 0.0000424265196270309,
+        "maxNodeResidual": 1.3446087313075816e-8
+      },
+      {
+        "id": "torvik",
+        "maxError": 0.0009769767132524754,
+        "meanError": 0.00005042024990049966,
+        "maxNodeResidual": 0.000015029586720443642
+      },
+      {
+        "id": "fivethirtyeight",
+        "maxError": 2.873274951298299e-10,
+        "meanError": 6.09731180614248e-11,
+        "maxNodeResidual": 8.94425739028648e-9
+      }
+    ]
+  },
+  {
+    "competition": "mens",
+    "year": 2019,
+    "sources": [
+      "kenpom",
+      "torvik",
+      "fivethirtyeight",
+      "average",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016,
+      2017,
+      2018
+    ],
+    "missingInputs": [],
+    "validationYears": [
+      2017
+    ],
+    "sourceFit": [
+      {
+        "id": "kenpom",
+        "maxError": 0.000990010296418764,
+        "meanError": 0.00005034317136719114,
+        "maxNodeResidual": 9.190450690526388e-9
+      },
+      {
+        "id": "torvik",
+        "maxError": 0.0016806389465504612,
+        "meanError": 0.000037874148691481095,
+        "maxNodeResidual": 0.00001608261840906843
+      },
+      {
+        "id": "fivethirtyeight",
+        "maxError": 3.2745339773043725e-10,
+        "meanError": 6.083471207720063e-11,
+        "maxNodeResidual": 8.212881985603104e-9
+      }
+    ]
+  },
+  {
+    "competition": "mens",
+    "year": 2021,
+    "sources": [
+      "kenpom",
+      "torvik",
+      "fivethirtyeight",
+      "average",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016,
+      2017,
+      2018,
+      2019
+    ],
+    "missingInputs": [],
+    "validationYears": [
+      2017,
+      2019
+    ],
+    "sourceFit": [
+      {
+        "id": "kenpom",
+        "maxError": 0.0009830172535779669,
+        "meanError": 0.00005468138991460661,
+        "maxNodeResidual": 9.594039285243383e-9
+      },
+      {
+        "id": "torvik",
+        "maxError": 0.0009096216919615707,
+        "meanError": 0.00003576491166383523,
+        "maxNodeResidual": 0.0000065661658076787504
+      },
+      {
+        "id": "fivethirtyeight",
+        "maxError": 3.0357660829594124e-10,
+        "meanError": 5.788441396075737e-11,
+        "maxNodeResidual": 9.61295004708873e-9
+      }
+    ]
+  },
+  {
+    "competition": "mens",
+    "year": 2022,
+    "sources": [
+      "kenpom",
+      "torvik",
+      "fivethirtyeight",
+      "average",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2021
+    ],
+    "missingInputs": [],
+    "validationYears": [
+      2017,
+      2019,
+      2021
+    ],
+    "sourceFit": [
+      {
+        "id": "kenpom",
+        "maxError": 0.0008524748268918803,
+        "meanError": 0.00003535541398848113,
+        "maxNodeResidual": 8.351326408195803e-9
+      },
+      {
+        "id": "torvik",
+        "maxError": 0.00110439390672451,
+        "meanError": 0.000056735342166505624,
+        "maxNodeResidual": 0.000010190424570233336
+      },
+      {
+        "id": "fivethirtyeight",
+        "maxError": 2.4852053748247727e-10,
+        "meanError": 5.6308869175507864e-11,
+        "maxNodeResidual": 8.465168455096261e-9
+      }
+    ]
+  },
+  {
+    "competition": "mens",
+    "year": 2023,
+    "sources": [
+      "kenpom",
+      "torvik",
+      "fivethirtyeight",
+      "average",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2021,
+      2022
+    ],
+    "missingInputs": [],
+    "validationYears": [
+      2017,
+      2019,
+      2021,
+      2022
+    ],
+    "sourceFit": [
+      {
+        "id": "kenpom",
+        "maxError": 0.000975025219330683,
+        "meanError": 0.00003850498647936155,
+        "maxNodeResidual": 1.0911320493387117e-8
+      },
+      {
+        "id": "torvik",
+        "maxError": 0.0008962077025590487,
+        "meanError": 0.00003361356704023821,
+        "maxNodeResidual": 0.000007999900930470054
+      },
+      {
+        "id": "fivethirtyeight",
+        "maxError": 2.8461488721376327e-10,
+        "meanError": 5.606827556852974e-11,
+        "maxNodeResidual": 7.57479096114011e-9
+      }
+    ]
+  },
+  {
+    "competition": "mens",
+    "year": 2024,
+    "sources": [
+      "kenpom",
+      "torvik",
+      "average",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2021,
+      2022,
+      2023
+    ],
+    "missingInputs": [],
+    "validationYears": [
+      2017,
+      2019,
+      2021,
+      2022,
+      2023
+    ],
+    "sourceFit": [
+      {
+        "id": "kenpom",
+        "maxError": 0.0008108106421146344,
+        "meanError": 0.00004412994196595574,
+        "maxNodeResidual": 9.985663435019276e-9
+      },
+      {
+        "id": "torvik",
+        "maxError": 0.0011246966844254969,
+        "meanError": 0.00003784882900153244,
+        "maxNodeResidual": 0.00001372182602293881
+      }
+    ]
+  },
+  {
+    "competition": "mens",
+    "year": 2025,
+    "sources": [
+      "kenpom",
+      "torvik",
+      "numberfire",
+      "average"
+    ],
+    "trainingYears": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "missingInputs": [
+      "numberfire"
+    ],
+    "validationYears": [
+      2017,
+      2019,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "sourceFit": [
+      {
+        "id": "kenpom",
+        "maxError": 0.0008456096479475539,
+        "meanError": 0.00004623784538484961,
+        "maxNodeResidual": 1.3507742432263235e-8
+      },
+      {
+        "id": "torvik",
+        "maxError": 0.0009879722625884546,
+        "meanError": 0.000025437100308402295,
+        "maxNodeResidual": 0.00003306748380835223
+      },
+      {
+        "id": "numberfire",
+        "maxError": 0.0009880122821313009,
+        "meanError": 0.00003686276102812773,
+        "maxNodeResidual": 0.000014606466129206118
+      }
+    ]
+  },
+  {
+    "competition": "mens",
+    "year": 2026,
+    "sources": [
+      "kenpom",
+      "torvik",
+      "average",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "missingInputs": [],
+    "validationYears": [
+      2017,
+      2019,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "sourceFit": [
+      {
+        "id": "kenpom",
+        "maxError": 2.7158552656458784e-9,
+        "meanError": 1.931801670540841e-10,
+        "maxNodeResidual": 8.120296879354783e-9
+      },
+      {
+        "id": "torvik",
+        "maxError": 0.0009840162590785129,
+        "meanError": 0.00003382077442216177,
+        "maxNodeResidual": 0.0000160903723240291
+      }
+    ]
+  },
+  {
+    "competition": "womens",
+    "year": 2016,
+    "sources": [
+      "fivethirtyeight"
+    ],
+    "trainingYears": [],
+    "missingInputs": [
+      "fivethirtyeight"
+    ],
+    "validationYears": [],
+    "sourceFit": [
+      {
+        "id": "fivethirtyeight",
+        "maxError": 1.0233034974937993e-8,
+        "meanError": 4.2426554686415256e-10,
+        "maxNodeResidual": 9.692018632101451e-9
+      }
+    ]
+  },
+  {
+    "competition": "womens",
+    "year": 2017,
+    "sources": [
+      "fivethirtyeight",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016
+    ],
+    "missingInputs": [],
+    "validationYears": [],
+    "sourceFit": [
+      {
+        "id": "fivethirtyeight",
+        "maxError": 7.321514505775895e-10,
+        "meanError": 9.605634312607284e-11,
+        "maxNodeResidual": 9.75836644823147e-9
+      }
+    ]
+  },
+  {
+    "competition": "womens",
+    "year": 2018,
+    "sources": [
+      "fivethirtyeight",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016,
+      2017
+    ],
+    "missingInputs": [],
+    "validationYears": [
+      2017
+    ],
+    "sourceFit": [
+      {
+        "id": "fivethirtyeight",
+        "maxError": 6.26021456895387e-10,
+        "meanError": 9.343394595875823e-11,
+        "maxNodeResidual": 9.942696693743258e-9
+      }
+    ]
+  },
+  {
+    "competition": "womens",
+    "year": 2019,
+    "sources": [
+      "fivethirtyeight",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016,
+      2017,
+      2018
+    ],
+    "missingInputs": [],
+    "validationYears": [
+      2017,
+      2018
+    ],
+    "sourceFit": [
+      {
+        "id": "fivethirtyeight",
+        "maxError": 6.086581239017619e-10,
+        "meanError": 9.259105667785462e-11,
+        "maxNodeResidual": 9.106599418995387e-9
+      }
+    ]
+  },
+  {
+    "competition": "womens",
+    "year": 2021,
+    "sources": [
+      "fivethirtyeight",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016,
+      2017,
+      2018,
+      2019
+    ],
+    "missingInputs": [],
+    "validationYears": [
+      2017,
+      2018,
+      2019
+    ],
+    "sourceFit": [
+      {
+        "id": "fivethirtyeight",
+        "maxError": 6.826015308547539e-10,
+        "meanError": 9.004791873864569e-11,
+        "maxNodeResidual": 8.1330702172977e-9
+      }
+    ]
+  },
+  {
+    "competition": "womens",
+    "year": 2022,
+    "sources": [
+      "fivethirtyeight",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2021
+    ],
+    "missingInputs": [],
+    "validationYears": [
+      2017,
+      2018,
+      2019,
+      2021
+    ],
+    "sourceFit": [
+      {
+        "id": "fivethirtyeight",
+        "maxError": 6.332342428194693e-10,
+        "meanError": 8.247146733202678e-11,
+        "maxNodeResidual": 9.715391553755115e-9
+      }
+    ]
+  },
+  {
+    "competition": "womens",
+    "year": 2023,
+    "sources": [
+      "fivethirtyeight",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2021,
+      2022
+    ],
+    "missingInputs": [],
+    "validationYears": [
+      2017,
+      2018,
+      2019,
+      2021,
+      2022
+    ],
+    "sourceFit": [
+      {
+        "id": "fivethirtyeight",
+        "maxError": 5.334006569768235e-10,
+        "meanError": 9.547385035958531e-11,
+        "maxNodeResidual": 8.425277919776875e-9
+      }
+    ]
+  },
+  {
+    "competition": "womens",
+    "year": 2024,
+    "sources": [
+      "silver"
+    ],
+    "trainingYears": [],
+    "missingInputs": [
+      "silver"
+    ],
+    "validationYears": [],
+    "sourceFit": [
+      {
+        "id": "silver",
+        "maxError": 0.0035851671645686922,
+        "meanError": 0.00005474883633385177,
+        "maxNodeResidual": 0.000010929034621687261
+      }
+    ]
+  },
+  {
+    "competition": "womens",
+    "year": 2025,
+    "sources": [
+      "torvik"
+    ],
+    "trainingYears": [],
+    "missingInputs": [
+      "torvik"
+    ],
+    "validationYears": [],
+    "sourceFit": [
+      {
+        "id": "torvik",
+        "maxError": 0.0017654203579211547,
+        "meanError": 0.00002974075948808517,
+        "maxNodeResidual": 0.00008978239533352639
+      }
+    ]
+  },
+  {
+    "competition": "womens",
+    "year": 2026,
+    "sources": [
+      "torvik",
+      "ensemble"
+    ],
+    "trainingYears": [
+      2025
+    ],
+    "missingInputs": [],
+    "validationYears": [],
+    "sourceFit": [
+      {
+        "id": "torvik",
+        "maxError": 0.0014110828037595669,
+        "meanError": 0.00003609273433907558,
+        "maxNodeResidual": 0.00022281607970175976
+      }
+    ]
+  }
+]
