@@ -1,5 +1,17 @@
 # Evaluation
 
+## Complete fidelity checklist — October 9, 2026
+
+Evaluated source: `7ffc82d2df7e702bd3c3bf367c39e2537636e2f5`. The user’s 21-item checklist supersedes the prior bounded one-season geometry acceptance. The [independent checklist review](review/checklist-review.md) gives all 21 corrections a bounded pass, with no unresolved blocking findings. It covers every year, four desktop widths, initial/late/Results states, 375px phone output, pointer movement over empty space, keyboard navigation, pin/clear, animation and replay. Its 112-state matrix contains 11,168 named-strip measurements with zero clipping.
+
+The clean checkpoint passed **80/80 Node and browser checks** and a production build, producing `main-DQGqCqRq.js` and `style-BQIAlD77.css`. The existing ECharts chunk-size warning remains (533.39 KB minified, 182.22 KB gzip). No dependencies or publishing workflow changed. An independent whole-file comparison against `6f98ed0` confirms that every existing data field is identical after excluding only new display labels and explanatory forecast prose: probabilities, ratings, dates, scores and outcomes are preserved. All generated labels can be reproduced from retained source inputs.
+
+The reviewer directly observed incomplete route growth and shrinkage, 526ms between replay transitions including observation overhead, no hover route during playback, correct Results identity and per-slot losses, canonical bold labels, and a grey unavailable final-date tick. At 1280px the first bracket strip is y391.6; at 375px the first probability row is y503 with title odds second and no page overflow. The minimum measured text contrast among 476 probability cells is 4.7946:1. The coordinator separately confirmed late Houston has no completed-round bands, Results says Eliminated in Sweet 16, a fresh year clears the pin, and all 80 browser cases pass without console errors.
+
+Failed correction rounds are retained: the initial candidate still had a tall control stack, later-year Results incorrectly carried a reconstruction badge, no-pin browser restoration could try to render a missing chart, and First Four pressed states needed centralized clearing. These were corrected before the final checkpoint. A separate simplification pass removed duplicate date controls, hidden unused status nodes, one-year UI abbreviation maps and redundant selection parameters.
+
+Reduced-motion handling is source-reviewed; the actual preference was not emulated or changed. Screen-reader speech, physical touch, novice usability, other browser engines and predictive calibration remain unverified. No OS accessibility settings changed. Publication results are recorded separately in DEPLOYMENT.md.
+
 ## Original geometry correction — October 9, 2026
 
 Current tested source: `40c6a1e0b2036c7b7e02fc60a279f4954f1abdac`. The user rejected the prior card layout despite its earlier bounded review. The new [independent original-geometry review](review/original-geometry-review.md) measures the actual reference, retains two failed correction rounds, and passes the final desktop candidate.
