@@ -24,6 +24,6 @@ npm run build
 npm run preview -- --port 9742
 ```
 
-The preview binds loopback and serves `http://127.0.0.1:9742/bab-example-madness/`. Production output and desktop rendering were observed on this configured Mac. The browser reported actual viewport widths of 1439 and 727 pixels during review; the host’s zoom behavior meant a nominal phone-sized override did not establish a 320–375-pixel phone check. Phone rendering remains unverified. See EVALUATION.md for final browser coverage, tested commit, and process shutdown status rather than assuming the servers remain running.
+The preview binds loopback and serves `http://127.0.0.1:9742/bab-example-madness/`. Production output and desktop rendering were observed on this configured Mac. Local review measured 1439 and 727 CSS pixels. A later foreground live-site check established a genuine 375 × 900 CSS-pixel viewport, with no body overflow, a default table, keyboard horizontal scrolling, and team-to-region navigation. This is desktop browser emulation, not a physical phone/touch test. See EVALUATION.md for final browser coverage, tested commit, and process shutdown status rather than assuming the servers remain running.
 
 The application makes no external runtime requests for its data or fonts. Downloading original datasets is a separate maintainer activity described in `data-preparation/README.md`; those optional Python utilities are not a student or visitor prerequisite. No clean-machine macOS, Windows, or novice-user setup claim is made.

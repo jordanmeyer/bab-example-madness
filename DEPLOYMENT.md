@@ -31,3 +31,9 @@ The main JavaScript asset is `main-CeFH68Bc.js`; the deployment adds no visitor-
 Edit locally, review model/scope changes against PLAN.md, run affected browser/model checks, create a clean source checkpoint, and update EVALUATION.md. Check tracked and untracked relevant paths before pushing ordinary commits to main. Wait for the matching Actions run and inspect the live known answers and source link. Vite module assets carry content-based filenames; changed files copied verbatim from `app/public/` require deliberate versioning and returning-browser verification.
 
 Local source is retained at `/Users/jordan/Projects/bab-example-madness`. Setup commands are documented in SETUP.md. Human accessibility, phone touch, novice usability, and predictive-model calibration limits remain in EVALUATION.md.
+
+## Documentation follow-up and final display check
+
+Report-only commit `659f9d18778b5ec5f76bbf032f1ae5bd422246eb` passed https://github.com/jordanmeyer/bab-example-madness/actions/runs/38014017853. A returning browser loaded `main-CeFH68Bc.js`, rendered Houston’s 22.085% initial forecast, and logged no errors/warnings. Relevant source did not change.
+
+A foreground live browser was then measured at 375 × 900 CSS pixels. The table is the initial view, the body has no horizontal overflow, arrow keys scroll the table within its container, and choosing Duke displays the East regional bracket. Screenshot evidence is retained in the course gallery record. This verifies responsive browser layout, not physical touch or screen-reader behavior.

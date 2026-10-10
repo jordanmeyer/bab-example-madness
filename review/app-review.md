@@ -43,3 +43,13 @@ The developer also exposed the source metadata's rating methodology and source-d
 
 - Replace the temporary general course evidence source URL with the actual example repository/build-record destination before publication. The current generic URL does not yet identify this app's source.
 - No source/model blockers remain after the corrections above. Actual screen-reader testing and novice usability are not claimed. The independent data/model reports are `/private/tmp/bab-madness-data-review.md` and `/private/tmp/bab-madness-derived-review.md`.
+
+## Final published-source delta review
+
+Reviewed `/Users/jordan/Projects/bab-example-madness` after publication, bounded to the final formatting, region-picker, and two-page build changes. **Pass; no concrete bug found.**
+
+- Directly evaluated percentage endpoints and both threshold boundaries. Zero remains `0%`, one remains `100%`, positive sub-threshold values remain `<0.001%`, and near-certainty remains `>99.999%`; exact boundary values render `0.001%` and `99.999%`. Ordinary values keep three-decimal maximum precision. The chart tooltip converts its percentage values back to probabilities before using the same formatter.
+- An explicit narrow-screen team-picker change updates the regional selector and active panel in place, then selects the team. Hover/focus decoration does not invoke that regional change or rebuild the focused controls.
+- Vite includes both `index.html` and `build-story.html`. The inspected generated HTML has repository-path CSS/JS references, relative navigation between both pages, local notices, and the actual `jordanmeyer/bab-example-madness` source links. The published checkout correctly excludes generated `dist/`; the build output inspected was retained in the trial folder.
+- The tested executable paths have no changes from checkpoint `2f44204` through published-record commit `659f9d1`. Final rendered verification and 72/72 browser results were performed by the coordinator; this delta pass is independent source review plus direct formatter boundary checks.
+- The data-preparation documentation now states its working directory and no longer claims a missing normalized-inventory report.

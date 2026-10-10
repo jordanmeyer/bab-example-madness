@@ -34,10 +34,10 @@ Environment: Node 22.19.0, npm 10.9.3, Vite 8.3.4, ECharts 6.1.0, Codex in-app C
 - 2021 VCU shows “did not advance”; Oregon shows “advanced by rule.” Both no-contest rows have “No score.” Oregon's played games remain separate.
 - 2026 Michigan shows a 17.762% initial title chance; Results shows its 69–63 title win over UConn on April 6 (Eastern Time).
 - Team selection updates regional and central routes. At narrow width it navigates to the selected team's region. Keyboard Enter sorts by seed and full numeric title probability while retaining header focus. Tiny positive source values announce `<0.001%`, distinct from zero.
-- Desktop CSS width 1439 and narrow CSS width 727 were observed without body overflow. Narrow defaults to the sortable table and offers one regional bracket at a time. The browser's existing 33% zoom and minimum viewport prevented a genuine 375 CSS-pixel trial; phone layout/touch is not claimed.
+- Desktop CSS width 1439 and narrow CSS width 727 were observed without body overflow. Narrow defaults to the sortable table and offers one regional bracket at a time. That local attempt did not establish phone width. A later live-site foreground check measured 375 × 900 CSS pixels, body scroll width 375, default table display, keyboard horizontal scrolling within the table, and Duke selection navigating to the East regional bracket. Physical phone/touch behavior is not claimed.
 - The local build-story page opens and browser Back returns a rendered chart with replay stopped. This browser loaded a fresh document; preservation of state through its actual back-forward cache was not exercised. The persisted-page handler was source-reviewed only.
 - Observed asset inventory included only same-origin script, CSS, three fonts, index, and selected-year JSON. Source review found no external runtime requests. This bounded observation is not proof that arbitrary JavaScript cannot transmit information.
 
 ## Limits
 
-Actual screen-reader speech, novice usability, phone touch behavior, clean-machine installation, Windows, and model predictive accuracy remain unverified. Live Pages results are recorded separately in DEPLOYMENT.md after the exact pushed revision is verified.
+Actual screen-reader speech, novice usability, phone touch behavior, clean-machine installation, Windows, and model predictive accuracy remain unverified. Live Pages results are recorded separately in DEPLOYMENT.md. The final bounded independent delta review also passed the precision, narrow-region, and two-page publication changes.
