@@ -153,6 +153,7 @@ th:first-child, td:first-child { text-align: left; }
 .about { margin: 3rem 0; }
 .about p { font-size: .82rem; color: var(--duke-graphite); }
 details { border-top: 1px solid var(--line); padding: .85rem 0; }
+.about > details + details { border-top: 0; }
 summary { cursor: pointer; color: var(--duke-navy-blue); font-weight: 600; font-size: .83rem; }
 details p:first-of-type { margin-top: 1rem; }
 #source-list { font-size: .77rem; }
