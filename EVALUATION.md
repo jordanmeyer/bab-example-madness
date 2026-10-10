@@ -117,3 +117,9 @@ Actual screen-reader speech, novice usability, phone touch behavior, clean-machi
 ## Final-day timeline correction — 2026-10-10
 
 Evaluated source: `b2685ee89f20dba8a3214eccc06ddadf9f57ed23`. The calendar includes half a day beyond each endpoint; ticks, full-day shading, labels and click snapping share that range. Browser design regression: 110/110 (including 28 new geometry/click checks across all seven archived timelines); data/model checks: 80/80. Production build passed with the existing large-chunk warning. Desktop production preview at 1194 × 890 visibly centers Final beneath Apr 3. A narrow preview retained the full final band; the browser sizing override reported 341 CSS pixels rather than the requested 375, so the existing harness provides the exact 375px overflow check. No data, calculation, dependency, CSS or route-rendering changes.
+
+## Unboxed team hover and attached routes — 2026-10-10
+
+Evaluated source: `39e9069495f50854dbb33a611ed319b65c5a220f`. Removed the yellow selected fill, generic button hover shadow, and team-label bottom border. A short navy connector runs from the rendered text edge to the first uncertain route segment, including late forecasts and First Four labels. Keyboard-only focus uses a text underline or a dot for empty slots. Whole-canvas nearest-slot preview is retained.
+
+Observed native pointer transitions over Alabama and Maryland have transparent backgrounds, no shadow and no border. Route rendering: 22/22, including five name-to-route attachments, late-round origin, clearing, interrupted animations and rasterized corners. Design regression: 110/110; model/data: 80/80. Production build passed (existing bundle-size warning). Final keyboard-dot CSS was checked in production preview after rebuilding; it changes no route geometry. No data, model, dependencies or publication configuration changed.
