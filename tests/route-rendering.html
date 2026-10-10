@@ -67,6 +67,16 @@ try{
       if(time===1000)assert(visible,'Settled junction is hidden.');
     }
   });
+  for(const id of ['333','2305','161'])await check(`Team ${id}: one continuous drawing front from name to title`,async()=>{
+    select('');select(id);
+    for(let time=0;time<=1000;time+=25){
+      await freeze(time);const ordered=paths().sort((a,b)=>Number(a.dataset.stage)-Number(b.dataset.stage));
+      for(let i=1;i<ordered.length;i++){
+        const incoming=Number.parseFloat(style(ordered[i-1]).strokeDashoffset)||0,outgoing=Number.parseFloat(style(ordered[i]).strokeDashoffset)||0;
+        assert(outgoing>=.999||incoming<=.001,`At ${time} ms, stage ${ordered[i].dataset.stage} starts before its incoming path reaches the junction (${incoming.toFixed(3)} remaining).`);
+      }
+    }
+  });
   for(const [id,name] of [['333','Alabama'],['120','Maryland'],['2305','Kansas'],['12','Arizona'],['248','Houston'],['161','Fairleigh Dickinson']])await check(`${name}: rasterized settled corners stay within the next band, without notches (including title)`,async()=>{
     if(doc.querySelector('#team-select').value!==id)select(id);await finish();
     assert(joins().length===5,'Expected five uncertain-stage junctions.');
@@ -123,7 +133,8 @@ try{
     await finish();assert(old.every(node=>!node.isConnected),'Retired junction or path remains after completion.');
   });
   await check('Late forecast connector starts beside the resolved advancing team',async()=>{
-    const slider=doc.querySelector('#snapshot');slider.dispatchEvent(new win.KeyboardEvent('keydown',{key:'End',bubbles:true}));select('41');await finish();
+    const slider=doc.querySelector('#snapshot');slider.dispatchEvent(new win.KeyboardEvent('keydown',{key:'End',bubbles:true}));select('41');await freeze(50);
+    assert(width(paths()[0])>0&&(Number.parseFloat(style(paths()[0]).strokeDashoffset)||0)<1,'Late route waits for rounds already completed.');await finish();
     const first=paths()[0];assert(first,'Late forecast stroke missing.');
     const node=doc.querySelector(`.team-node.selected[data-round="${Number(first.dataset.stage)-1}"]`),name=node.querySelector('.node-name').getBoundingClientRect(),tree=doc.querySelector('.bracket-tree').getBoundingClientRect(),point=first.getPointAtLength(0);
     assert(Math.abs(point.y+tree.top-(name.top+name.bottom)/2)<.1,'Late route is not centered on the advancing team.');

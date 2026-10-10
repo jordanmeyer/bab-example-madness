@@ -233,7 +233,6 @@ function decorateRoute(id, round) {
       else animateRoute(element,true);
     });
     routeGroup.insertAdjacentHTML('beforeend',routes.join(''));
-    if(!reducedMotion.matches) routeGroup.querySelectorAll(':scope > :not(.retiring)').forEach(element=>animateRoute(element,false));
     $('.route-probabilities').innerHTML=labels.join('');
     const champion = !team && mode==='results' ? data.teams.find(item=>currentP(item.id)[6]===1) : null;
     const final = data.games.find(game=>game.round===6);
@@ -262,13 +261,23 @@ function decorateRoute(id, round) {
       const turns=firstLine.dataset.originalPath.slice(firstLine.dataset.originalPath.indexOf(' V '));
       path.setAttribute('d',`M ${x} ${firstLine.dataset.startY} H ${firstLine.dataset.startX}${turns}`);
     }
+    if(!reducedMotion.matches) {
+      const paths=[...routeGroup.querySelectorAll('path:not(.retiring)')].sort((a,b)=>Number(a.dataset.stage)-Number(b.dataset.stage));
+      const length=paths.reduce((sum,path)=>sum+path.getTotalLength(),0), timing=new Map();
+      let delay=0;
+      for(const path of paths) {
+        const duration=900*path.getTotalLength()/length;
+        timing.set(Number(path.dataset.stage),{duration,delay});
+        delay+=duration;
+      }
+      const startTime=document.timeline.currentTime;
+      routeGroup.querySelectorAll(':scope > :not(.retiring)').forEach(element=>animateRoute(element,false,timing,startTime));
+    }
   }
   $('.route-probabilities').querySelectorAll('text').forEach(label=>label.classList.toggle('selected-percentage',Number(label.dataset.stage)===round));
 }
 
-const routeTiming = stage => ({duration:50+stage*100,delay:(stage-1)*45});
-
-function animateRoute(element, retiring) {
+function animateRoute(element, retiring, timing, startTime) {
   const stage=Number(element.dataset.stage), line=element.tagName==='path';
   const properties=line?{strokeWidth:stage}:{rx:stage,ry:stage-1};
   const computed=getComputedStyle(element);
@@ -285,12 +294,14 @@ function animateRoute(element, retiring) {
       Object.assign(from,retiring?dash:{strokeDasharray:'1',strokeDashoffset:1});
       Object.assign(to,retiring?dash:{strokeDasharray:'1',strokeDashoffset:0});
     }
-    return element.animate([from,to],retiring?{duration:routeTiming(round).duration,fill:'forwards'}:{...routeTiming(round),fill:'backwards'});
+    const animation=element.animate([from,to],retiring?{duration:50+round*100,fill:'forwards'}:{...timing.get(round),fill:'backwards'});
+    if(!retiring) animation.startTime=startTime;
+    return animation;
   });
   if(!line && !retiring) {
-    const incoming=routeTiming(stage-1);
+    const incoming=timing.get(stage-1);
     // Wait for the incoming dash to reach the seam; no detached corner during drawing.
-    element.animate([{visibility:'hidden'},{visibility:'hidden'}],{duration:incoming.delay+incoming.duration});
+    element.animate([{visibility:'hidden'},{visibility:'hidden'}],{duration:incoming.delay+incoming.duration}).startTime=startTime;
   }
   if(retiring) Promise.all(animations.map(animation=>animation.finished)).then(()=>element.remove()).catch(()=>{});
 }
