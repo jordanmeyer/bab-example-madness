@@ -5,6 +5,8 @@ export function probabilityLabel(p) {
   if (p == null || !Number.isFinite(p)) return '—';
   if (p === 0) return '—';
   if (p === 1) return '✓';
+  if (p < .0001) return '<0.01%';
+  if (p < .001) return '<0.1%';
   if (p < .01) return '<1%';
   if (p > .99) return '>99%';
   return `${Math.round(p * 100)}%`;

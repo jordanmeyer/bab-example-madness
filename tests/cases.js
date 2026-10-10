@@ -76,6 +76,11 @@ export async function runChecks(load, model = {}) {
     assert(t?.seed === 16 && t.region === 'East' && t.bracketSlot === 1, 'LIU correction mismatch');
   });
   if (model.probabilityLabel) {
+    check('Small probability labels use strict percentage thresholds without changing zero or certainty', () => {
+      for (const [value, label] of [[0, '—'], [0.0000001, '<0.01%'], [0.000099999, '<0.01%'], [0.0001, '<0.1%'], [0.000999999, '<0.1%'], [0.001, '<1%'], [0.009999999, '<1%'], [0.01, '1%'], [1, '✓']]) {
+        assert(model.probabilityLabel(value) === label, `${value * 100}% should display ${label}`);
+      }
+    });
     check('Formatting never turns uncertain values into certainty or elimination', () => {
       assert(model.probabilityLabel(0.00001) !== model.probabilityLabel(0), 'Small probability hidden');
       assert(model.probabilityLabel(0.99999) !== model.probabilityLabel(1), 'Uncertain value appears certain');

@@ -73,6 +73,7 @@ main { max-width: 1024px; margin: auto; padding: 0 10px; }
 .connector.route { stroke: var(--duke-navy-blue); stroke-linejoin: round; stroke-linecap: butt; }
 .route-join { fill: var(--duke-navy-blue); }
 .route-probabilities { fill: var(--duke-navy-blue); font: 600 13px var(--duke-font-body); font-variant-numeric: lining-nums tabular-nums; }
+.title-probability.long-probability { font-size: 2.7rem; }
 .route-probabilities text { paint-order: stroke; stroke: white; stroke-width: 4px; stroke-linejoin: round; }
 .route-probabilities .selected-percentage { font-size: 15px; font-weight: 600; }
 .region-name { position: absolute; left: 6px; font-family: var(--duke-font-body); font-size: .85rem; line-height: 1.4; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; margin: 0; }
@@ -224,3 +225,4 @@ footer p { margin: 0; max-width: 65ch; }
 .story .intro { padding-block: 1.5rem; }
 .story-body { border-top: 3px solid var(--duke-navy-blue); padding-top: 1.8rem; }
 .masthead > .wordmark { font-size: 2rem; }
+
