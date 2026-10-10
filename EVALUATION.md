@@ -1,5 +1,13 @@
 # Evaluation
 
+## Width-matched corner geometry — October 9, 2026
+
+Evaluated source: `58d7cdd5b1baffacf2312fc261b2f680c0fca20b`. This replaces the rejected round-cap workaround below. Flat path ends meet an ellipse whose radii match the two adjacent stroke widths; the curve cannot protrude beyond the narrower vertical band. The join waits for the incoming drawn path and follows both widths during growth and retirement. Interrupted paths preserve their current dash positions and widths.
+
+`tests/route-rendering.html`, served by `npm run test:browser -- --port 9741` at `http://localhost:9741/tests/route-rendering.html`, passed **16/16 rendered checks** against the actual application iframe. Thirty seams across Alabama, Maryland, Kansas, Arizona, Houston and Fairleigh Dickinson were rasterized at 16 pixels per SVG unit and checked for overhangs and missing corner fill. A negative control restores the rejected round caps and detects their overhang. Six frozen animation checkpoints, interruption, shrinking visible joins and clearing passed. The rendered Alabama SVG was inspected at four times its actual size. See the [bounded independent review](review/corner-geometry-review.md).
+
+The unchanged numerical suite passed **80/80**. The production build passed with `main-Dl6dz9Jv.js` and `style-DH0Cp_SR.css`; its 22 output files contain no tests, review records or development dependencies. The existing bundle-size warning remains. Production preview was inspected separately, including an unpinned pointer preview, with no captured errors/warnings. The iframe test tab's tool log contained three MutationObserver errors without source locations; no MutationObserver usage exists in the app, tests, ECharts, zrender or Vite client source. Their origin is unconfirmed; all visible test assertions completed. This does not establish universal browser compatibility, human accessibility or model calibration.
+
 ## Rejected round-cap workaround — October 9, 2026
 
 **Rejected after publication.** The user’s enlarged screenshot demonstrated protruding caps at unequal-width connections. The earlier visual acceptance below was incorrect.
