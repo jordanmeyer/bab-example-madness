@@ -31,7 +31,7 @@ try {
    check(`${gender} ${year}: ${values} displayed probabilities match published snapshots`,true);
    check(`${gender} ${year}: published label`, $('#coverage-note').textContent.includes('Published historical forecasts')&&!$('#about-coverage').textContent.includes('selected timeline recomputes'));
    const other=[...$('#source').options].find(o=>o.value!=='fivethirtyeight');
-   if(other){choose('#source',other.value);check(`${gender} ${year}: other source is reconstructed`,$('#coverage-note').textContent.includes('Reconstructed opening odds'));choose('#source','fivethirtyeight');check(`${gender} ${year}: archive survives switching`,Number($('#snapshot').getAttribute('aria-valuemax'))===data.forecasts.length-1&&$('#coverage-note').textContent.includes('Published historical'));}
+   if(other){choose('#source',other.value);check(`${gender} ${year}: other source is reconstructed`,$('#coverage-note').textContent.includes('Based on pre-tournament forecasts; recalculated after completed games.'));choose('#source','fivethirtyeight');check(`${gender} ${year}: archive survives switching`,Number($('#snapshot').getAttribute('aria-valuemax'))===data.forecasts.length-1&&$('#coverage-note').textContent.includes('Published historical'));}
    $('#results-mode').click();check(`${gender} ${year}: results remain available`,$('#results-heading').textContent.includes(`${year} champion`));
   }
  }

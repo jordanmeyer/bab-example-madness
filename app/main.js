@@ -123,7 +123,7 @@ function render() {
   if (data.forecasts.length === 1) $('#single-snapshot').textContent = `${dateLabel(data.forecasts[0].date, true)} · ${provider()}`;
   $('#results-heading').hidden = mode !== 'results';
   $('#coverage-note').hidden = data.forecasts.length > 0 && mode !== 'forecast';
-  $('#coverage-note').textContent = data.forecasts.length ? `${provider()} · ${reconstructed() ? 'Reconstructed opening odds, updated for completed games.' : 'Published historical forecasts.'}` : 'Results only · No verified pre-tournament forecast is bundled for this year.';
+  $('#coverage-note').textContent = data.forecasts.length ? `${provider()} · ${reconstructed() ? 'Based on pre-tournament forecasts; recalculated after completed games.' : 'Published historical forecasts.'}` : 'Results only · No verified pre-tournament forecast is bundled for this year.';
   if (mode === 'forecast') {
     const status = snapshotStatus(data, snapshotIndex);
     $('#snapshot-title').textContent = snapshotName();
