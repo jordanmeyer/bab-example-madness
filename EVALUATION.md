@@ -1,8 +1,20 @@
 # Evaluation
 
-## Comparison correction — October 9, 2026
+## Original geometry correction — October 9, 2026
 
-Current tested source: `34bd4335e7c8297b5534e3ce2fa35b41db05a5d0`. An independent reviewer compared the archived original with the live recreation and required six UI corrections. The [retained review](review/fidelity-review.md) preserves the failures and two follow-up correction rounds, ending in a bounded PASS. The final re-review combines corrected source, independently inspected captures and explicitly attributed coordinator interaction measurements; the reviewer's browser became unavailable during follow-up.
+Current tested source: `40c6a1e0b2036c7b7e02fc60a279f4954f1abdac`. The user rejected the prior card layout despite its earlier bounded review. The new [independent original-geometry review](review/original-geometry-review.md) measures the actual reference, retains two failed correction rounds, and passes the final desktop candidate.
+
+One continuous bilateral tree replaces separate region/card layouts. Final Four branches sit at regional centers and converge into championship entrants at the vertical midpoint. Names appear initially only at outer terminals, then on compact settled-entrant strips as replay advances. Hover/focus probabilities sit outside the horizontal bands. Width is `0.5 + 15 * sqrt(p)`, matching the original's observed scale; inactive underlays are removed from active shared segments so tiny probabilities remain thin. Exact probabilities and full names remain available through labels, titles, table and detail. Undecided slot targets remain the most likely entrants regardless of the previewed team.
+
+The clean checkpoint passed **74/74 Node and browser checks**, and the production build generated `main-CGWQTFsc.js` / `style-DnBVnImn.css`. The existing bundle warning remains (530.38 KB minified,181.32 KB gzip). No data, model functions, dependencies or workflow changed. Relevant source was clean before and after the checks.
+
+Independent browser comparison at 1280px verified original geometry, upper-left Alabama/lower-right Houston routes, tiny Texas Southern probabilities, blank initial internal slots, compact April 1 settled labels, and keyboard preview/restore. The reviewer caught and rechecked an incorrect preview-dependent most-likely target and clipped names. Coordinator separately verified Results: selecting eliminated Texas Southern retains Fairleigh Dickinson's Round-of-64 berth and produces no active future route. At 375 × 900, default table/body widths were343/375, the complete bracket scrolled within its343px container, ArrowRight moved40px, and selecting Houston revealed its terminal atx225–350. Narrow Bracket now shows one horizontally scrollable full tree; Table remains the compact default. No application console errors/warnings were observed.
+
+This bounded review establishes the exercised visual/interaction corrections; it does not certify every name/year layout, screen-reader speech, physical touch or novice usability. Publication is recorded separately below and in DEPLOYMENT.md. Earlier rounds remain preserved as historical evidence, not as the current visual acceptance.
+
+## Previous comparison correction — October 9, 2026
+
+Previously tested source: `34bd4335e7c8297b5534e3ce2fa35b41db05a5d0`. An independent reviewer compared the archived original with the live recreation and required six UI corrections. The [retained review](review/fidelity-review.md) preserves the failures and two follow-up correction rounds, ending in a bounded PASS. The final re-review combines corrected source, independently inspected captures and explicitly attributed coordinator interaction measurements; the reviewer's browser became unavailable during follow-up.
 
 Hover and keyboard focus now preview the same team through the complete bracket and title probability. Explicit selection pins the detail panel. Selected finalist hover remains white on navy (14.76:1). Final-round paths connect around the title card; a North Carolina–Asheville regression confirms resized cards and connector endpoints agree exactly. The first desktop team row moved from about 699 to 486 CSS pixels. The replay offers genuine dated choices positioned by elapsed days, and multi-point history uses UTC calendar spacing. One-point history has one date label.
 

@@ -15,3 +15,7 @@ Decisions recorded on October 9, 2026.
 - Prepare the candidate Pages repository path locally, without creating or publishing a repository before destination authorization. Keep full project reports and data-preparation utilities out of website output.
 
 2026-10-09: The user authorized the public repository `jordanmeyer/bab-example-madness`, GitHub Pages, and a plugin gallery listing. The source and approved Git attribution will be public.
+
+## Restore the original bracket geometry
+
+The user rejected connected central cards. One shared coordinate tree now owns all round positions, replacing the cards, dynamic connector measurements and separate mobile regional layout. Compact labels, external probabilities and tapered widths follow observed original conventions. The table remains the narrow default; the full tree scrolls horizontally.
