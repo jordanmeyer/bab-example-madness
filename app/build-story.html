@@ -11,9 +11,9 @@
 <body>
   <a class="skip-link" href="#story">Skip to the build story</a>
   <header class="masthead"><a class="wordmark" href="./">Tournament Atlas</a><a href="./">Explore the tournament</a></header>
-  <main id="story" style="max-width:860px;padding-bottom:3rem">
+  <main id="story" class="story">
     <section class="intro"><div><p class="eyebrow">How this was built</p><h1>A bracket, with its uncertainty intact.</h1><p class="dek">The planning choices and evidence behind this independent tournament explorer.</p></div></section>
-    <section style="border-top:3px solid var(--duke-navy-blue);padding-top:1.8rem">
+    <section class="story-body">
       <h2>The request</h2>
       <p>Recreate <a href="https://web.archive.org/web/20240411121651/https://projects.fivethirtyeight.com/madness-2015/index.html#mens">FiveThirtyEight’s 2015 dashboard</a>, then add a selector for every year from 2016 onward. The user later requested another documented probability model for the years without FiveThirtyEight forecasts.</p>
       <p>This is a real request and development account, not a simulated student interview. The supplied reference selected men’s basketball; this app retains that scope.</p>
@@ -25,7 +25,7 @@
       <p>Browser App Builder provides the planning, build, evaluation, and deployment preparation. Campus Designer supplies local fonts and a consistent palette. Native HTML and SVG handle the bracket and sortable table; Apache ECharts draws the selected team’s forecast history, with a readable table equivalent.</p>
       <p>The app is a static Vite build with pinned dependencies. Visitor data, fonts, and scripts are served locally, without runtime APIs or telemetry.</p>
       <h2>What was checked</h2>
-      <p><strong>72 of 72 automated data and model checks passed</strong> on the configured Mac. Checks include original source probabilities, tournament topology, all seven round totals, First Four sharing, independently calculated model cases, and Oregon’s 2021 advancement over VCU without a played game.</p>
+      <p><strong>80 of 80 automated data and model checks passed</strong> on the configured Mac. Checks include original source probabilities, tournament topology, all seven round totals, First Four sharing, independently calculated model cases, and Oregon’s 2021 advancement over VCU without a played game.</p>
       <p>An independent source/model review identified six issues that were corrected: stale finalist labels, inconsistent accessible descriptions, VCU’s no-contest status, replay reset, First Four loser overlays, and chart restoration after browser Back. Browser review also prompted corrections to regional navigation and tiny-probability announcements. Numerical invariants and source review do not establish predictive accuracy, complete accessibility, or novice usability.</p>
       <h2>Follow the sources</h2>
       <ul>
@@ -41,6 +41,6 @@
       <p><a href="./">Return to Tournament Atlas</a></p>
     </section>
   </main>
-  <footer><span>Tournament Atlas</span><span>Independent educational recreation</span></footer>
+  <footer><p>Data: FiveThirtyEight, T-Rank &amp; recorded NCAA results. <a href="./DATA-NOTICES.txt">Credits &amp; licenses</a>.<br>Independent educational recreation. Not affiliated with FiveThirtyEight, the NCAA, or any university.</p></footer>
 </body>
 </html>

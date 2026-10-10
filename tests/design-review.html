@@ -1,0 +1,71 @@
+<!doctype html><meta charset="utf-8"><title>Tournament design regression</title>
+<style>body{font:14px system-ui;margin:20px}iframe{width:1313px;height:950px;border:1px solid #ccc}pre{white-space:pre-wrap}.fail{color:#a00}</style>
+<h1>Tournament design regression</h1><p id="status">Running…</p><pre id="results"></pre><iframe src="../app/index.html" title="Actual application"></iframe>
+<script type="module">
+import { narrowNames } from '../app/names.js';
+const frame=document.querySelector('iframe'), output=document.querySelector('#results');
+const results=[];let measurements=0;const missing={};
+const check=(name,pass,detail='')=>{results.push({name,pass,detail});output.textContent=JSON.stringify({results,measurements,missing},null,2);};
+const wait=async predicate=>{for(let n=0;n<500;n++){if(predicate())return;await new Promise(r=>setTimeout(r,20));}throw new Error('Timed out');};
+await wait(()=>frame.contentDocument.querySelector('.team-node'));
+const doc=frame.contentDocument,win=frame.contentWindow,$=s=>doc.querySelector(s);
+await doc.fonts.ready;
+const canvas=doc.createElement('canvas'),ctx=canvas.getContext('2d');ctx.font='600 12px "Open Sans"';
+const choose=async year=>{$('#year').value=year;$('#year').dispatchEvent(new Event('change',{bubbles:true}));await wait(()=>$('#explorer').getAttribute('aria-busy')==='false');};
+const labels=(year,state)=>{
+ const failures=[];
+ for(const node of doc.querySelectorAll('.team-node:not(.empty)')){
+  const span=node.querySelector('.node-name'),r=doc.createRange();r.selectNodeContents(span);const a=r.getBoundingClientRect(),b=node.getBoundingClientRect();measurements++;
+  if(a.left<b.left-.2||a.right>b.right+.2)failures.push({name:span.textContent,round:node.dataset.round,width:a.width,slot:b.width});
+ }
+ check(`${year} ${state}: visible team labels fit`,!failures.length,failures);
+};
+try{
+ for(const year of [2016,2017,2018,2019,2021,2022,2023,2024,2025,2026]){
+  await choose(year);$('#bracket-view').click();
+  const data=await(await fetch(`/data/${year}.json`)).json();
+  for(const team of data.teams){const name=team.bracketName,shown=ctx.measureText(name).width<=62?name:narrowNames[name]??name;if(ctx.measureText(shown).width>62)missing[name]=Math.round(ctx.measureText(shown).width);}
+  const names=data.teams.map(team=>ctx.measureText(team.bracketName).width<=62?team.bracketName:narrowNames[team.bracketName]??team.bracketName);
+  check(`${year}: narrow labels identify distinct teams`,new Set(names).size===names.length);
+  labels(year,'initial');
+  $('#snapshot').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));labels(year,'last');
+  $('#results-mode').click();labels(year,'results');
+  check(`${year}: championship score shown at rest`,/\d+–\d+/.test($('.title-probability').textContent));
+  check(`${year}: advanced Results slots have score or no-contest tooltip`,[...doc.querySelectorAll('.team-node:not([data-round="0"])')].every(n=>/(Won \d+–\d+|Advanced by rule)/.test(n.title)));
+ }
+ await choose(2016);$('#bracket-view').click();$('#team-select').value='161';$('#team-select').dispatchEvent(new Event('change',{bubbles:true}));
+ check('Rounded-zero active forecast never exposes a future loss',!$('.center-note').textContent.includes('Out')&&$('.big-probability').textContent==='<1%'&&$('.team-summary').textContent.includes('still in the tournament'));
+ await choose(2023);$('#bracket-view').click();
+ check('Ranked center clears championship slot',$('.title-forecast').getBoundingClientRect().bottom<$('.team-node[data-round="6"]').getBoundingClientRect().top);
+ check('Printed names sit above their route hairlines',[...doc.querySelectorAll('.team-node')].every(node=>node.offsetTop===Math.round(node.getBoundingClientRect().bottom-$('.bracket-tree').getBoundingClientRect().top)));
+ const tree=$('.bracket-tree'),bounds=tree.getBoundingClientRect();
+ tree.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:bounds.left+250,clientY:bounds.top+120}));
+ check('Blank canvas still previews nearest slot',$('#title-team').textContent==='Alabama'&&$('#clear-pin').hidden);
+ $('#bracket-panel').dispatchEvent(new PointerEvent('pointerleave'));
+ $('.team-node').focus();$('.team-node').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
+ check('Arrow navigation retains one bracket tab stop',doc.activeElement.dataset.round==='1'&&doc.querySelectorAll('.team-node[tabindex="0"]').length===1);
+ $('#team-select').focus();
+ check('Initial leaders match independent archived values', $('#title-leaders').textContent.startsWith('Houston22%Alabama16%Texas8%'));
+ $('#team-select').value='333';$('#team-select').dispatchEvent(new Event('change',{bubbles:true}));
+ check('Initial selected probability is rounded; no one-point chart',$('.big-probability').textContent==='16%'&&!$('#history-chart'));
+ check('Detail precedes First Four',Boolean($('#team-detail').compareDocumentPosition($('#first-four-panel'))&Node.DOCUMENT_POSITION_FOLLOWING));
+ $('#snapshot').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));
+ check('Eliminated center describes the loss without a giant zero',$('.center-note').textContent.includes('San Diego St.')&&$('.title-probability').textContent==='');
+ check('Multiple snapshots produce a chart',Boolean($('#history-chart svg')));
+ $('#clear-pin').click();$('#forecast-mode').click();$('#snapshot').dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true}));$('#table-view').click();
+ check('Rows stay compact',[...doc.querySelectorAll('.odds-table tbody tr')].every(row=>row.getBoundingClientRect().height<=33));
+ const palette=['rgb(255, 255, 255)','rgb(226, 230, 237)','rgb(5, 119, 177)','rgb(0, 85, 135)','rgb(1, 33, 105)'];
+ check('Probability cells use solid published colors',[...doc.querySelectorAll('.odds-table td[class^="odds-"]')].every(cell=>palette.includes(win.getComputedStyle(cell).backgroundColor)));
+ check('Reached stages are unfilled',[...doc.querySelectorAll('.odds-reached')].every(cell=>win.getComputedStyle(cell).backgroundColor==='rgb(255, 255, 255)'));
+ for(const year of [2024,2025,2026]){await choose(year);check(`${year}: single forecast replaces dead timeline`,$('#timeline').hidden&&!$('#single-snapshot').hidden);}
+ await choose(2020);check('Cancelled controls are neutral',[...doc.querySelectorAll('.button-group button')].every(b=>b.disabled&&win.getComputedStyle(b).backgroundColor==='rgb(243, 242, 241)'));
+ await choose(2023);frame.style.width='1024px';await wait(()=>win.innerWidth===1024);$('#bracket-view').click();
+ check('1024px explorer and bracket share both edges',Math.abs($('#explorer').getBoundingClientRect().left-$('.bracket-map').getBoundingClientRect().left)<1&&Math.abs($('#explorer').getBoundingClientRect().right-$('.bracket-map').getBoundingClientRect().right)<1);
+ $('#table-view').click();frame.style.width='375px';await wait(()=>win.innerWidth===375);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+ check('Phone page does not overflow horizontally',doc.documentElement.scrollWidth===375);
+ check('Phone table has no internal vertical scroll',$('.table-scroll').clientHeight===$('.table-scroll').scrollHeight);
+ check('Phone visible labels meet 12px floor',[...doc.querySelectorAll('body *')].filter(e=>e.getClientRects().length && [...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())).every(e=>parseFloat(win.getComputedStyle(e).fontSize)>=12));
+ check('All potential narrow names have a reviewed fitting label',!Object.keys(missing).length,missing);
+ document.querySelector('#status').textContent=`${results.filter(r=>r.pass).length}/${results.length} passed · ${measurements} rendered labels`;
+}catch(e){check('Harness completes',false,e.stack);document.querySelector('#status').textContent='ERROR';}
+</script>

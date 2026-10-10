@@ -1,4 +1,5 @@
 import './style.css';
+import { narrowNames } from './names.js';
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
 import { GridComponent, TooltipComponent, AriaComponent } from 'echarts/components';
@@ -19,10 +20,16 @@ let sort = { key: 'p6', direction: -1 }, timer, request = 0, chart, observer, pa
 const cache = new Map();
 const currentP = id => pathMap.get(id);
 const teamById = id => data.teams.find(team => team.id === id);
+const isEliminated = id => mode==='results' ? currentP(id)[6]===0 : data.forecasts[snapshotIndex].teams.find(team=>team.id===id).alive===false;
 const provider = () => data.forecastProvider?.name ?? data.forecastProvider ?? 'FiveThirtyEight';
 const reconstructed = () => data.forecasts?.[0]?.kind === 'reconstructed';
 const gameDate = value => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' });
 const snapshotName = () => `${dateLabel(data.forecasts[snapshotIndex].date, true)}${snapshotIndex === 0 ? ' · Initial forecast' : snapshotIndex === data.forecasts.length-1 ? ' · Last available' : ''}`;
+const percent = p => p === 0 ? '0%' : p === 1 ? '100%' : probabilityLabel(p);
+const nameMeasure = document.createElement('canvas').getContext('2d');
+nameMeasure.font = '600 12px "Open Sans"';
+const displayName = (team, width) => nameMeasure.measureText(team.bracketName).width <= width ? team.bracketName : narrowNames[team.bracketName] ?? team.bracketName;
+const scoreLabel = game => game.status === 'no-contest' ? 'Advanced by rule' : [game.scores[game.teamIds.indexOf(game.winnerId)], game.scores[1-game.teamIds.indexOf(game.winnerId)]].join('–');
 const announce = message => { $('#announcement').textContent = message; };
 
 async function loadYear(year) {
@@ -80,7 +87,8 @@ function refreshProbabilities() {
 function stopPlaying() {
   clearInterval(timer);
   timer = null;
-  $('#play').textContent = 'Play tournament';
+  $('#play').innerHTML = '▶ <span>Play</span>';
+  $('#play').setAttribute('aria-label', 'Play tournament');
 }
 
 function render() {
@@ -90,7 +98,9 @@ function render() {
   $('#results-mode').setAttribute('aria-pressed', mode === 'results');
   $('#bracket-view').setAttribute('aria-pressed', view === 'bracket');
   $('#table-view').setAttribute('aria-pressed', view === 'table');
-  $('#timeline').hidden = mode !== 'forecast';
+  $('#timeline').hidden = mode !== 'forecast' || data.forecasts.length === 1;
+  $('#single-snapshot').hidden = mode !== 'forecast' || data.forecasts.length !== 1;
+  if (data.forecasts.length === 1) $('#single-snapshot').textContent = `One pre-tournament forecast · ${dateLabel(data.forecasts[0].date, true)} · ${reconstructed()?'reconstructed model':provider()}`;
   $('#results-heading').hidden = mode !== 'results';
   $('#coverage-note').hidden = !reconstructed() || mode !== 'forecast';
   if (mode === 'forecast') {
@@ -104,7 +114,17 @@ function render() {
     $('#snapshot').setAttribute('aria-valuenow', snapshotIndex);
     $('#snapshot').setAttribute('aria-valuetext', `${snapshotName()}. ${status.label}`);
     $('#snapshot').setAttribute('aria-disabled', data.forecasts.length<2);
-    $('#snapshot').innerHTML = `<span class="track-line"></span>${data.forecasts.map((snapshot,index)=>`<span class="date-tick ${index===snapshotIndex?'current':''}" data-snapshot="${index}" style="left:${position(snapshot.date)}%" title="${dateLabel(snapshot.date,true)}"><span>${snapshot.date.slice(8)}</span>${index===snapshotIndex?`<span class="current-round">${escape(status.roundLabel)}</span>`:''}</span>`).join('')}${snapshotDay(finalDate)>snapshotDay(data.forecasts.at(-1).date)?`<span class="date-tick unavailable" style="left:100%" title="${dateLabel(finalDate,true)} · Championship game · No archived forecast" aria-label="${dateLabel(finalDate,true)} championship game; forecast unavailable"><span>${finalDate.slice(8)}</span></span>`:''}`;
+    const roundGroups = [{rounds:[0],label:'First Four'}, {rounds:[1,2],label:'First & second'}, {rounds:[3,4],label:'Regionals'}, {rounds:[5],label:'Final Four'}, {rounds:[6],label:'Final'}];
+    const bands = roundGroups.map(group => {
+      const days=data.games.filter(game=>group.rounds.includes(game.round)).map(game=>snapshotDay(new Date(game.date).toLocaleDateString('en-CA',{timeZone:'America/New_York'})));
+      if(!days.length) return '';
+      const start=Math.max(firstDay,Math.min(...days)-.5), end=Math.min(lastDay,Math.max(...days)+.5);
+      return `<span class="round-band" style="left:${(start-firstDay)/(lastDay-firstDay)*100}%;width:${(end-start)/(lastDay-firstDay)*100}%" title="${group.label}"><span>${group.label}</span></span>`;
+    }).join('');
+    $('#snapshot').innerHTML = `${bands}<span class="track-line"></span>${data.forecasts.map((snapshot,index)=>{
+      const monthStart=index===0 || snapshot.date.slice(0,7)!==data.forecasts[index-1].date.slice(0,7);
+      return `<span class="date-tick ${index===snapshotIndex?'current':''} ${index===0?'first':''} ${index===data.forecasts.length-1?'last':''}" data-snapshot="${index}" style="left:${position(snapshot.date)}%" title="${dateLabel(snapshot.date,true)}"><span class="tick-label">${monthStart?dateLabel(snapshot.date):Number(snapshot.date.slice(8,10))}</span></span>`;
+    }).join('')}${snapshotDay(finalDate)>snapshotDay(data.forecasts.at(-1).date)?`<span class="date-tick unavailable" style="left:100%" title="${dateLabel(finalDate,true)} · Championship game · No archived forecast" aria-label="${dateLabel(finalDate,true)} championship game; forecast unavailable"><span class="tick-label">${dateLabel(finalDate)}</span></span>`:''}`;
     $('#play').disabled = data.forecasts.length<2;
   } else {
     const champion = data.teams.find(team => currentP(team.id)?.[6] === 1);
@@ -117,6 +137,7 @@ function render() {
   $('#table-panel').hidden = view !== 'table';
   if (view === 'bracket') renderBracket();
   else renderTable();
+  $('#first-four-panel').innerHTML = view==='bracket' ? firstFourMarkup() : '';
   renderDetail();
 }
 
@@ -129,8 +150,9 @@ const roundY = (round, slot, lower) => (leafY(slot * 2 ** round) + leafY((slot +
 function nodeMarkup(candidates, round, x, y, width, right, regionName) {
   const resolved = round===0 && candidates.length===1 ? candidates[0] : candidates.find(team=>currentP(team.id)?.[round]===1);
   const preferred = resolved ?? [...candidates].sort((a,b)=>(currentP(b.id)?.[round]??0)-(currentP(a.id)?.[round]??0))[0];
-  const names = resolved ? round===0 ? resolved.bracketName : resolved.superShortName : round===0 ? candidates.map(team=>team.superShortName).join(' / ') : '';
-  const label = `${STAGES[round]}${regionName?` · ${regionName}`:''}. ${resolved?resolved.name:`${round===0?`${candidates.map(team=>team.name).join(' or ')}. `:''}Most likely entrant: ${preferred?.name??'unknown'}`}${mode==='forecast'&&preferred?` · ${exactProbability(currentP(preferred.id)?.[round])}`:''}`;
+  const names = resolved ? displayName(resolved, width-(round===0?22:2)) : round===0 ? 'First Four winner' : '';
+  const wonGame = mode==='results' && resolved && round>0 ? data.games.find(game=>game.round===round && game.winnerId===resolved.id) : null;
+  const label = `${STAGES[round]}${regionName?` · ${regionName}`:''}. ${resolved?resolved.name:`${round===0?`${candidates.map(team=>team.name).join(' or ')}. `:''}Most likely entrant: ${preferred?.name??'unknown'}`}${mode==='forecast'&&preferred?` · ${exactProbability(currentP(preferred.id)?.[round])}`:''}${wonGame?` · ${wonGame.status==='no-contest'?'':'Won '}${scoreLabel(wonGame)} vs. ${teamById(wonGame.teamIds.find(id=>id!==resolved.id)).name}`:''}`;
   return `<button type="button" tabindex="-1" class="team-node ${right?'right':'left'} ${names?'':'empty'} ${round===0&&!resolved?'playin-slot':''} ${resolved&&lostAtStage(currentP(resolved.id),round)?'eliminated':''}" style="left:${x}px;top:${y}px;width:${width}px" data-x="${x+width/2}" data-y="${y}" data-candidates="${escape(candidates.map(team=>team.id).join(','))}" data-round="${round}" data-resolved="${escape(resolved?.id??'')}" data-team="${escape(preferred?.id??'')}" data-name="${escape(names)}" title="${escape(label)}" aria-label="${escape(label)}. Enter pins this team; arrow keys move between slots.">${round===0?`<span class="seed">${resolved?.seed??candidates[0]?.seed}</span>`:''}<span class="node-name">${escape(names)}</span></button>`;
 }
 
@@ -158,8 +180,9 @@ function renderBracket() {
   nodes+=nodeMarkup(data.teams,6,466,FINAL_Y-45,72,false);
   const headings=['Round of 64','Round of 32','Sweet 16','Elite Eight','Final Four','Championship','Final Four','Elite Eight','Sweet 16','Round of 32','Round of 64'];
   const columns=[70,174,246,318,390,502,614,686,758,830,934];
-  const status=mode==='forecast'?snapshotStatus(data,snapshotIndex).label:'Completed tournament results';
-  $('#bracket-panel').innerHTML=`<p class="bracket-scroll-hint">Scroll to see the full bracket, or choose Table.</p><div class="bracket-scroll"><div class="bracket-map"><div class="round-labels">${headings.map((label,index)=>`<span style="left:${columns[index]}px">${label}</span>`).join('')}</div><div class="bracket-tree"><svg class="connectors" viewBox="0 0 ${BRACKET_WIDTH} ${BRACKET_HEIGHT}" aria-hidden="true"><g class="bracket-backbone">${lines}</g><g class="active-route"></g><g class="route-probabilities"></g></svg>${data.regionOrder.map((name,index)=>`<h3 class="region-name ${index>1?'right':''}" style="top:${index%2?520:8}px">${escape(name)}</h3>`).join('')}${nodes}<p class="bracket-status">Men’s · ${data.year}<br><span>${escape(status)}</span>${mode==='forecast'&&reconstructed()?'<br><strong>Reconstructed model</strong>':''}</p><div class="title-forecast"><p id="title-team"></p><div class="title-probability"></div><p class="center-note"></p></div></div></div></div>${firstFourMarkup()}`;
+  const coverage=mode==='forecast'?snapshotStatus(data,snapshotIndex):null;
+  const status=!coverage?'Completed results':!coverage.throughDate?'Pre-tournament forecast':coverage.partial?coverage.label:`Through ${dateLabel(coverage.throughDate)} games`;
+  $('#bracket-panel').innerHTML=`<p class="bracket-scroll-hint">Scroll to see the full bracket, or choose Table.</p><div class="bracket-scroll"><div class="bracket-map"><div class="round-labels">${headings.map((label,index)=>`<span style="left:${columns[index]}px">${label}</span>`).join('')}</div><div class="bracket-tree"><svg class="connectors" viewBox="0 0 ${BRACKET_WIDTH} ${BRACKET_HEIGHT}" aria-hidden="true"><g class="bracket-backbone">${lines}</g><g class="active-route"></g><g class="route-probabilities"></g></svg>${data.regionOrder.map((name,index)=>`<h3 class="region-name ${index>1?'right':''}" style="top:${index%2?520:8}px">${escape(name)}</h3>`).join('')}${nodes}<p class="bracket-status">Men’s · ${data.year}<br><span>${escape(status)}</span>${mode==='forecast'&&reconstructed()?'<br><strong>Reconstructed model</strong>':''}</p><div class="title-forecast"><p id="title-team"></p><div class="title-probability"></div><p class="center-note"></p><ol id="title-leaders"></ol></div></div></div></div>`;
   slots=[...$('#bracket-panel').querySelectorAll('.team-node')].map(element=>({element,x:Number(element.dataset.x),y:Number(element.dataset.y),round:Number(element.dataset.round),id:element.dataset.team}));
   slots[0].element.tabIndex=0;
   previewId=undefined;
@@ -208,16 +231,20 @@ function decorateRoute(id, round) {
     routeGroup.insertAdjacentHTML('beforeend',routes.join(''));
     if(!reducedMotion.matches) routeGroup.querySelectorAll(':scope > :not(.retiring)').forEach(element=>animateRoute(element,false));
     $('.route-probabilities').innerHTML=labels.join('');
-    $('#title-team').textContent=team?.name??'';
-    $('.title-probability').textContent=!team?'':mode==='results'?probabilities[6]===1?'Winner':'':probabilities[6]===1?'100%':probabilities[6]===0?'0%':probabilityLabel(probabilities[6]);
+    const champion = !team && mode==='results' ? data.teams.find(item=>currentP(item.id)[6]===1) : null;
+    const final = data.games.find(game=>game.round===6);
+    const loss = team && isEliminated(id) ? data.games.find(game=>game.teamIds.includes(id) && game.winnerId!==id) : null;
+    $('#title-team').textContent=team?.name ?? champion?.name ?? 'Leading title chances';
+    $('.title-probability').textContent=!team ? champion ? scoreLabel(final) : '' : mode==='results' ? probabilities[6]===1 ? scoreLabel(final) : '' : isEliminated(id) ? '' : probabilities[6]===0 ? '<1%' : percent(probabilities[6]);
     $('.title-probability').title=team&&mode==='forecast'?exactProbability(probabilities[6]):'';
-    $('.center-note').textContent=!team?mode==='forecast'?'Hover over each slot to see the team most likely to get there.':'Hover over each slot to see the team that reached it.':mode==='results'?probabilities[6]===1?'':resultStatus(probabilities):'Chance of winning the tournament';
+    $('.center-note').textContent=loss ? `Out · ${loss.status==='no-contest'?'did not advance against':'lost to'} ${teamById(loss.teamIds.find(other=>other!==id)).bracketName} in the ${loss.roundName??STAGES[loss.round-1]}` : !team ? champion ? `${data.year} champion · vs. ${teamById(final.teamIds.find(other=>other!==champion.id)).bracketName}` : 'Even the favorite is a long shot. Explore a team’s route.' : mode==='results' ? probabilities[6]===1 ? `${data.year} champion` : resultStatus(probabilities) : 'Chance of winning the tournament';
+    $('#title-leaders').innerHTML=!team && mode==='forecast' ? [...data.teams].filter(item=>!isEliminated(item.id)).sort((a,b)=>currentP(b.id)[6]-currentP(a.id)[6]).slice(0,5).map(item=>`<li><span>${escape(item.bracketName)}</span><strong title="${exactProbability(currentP(item.id)[6])}">${percent(currentP(item.id)[6])}</strong></li>`).join('') : '';
     $('.title-forecast').classList.toggle('unselected',!team);
     for(const {element:node} of slots) {
       const stage=Number(node.dataset.round), resolved=node.dataset.resolved;
       const inPath=Boolean(team&&node.dataset.candidates.split(',').includes(id)&&probabilities[stage]>0);
       node.classList.toggle('selected',inPath&&(stage===0||resolved===id));
-      node.querySelector('.node-name').textContent=node.classList.contains('playin-slot')&&inPath?team.bracketName:node.dataset.name;
+      node.querySelector('.node-name').textContent=node.classList.contains('playin-slot')&&inPath?displayName(team,106):node.dataset.name;
       node.setAttribute('aria-pressed',node.dataset.team===selectedId&&inPath);
     }
   }
@@ -258,19 +285,17 @@ function renderTable() {
   const allFirstRoundKnown=data.teams.every(team=>[0,1].includes(currentP(team.id)?.[0]));
   const columns=narrow.matches?[{key:'name',label:'Team'},stages[6],...stages.slice(allFirstRoundKnown?1:0,6)]:[{key:'name',label:'Team'},{key:'region',label:'Region'},{key:'seed',label:'Seed'},...stages];
   const teams=sortTeams(data.teams,{teams:data.teams.map(team=>({id:team.id,p:currentP(team.id)}))},sort);
-  const probabilityCell=p=>{
-    const channels=[255-254*(p??0),255-222*(p??0),255-150*(p??0)].map(Math.round);
-    const luminance=channels.map(channel=>channel/255).map(channel=>channel<=.04045?channel/12.92:((channel+.055)/1.055)**2.4).reduce((sum,channel,index)=>sum+channel*[.2126,.7152,.0722][index],0);
-    const color=1.05/(luminance+.05)>=4.5?'white':'black';
-    return `<td style="background:rgb(${channels.join(',')});color:${color}" title="${escape(exactProbability(p))}"><span aria-label="${escape(mode==='forecast'?p===1?'Already reached':p===0?'Zero chance':exactProbability(p):p===1?'Reached':'Did not reach')}">${probabilityLabel(p)}</span></td>`;
+  const probabilityCell=(p,stage)=>{
+    const bin=p===1?'reached':stage<2 || !p ? 'plain' : p<.1?'low':p<.3?'medium':p<.6?'high':'very-high';
+    return `<td class="odds-${bin} ${stage===6?'title-column':''}" title="${escape(exactProbability(p))}"><span aria-label="${escape(mode==='forecast'?p===1?'Already reached':p===0?'Zero chance':percent(p):p===1?'Reached':'Did not reach')}">${probabilityLabel(p)}</span></td>`;
   };
-  $('#table-panel').innerHTML=`<div class="table-scroll" tabindex="0" aria-label="${mode==='forecast'?'Forecast probability':'Stages reached'} table; scroll for all columns"><table class="odds-table"><caption>${mode==='forecast'?`${escape(provider())} · ${escape(snapshotName())} · Chance of reaching each stage`:`${data.year} results · Stages actually reached`}. Select a heading to sort.</caption><thead><tr>${columns.map(column=>`<th scope="col" ${column.key==='name'?'class="team-column"':''} aria-sort="${sort.key===column.key?(sort.direction===1?'ascending':'descending'):'none'}"><button type="button" data-sort="${column.key}">${column.label}</button></th>`).join('')}</tr></thead><tbody>${teams.map(team=>`<tr class="${team.id===selectedId?'selected':''}">${columns.map(column=>column.key==='name'?`<th scope="row" class="team-column"><button type="button" data-team="${escape(team.id)}" aria-pressed="${team.id===selectedId}">${narrow.matches?`<span class="table-seed">${team.seed}</span> ${escape(team.bracketName)}`:escape(team.name)}</button></th>`:column.key==='region'?`<td>${escape(team.region)}</td>`:column.key==='seed'?`<td>${team.seed}</td>`:probabilityCell(currentP(team.id)?.[Number(column.key.slice(1))])).join('')}</tr>`).join('')}</tbody></table></div>`;
+  $('#table-panel').innerHTML=`<div class="table-scroll" tabindex="0" aria-label="${mode==='forecast'?'Forecast probability':'Stages reached'} table; scroll for all columns"><table class="odds-table"><caption>${mode==='forecast'?`${escape(provider())} · ${escape(snapshotName())} · Chance of reaching each stage`:`${data.year} results · Stages actually reached`}. Select a heading to sort.</caption><thead><tr>${columns.map(column=>`<th scope="col" class="${column.key==='name'?'team-column':column.key==='region'?'text-column':column.key==='p6'?'title-column':''}" aria-sort="${sort.key===column.key?(sort.direction===1?'ascending':'descending'):'none'}"><button type="button" data-sort="${column.key}">${column.label}</button></th>`).join('')}</tr></thead><tbody>${teams.map(team=>`<tr class="${team.id===selectedId?'selected':''}">${columns.map(column=>column.key==='name'?`<th scope="row" class="team-column"><button type="button" data-team="${escape(team.id)}" aria-pressed="${team.id===selectedId}">${narrow.matches?`<span class="table-seed">${team.seed}</span> ${escape(team.bracketName)}`:escape(team.name)}</button></th>`:column.key==='region'?`<td class="text-column">${escape(team.region)}</td>`:column.key==='seed'?`<td>${team.seed}</td>`:probabilityCell(currentP(team.id)?.[Number(column.key.slice(1))],Number(column.key.slice(1)))).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
 
 function updatePin() {
   $('#clear-pin').hidden=!selectedId;
   $('#clear-pin').textContent=selectedId?`Pinned: ${teamById(selectedId).name} ×`:'';
-  $('#bracket-panel').querySelectorAll('.play-in button').forEach(button=>button.setAttribute('aria-pressed',button.dataset.team===selectedId));
+  $('#first-four-panel').querySelectorAll('.play-in button').forEach(button=>button.setAttribute('aria-pressed',button.dataset.team===selectedId));
 }
 
 function clearPin() {
@@ -296,7 +321,8 @@ function selectTeam(id) {
     $('#table-panel').querySelectorAll('tbody tr').forEach(row=>{const button=row.querySelector('[data-team]');row.classList.toggle('selected',button.dataset.team===id);button.setAttribute('aria-pressed',button.dataset.team===id);});
   }
   renderDetail();
-  announce(`${teamById(id).name} selected. ${mode==='forecast'?`${exactProbability(currentP(id)?.[6])} championship chance.`:'Game results shown below.'}`);
+  $('#team-detail').scrollIntoView({behavior:reducedMotion.matches?'instant':'smooth',block:'start'});
+  announce(`${teamById(id).name} selected. ${mode==='forecast'?`${percent(currentP(id)?.[6])} championship chance.`:'Game results shown below.'}`);
 }
 
 function disposeChart() { observer?.disconnect(); observer=null; chart?.dispose(); chart=null; }
@@ -307,15 +333,16 @@ function renderDetail() {
   $('#team-detail').hidden=!team;
   if (!team) { $('#team-detail').innerHTML=''; return; }
   const stages = `<dl class="stage-strip">${STAGES.map((label,index)=>`<div><dt>${label}</dt><dd title="${escape(exactProbability(p?.[index]))}" aria-label="${escape(mode==='forecast'?exactProbability(p?.[index]):p?.[index]===1?'Reached':'Did not reach')}">${probabilityLabel(p?.[index])}</dd></div>`).join('')}</dl>`;
-  const eliminated = p?.[6]===0;
-  const copy = mode==='forecast' ? eliminated ? `${team.name} had no remaining path to the title in this snapshot.` : p?.[6]===1 ? `${team.name} had secured the championship in this snapshot.` : `A ${exactProbability(p?.[6])} championship chance still leaves ${exactProbability(1-p[6])} for someone else. Even a favorite has to survive an entire bracket.` : `${team.name} ${p?.[6]===1?'won the championship':`reached ${STAGES[p.lastIndexOf(1)] ?? 'the First Four'}`}. These are completed results, not model probabilities.`;
-  $('#team-detail').innerHTML = `<div><p class="eyebrow">Pinned team · select a team to change</p><h2 id="team-title">${escape(team.name)}</h2><p class="team-meta">No. ${team.seed} seed · ${escape(team.region)} · ${data.year}</p><p class="team-summary">${escape(copy)}</p>${mode==='forecast'?`<p class="big-probability">${exactProbability(p?.[6])}</p><p class="eyebrow">Chance of winning the title</p>`:''}${stages}</div><div class="history">${mode==='forecast'?historyMarkup():gamesMarkup()}</div>`;
-  if (mode==='forecast') renderChart();
+  const eliminated = isEliminated(selectedId);
+  const copy = mode==='forecast' ? eliminated ? `${team.name} had no remaining path to the title in this snapshot.` : p?.[6]===1 ? `${team.name} had secured the championship in this snapshot.` : p?.[6]===0 ? 'The archive records a 0% title chance at its published precision. This team was still in the tournament.' : `A ${percent(p?.[6])} championship chance still leaves ${percent(1-p[6])} for someone else. Even a favorite has to survive an entire bracket.` : `${team.name} ${p?.[6]===1?'won the championship':`reached ${STAGES[p.lastIndexOf(1)] ?? 'the First Four'}`}. These are completed results, not model probabilities.`;
+  $('#team-detail').innerHTML = `<div><p class="eyebrow">Pinned team · select a team to change</p><h2 id="team-title">${escape(team.name)}</h2><p class="team-meta">No. ${team.seed} seed · ${escape(team.region)} · ${data.year}</p><p class="team-summary">${escape(copy)}</p>${mode==='forecast'?`<p class="big-probability" title="${exactProbability(p?.[6])}">${eliminated?'Out':p?.[6]===0?'<1%':percent(p?.[6])}</p><p class="eyebrow">Chance of winning the title</p>`:''}${stages}</div><div class="history">${mode==='forecast'?historyMarkup():gamesMarkup()}</div>`;
+  if (mode==='forecast' && snapshotIndex>0) renderChart();
 }
 
 function historyMarkup() {
   const history=teamHistory(data,selectedId).slice(0,snapshotIndex+1);
-  return `<div class="history-heading"><h3>The forecast, in motion.</h3><span>Title chance · %</span></div><div id="history-chart" role="img" aria-label="${escape(teamById(selectedId).name)} championship probability through the selected snapshot. Readable percentages in the table below; full precision in the data download."></div><p class="chart-note">${history.length===1?data.forecasts.length === 1 ? 'One reconstructed pre-tournament snapshot is available. There is no historical replay for this model.' : 'Only the initial snapshot is shown. Move along the date track to reveal what happened next.':'The line ends at the selected snapshot. Spacing follows elapsed days; recorded dates are not precise tip-off timestamps.'}</p><details class="history-details"><summary>Read forecast history as a table</summary><div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">Snapshot</th><th scope="col">Title chance</th></tr></thead><tbody>${history.map(point=>`<tr><th scope="row">${dateLabel(point.date,true)}</th><td>${exactProbability(point.p?.[6])}</td></tr>`).join('')}</tbody></table></div></details>`;
+  if(history.length===1) return `<h3>The forecast, in motion.</h3><p class="single-point"><strong title="${exactProbability(history[0].p?.[6])}">${percent(history[0].p?.[6])}</strong> title chance on ${dateLabel(history[0].date,true)}.</p><p class="chart-note">${data.forecasts.length===1?'One reconstructed pre-tournament snapshot is available; there is no historical replay for this model.':'Move along the date track to reveal how the forecast changed.'}</p>`;
+  return `<div class="history-heading"><h3>The forecast, in motion.</h3><span>Title chance · %</span></div><div id="history-chart" role="img" aria-label="${escape(teamById(selectedId).name)} championship probability through the selected snapshot. Readable percentages in the table below; full precision in the data download."></div><p class="chart-note">The line ends at the selected snapshot. Spacing follows elapsed days; recorded dates are not precise tip-off timestamps.</p><details class="history-details"><summary>Read forecast history as a table</summary><div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">Snapshot</th><th scope="col">Title chance</th></tr></thead><tbody>${history.map(point=>`<tr><th scope="row">${dateLabel(point.date,true)}</th><td title="${exactProbability(point.p?.[6])}">${percent(point.p?.[6])}</td></tr>`).join('')}</tbody></table></div></details>`;
 }
 
 function renderChart() {
@@ -326,12 +353,12 @@ function renderChart() {
     animation:false, useUTC:true, aria:{enabled:true}, grid:{left:44,right:20,top:20,bottom:36},
     tooltip:{trigger:'axis',renderMode:'richText',valueFormatter:value=>exactProbability(Number(Array.isArray(value)?value[1]:value)/100)},
     xAxis:{
-      ...(history.length===1 ? {type:'category',data:[dateLabel(history[0].date)],boundaryGap:true} : {type:'time',min:Date.parse(history[0].date),max:Date.parse(history.at(-1).date),minInterval:86400000,splitNumber:6}),
+      type:'time',min:Date.parse(history[0].date),max:Date.parse(history.at(-1).date),minInterval:86400000,splitNumber:6,
       axisTick:{show:false},axisLine:{lineStyle:{color:'#666666'}},
-      axisLabel:{fontSize:11,hideOverlap:true,...(history.length>1?{formatter:value=>dateLabel(new Date(value).toISOString())}:{})}
+      axisLabel:{fontSize:12,hideOverlap:true,formatter:value=>dateLabel(new Date(value).toISOString())}
     },
-    yAxis:{type:'value',min:0,max:Math.max(10,Math.ceil(Math.max(...history.map(point=>(point.p?.[6]??0)*100))/10)*10),axisLabel:{formatter:'{value}%',fontSize:10},splitLine:{lineStyle:{color:'#E5E5E5'}}},
-    series:[{type:'line',data:history.map(point=>history.length===1?(point.p?.[6]??0)*100:[Date.parse(point.date),(point.p?.[6]??0)*100]),symbol:'circle',symbolSize:7,lineStyle:{width:3,color:'#012169'},itemStyle:{color:'#012169'},emphasis:{disabled:true}}]
+    yAxis:{type:'value',min:0,max:Math.max(10,Math.ceil(Math.max(...history.map(point=>(point.p?.[6]??0)*100))/10)*10),axisLabel:{formatter:'{value}%',fontSize:12},splitLine:{lineStyle:{color:'#E5E5E5'}}},
+    series:[{type:'line',data:history.map(point=>[Date.parse(point.date),(point.p?.[6]??0)*100]),symbol:'circle',symbolSize:7,lineStyle:{width:3,color:'#012169'},itemStyle:{color:'#012169'},emphasis:{disabled:true}}]
   });
   observer=new ResizeObserver(()=>chart?.resize());
   observer.observe(element);
@@ -378,7 +405,8 @@ $('#snapshot').addEventListener('keydown',event=>{
 $('#play').addEventListener('click',()=>{
   if(timer){stopPlaying();return;}
   if(snapshotIndex===data.forecasts.length-1){snapshotIndex=0;render();}
-  $('#play').textContent='Pause tournament';
+  $('#play').innerHTML='Ⅱ <span>Pause</span>';
+  $('#play').setAttribute('aria-label','Pause tournament');
   if(view==='bracket')decorateRoute(selectedId);
   timer=setInterval(()=>{snapshotIndex++;render();if(snapshotIndex>=data.forecasts.length-1){stopPlaying();announce('Reached the last available forecast.');}},500);
 });
@@ -386,27 +414,29 @@ const nearestSlot=event=>{
   const bounds=$('.bracket-tree').getBoundingClientRect(), x=event.clientX-bounds.left, y=event.clientY-bounds.top;
   return slots.reduce((nearest,slot)=>(slot.x-x)**2+(slot.y-y)**2<(nearest.x-x)**2+(nearest.y-y)**2?slot:nearest);
 };
-$('#bracket-panel').addEventListener('pointermove',event=>{
-  if(timer) return;
-  if(event.target.closest('.bracket-tree')) { const slot=nearestSlot(event); decorateRoute(slot.id,slot.round); }
-  else if(event.target.closest('.play-in [data-team]')) decorateRoute(event.target.closest('[data-team]').dataset.team,0);
-  else decorateRoute(selectedId);
-});
-$('#bracket-panel').addEventListener('click',event=>{
-  if(event.target.closest('.bracket-tree')) {
-    const slot=event.detail===0?slots.find(slot=>slot.element===event.target.closest('.team-node')):nearestSlot(event);
-    if(slot) selectTeam(slot.id);
-  } else { const button=event.target.closest('[data-team]'); if(button) selectTeam(button.dataset.team); }
-});
-$('#bracket-panel').addEventListener('pointerleave',()=>{if(!timer)decorateRoute(selectedId);});
-$('#bracket-panel').addEventListener('focusin',event=>{
-  const button=event.target.closest('[data-team]');
-  if(button) {
-    if(button.classList.contains('team-node')) slots.forEach(({element})=>element.tabIndex=element===button?0:-1);
-    if(!timer)decorateRoute(button.dataset.team,Number(button.dataset.round??0));
-  }
-});
-$('#bracket-panel').addEventListener('focusout',event=>{if(!$('#bracket-panel').contains(event.relatedTarget))decorateRoute(selectedId);});
+for (const panel of [$('#bracket-panel'), $('#first-four-panel')]) {
+  panel.addEventListener('pointermove',event=>{
+    if(timer) return;
+    if(event.target.closest('.bracket-tree')) { const slot=nearestSlot(event); decorateRoute(slot.id,slot.round); }
+    else if(event.target.closest('.play-in [data-team]')) decorateRoute(event.target.closest('[data-team]').dataset.team,0);
+    else decorateRoute(selectedId);
+  });
+  panel.addEventListener('click',event=>{
+    if(event.target.closest('.bracket-tree')) {
+      const slot=event.detail===0?slots.find(slot=>slot.element===event.target.closest('.team-node')):nearestSlot(event);
+      if(slot) selectTeam(slot.id);
+    } else { const button=event.target.closest('[data-team]'); if(button) selectTeam(button.dataset.team); }
+  });
+  panel.addEventListener('pointerleave',()=>{if(!timer)decorateRoute(selectedId);});
+  panel.addEventListener('focusin',event=>{
+    const button=event.target.closest('[data-team]');
+    if(button) {
+      if(button.classList.contains('team-node')) slots.forEach(({element})=>element.tabIndex=element===button?0:-1);
+      if(!timer)decorateRoute(button.dataset.team,Number(button.dataset.round??0));
+    }
+  });
+  panel.addEventListener('focusout',event=>{if(!panel.contains(event.relatedTarget))decorateRoute(selectedId);});
+}
 $('#bracket-panel').addEventListener('keydown',event=>{
   const current=slots.find(slot=>slot.element===event.target);
   if(!current||!event.key.startsWith('Arrow')) return;
