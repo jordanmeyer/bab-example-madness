@@ -37,3 +37,11 @@ Local source is retained at `/Users/jordan/Projects/bab-example-madness`. Setup 
 Report-only commit `659f9d18778b5ec5f76bbf032f1ae5bd422246eb` passed https://github.com/jordanmeyer/bab-example-madness/actions/runs/38014017853. A returning browser loaded `main-CeFH68Bc.js`, rendered Houston’s 22.085% initial forecast, and logged no errors/warnings. Relevant source did not change.
 
 A foreground live browser was then measured at 375 × 900 CSS pixels. The table is the initial view, the body has no horizontal overflow, arrow keys scroll the table within its container, and choosing Duke displays the East regional bracket. Screenshot evidence is retained in the course gallery record. This verifies responsive browser layout, not physical touch or screen-reader behavior.
+
+## Comparison correction deployment
+
+Evaluated source: `34bd4335e7c8297b5534e3ce2fa35b41db05a5d0`. Published correction/report commit: `c8b7e81e98b9542fa41b9e35234a743ca73c9197`. [Actions run 38015656925](https://github.com/jordanmeyer/bab-example-madness/actions/runs/38015656925) completed successfully.
+
+A returning live-browser tab reloaded and received `main-DHFdrHeu.js`, replacing the initial `main-CeFH68Bc.js`. It exposed twelve dated 2023 controls, displayed Houston 22.085%, and previewed Alabama 16.176% with all final-round routes while Houston remained pinned. The 2026 view retained one disabled-replay reconstruction, Michigan 17.762%, and its separate 69–63 championship result. The 2020 selection hid the workspace and showed cancellation. Observed error/warning logs were empty. The revised gallery image shows the complete connected 2023 bracket. The correction changes UI behavior and date presentation; all historical data, derivation, locked dependencies and the publication workflow remain unchanged.
+
+The source checkpoint passed 74/74 Node and browser cases and a clean production build. The independent comparison review passed with its evidence limits explicit in `review/fidelity-review.md`. This documentation follow-up changes no evaluated application source.
