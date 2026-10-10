@@ -158,8 +158,9 @@ function render() {
   renderDetail();
 }
 
-// One fixed drawing keeps route widths, names and probabilities in the same scale.
+// Expand round spacing without scaling text, route widths or vertical geometry.
 const BRACKET_WIDTH = 1004, BRACKET_HEIGHT = 1024, FINAL_Y = 510;
+let bracketWidth = BRACKET_WIDTH;
 const leafY = slot => 56 + Math.floor(slot / 2) * 54 + slot % 2 * 18;
 const roundY = (round, slot, lower) => (leafY(slot * 2 ** round) + leafY((slot + 1) * 2 ** round - 1)) / 2 + (lower ? 512 : 0);
 
@@ -173,15 +174,17 @@ function nodeMarkup(candidates, round, x, y, width, right, regionName) {
 }
 
 function renderBracket() {
+  bracketWidth = Math.max(BRACKET_WIDTH, $('#explorer').clientWidth);
+  const center = bracketWidth / 2;
   const openingNames=data.teams.map(team=>displayName(team,106));
   if(data.teams.some(team=>team.playIn&&currentP(team.id)?.[0]>0&&currentP(team.id)?.[0]<1)) openingNames.push('First Four winner');
   const openingWidth=22+Math.ceil(Math.max(...openingNames.map(name=>nameMeasure.measureText(name).width)));
   const reclaimed=128-openingWidth;
-  const roundX=[6,...[138,210,282,354,426,502].map((x,index)=>x-reclaimed*(5-index)/5)];
+  const roundX=[6,...[138,210,282,354,426,502].map((x,index)=>x-reclaimed*(5-index)/5+(bracketWidth-BRACKET_WIDTH)/2*index/5)];
   let lines='', nodes='';
   const path = (ids,stage,x,fromY,endX,y,filled=false) => `<path class="connector" data-filled="${filled}" data-path-ids="${escape(ids.join(','))}" data-stage="${stage}" data-start-x="${x}" data-start-y="${fromY}" data-route-key="${stage}:${endX}:${y}" data-label-x="${(x+endX)/2}" data-label-y="${y+(stage===5||fromY>y?25:-13)}" d="M ${x} ${fromY} V ${y} H ${endX}"/>`;
   data.regionOrder.forEach((name,index)=>{
-    const right=index>1, lower=index%2, mirror=x=>right?BRACKET_WIDTH-x:x;
+    const right=index>1, lower=index%2, mirror=x=>right?bracketWidth-x:x;
     for(let round=0;round<=4;round++) {
       for(let slot=0;slot<16/2**round;slot++) {
         const y=roundY(round,slot,lower), start=round===0?6:roundX[round]+4, end=roundX[round+1]-4;
@@ -195,17 +198,17 @@ function renderBracket() {
   });
   data.finalFourPairs.forEach((pair,index)=>{
     const candidates=data.teams.filter(team=>pair.includes(team.region));
-    nodes+=nodeMarkup(candidates,5,index===0?roundX[5]+4:506,FINAL_Y,502-roundX[5]-8,index===1);
-    if(candidates.some(team=>currentP(team.id)?.[5]===1)) lines+=`<path class="terminal-connector" d="M ${index===0?498:506} ${FINAL_Y} H 502"/>`;
-    lines+=`<path class="connector title-stem" data-path-ids="${escape(candidates.map(team=>team.id).join(','))}" data-stage="6" data-start-x="502" data-start-y="${FINAL_Y}" data-route-key="title" d="M 502 ${FINAL_Y} V ${FINAL_Y-45}"/>`;
+    nodes+=nodeMarkup(candidates,5,index===0?roundX[5]+4:center+4,FINAL_Y,center-roundX[5]-8,index===1);
+    if(candidates.some(team=>currentP(team.id)?.[5]===1)) lines+=`<path class="terminal-connector" d="M ${center+(index===0?-4:4)} ${FINAL_Y} H ${center}"/>`;
+    lines+=`<path class="connector title-stem" data-path-ids="${escape(candidates.map(team=>team.id).join(','))}" data-stage="6" data-start-x="${center}" data-start-y="${FINAL_Y}" data-route-key="title" d="M ${center} ${FINAL_Y} V ${FINAL_Y-45}"/>`;
   });
-  nodes+=nodeMarkup(data.teams,6,466,FINAL_Y-45,72,false);
+  nodes+=nodeMarkup(data.teams,6,center-36,FINAL_Y-45,72,false);
   const headings=['Round of 64','Round of 32','Sweet 16','Elite Eight','Final Four','Championship','Final Four','Elite Eight','Sweet 16','Round of 32','Round of 64'];
   const leftColumns=roundX.slice(0,5).map((x,index)=>(x+roundX[index+1]-(index===0?4:0))/2);
-  const columns=[...leftColumns,502,...leftColumns.map(x=>BRACKET_WIDTH-x).reverse()];
+  const columns=[...leftColumns,center,...leftColumns.map(x=>bracketWidth-x).reverse()];
   const coverage=mode==='forecast'?snapshotStatus(data,snapshotIndex):null;
   const status=!coverage?'Completed results':!coverage.throughDate?'Pre-tournament forecast':coverage.partial?coverage.label:`Through ${dateLabel(coverage.throughDate)} games`;
-  $('#bracket-panel').innerHTML=`<p class="bracket-scroll-hint">Scroll to see the full bracket, or choose Table.</p><div class="bracket-scroll"><div class="bracket-map"><div class="round-labels">${headings.map((label,index)=>`<span style="left:${columns[index]}px">${label}</span>`).join('')}</div><div class="bracket-tree"><svg class="connectors" viewBox="0 0 ${BRACKET_WIDTH} ${BRACKET_HEIGHT}" aria-hidden="true"><g class="bracket-backbone">${lines}</g><g class="active-route"></g><g class="route-probabilities"></g></svg>${data.regionOrder.map((name,index)=>`<h3 class="region-name ${index>1?'right':''}" style="top:${index%2?520:8}px">${escape(name)}</h3>`).join('')}${nodes}<p class="bracket-status">${competitionName()} · ${data.year}<br><span>${escape(status)}</span>${mode==='forecast'&&reconstructed()?'<br><strong>Reconstructed model</strong>':''}</p><div class="title-forecast"><p id="title-team"></p><div class="title-probability"></div><p class="center-note"></p><ol id="title-leaders"></ol></div></div></div></div>`;
+  $('#bracket-panel').innerHTML=`<p class="bracket-scroll-hint">Scroll to see the full bracket, or choose Table.</p><div class="bracket-scroll"><div class="bracket-map"><div class="round-labels">${headings.map((label,index)=>`<span style="left:${columns[index]}px">${label}</span>`).join('')}</div><div class="bracket-tree"><svg class="connectors" viewBox="0 0 ${bracketWidth} ${BRACKET_HEIGHT}" aria-hidden="true"><g class="bracket-backbone">${lines}</g><g class="active-route"></g><g class="route-probabilities"></g></svg>${data.regionOrder.map((name,index)=>`<h3 class="region-name ${index>1?'right':''}" style="top:${index%2?520:8}px">${escape(name)}</h3>`).join('')}${nodes}<p class="bracket-status">${competitionName()} · ${data.year}<br><span>${escape(status)}</span>${mode==='forecast'&&reconstructed()?'<br><strong>Reconstructed model</strong>':''}</p><div class="title-forecast"><p id="title-team"></p><div class="title-probability"></div><p class="center-note"></p><ol id="title-leaders"></ol></div></div></div></div>`;
   slots=[...$('#bracket-panel').querySelectorAll('.team-node')].map(element=>({element,x:Number(element.dataset.x),y:Number(element.dataset.y),round:Number(element.dataset.round),id:element.dataset.team}));
   slots[0].element.tabIndex=0;
   previewId=undefined;
@@ -507,14 +510,15 @@ $('#bracket-panel').addEventListener('keydown',event=>{
   const current=slots.find(slot=>slot.element===event.target);
   if(!current||!event.key.startsWith('Arrow')) return;
   event.preventDefault();
+  const center = bracketWidth / 2;
   let candidates;
   if(event.key==='ArrowUp'||event.key==='ArrowDown') {
     const direction=event.key==='ArrowDown'?1:-1;
-    candidates=slots.filter(slot=>slot.round===current.round&&(slot.x<502)===(current.x<502)&&(slot.y-current.y)*direction>0);
+    candidates=slots.filter(slot=>slot.round===current.round&&(slot.x<center)===(current.x<center)&&(slot.y-current.y)*direction>0);
   } else {
     const direction=event.key==='ArrowRight'?1:-1;
-    const nextRound=current.round+(direction===(current.x<502?1:-1)?1:-1);
-    candidates=current.round===6?slots.filter(slot=>slot.round===5&&(slot.x-502)*direction>0):slots.filter(slot=>slot.round===nextRound&&(slot.x<502)===(current.x<502));
+    const nextRound=current.round+(direction===(current.x<center?1:-1)?1:-1);
+    candidates=current.round===6?slots.filter(slot=>slot.round===5&&(slot.x-center)*direction>0):slots.filter(slot=>slot.round===nextRound&&(slot.x<center)===(current.x<center));
     if(nextRound===6) candidates=slots.filter(slot=>slot.round===6);
   }
   const next=candidates.sort((a,b)=>Math.abs(a.y-current.y)-Math.abs(b.y-current.y))[0];
@@ -526,6 +530,7 @@ new ResizeObserver(()=>{
   if(!data||data.status!=='played')return;
   const nextView=$('#explorer').clientWidth>=BRACKET_WIDTH?'bracket':'table';
   if(!explicitView&&view!==nextView){view=nextView;render();}
+  else if(view==='bracket'&&bracketWidth!==Math.max(BRACKET_WIDTH,$('#explorer').clientWidth))renderBracket();
   else if(view==='table'&&previousNarrow!==narrow.matches)renderTable();
   previousNarrow=narrow.matches;
 }).observe($('#explorer'));
