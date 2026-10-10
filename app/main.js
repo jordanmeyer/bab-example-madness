@@ -314,7 +314,7 @@ function animateRoute(element, retiring, timing, startTime) {
       Object.assign(from,retiring?dash:{strokeDasharray:'1',strokeDashoffset:1});
       Object.assign(to,retiring?dash:{strokeDasharray:'1',strokeDashoffset:0});
     }
-    const animation=element.animate([from,to],retiring?{duration:50+round*100,fill:'forwards'}:{...timing.get(round),fill:'backwards'});
+    const animation=element.animate([from,to],retiring?{duration:50+round*25,fill:'forwards'}:{...timing.get(round),fill:'backwards'});
     if(!retiring) animation.startTime=startTime;
     return animation;
   });
