@@ -19,6 +19,16 @@ const labels=(year,state)=>{
   if(a.left<b.left-.2||a.right>b.right+.2)failures.push({name:span.textContent,round:node.dataset.round,width:a.width,slot:b.width});
  }
  check(`${year} ${state}: visible team labels fit`,!failures.length,failures);
+ const crossed=[];
+ for(const node of doc.querySelectorAll('.team-node:not(.empty)')){
+  const round=Number(node.dataset.round);if(round===0||round===6)continue;
+  const y=Number(node.dataset.y),right=node.classList.contains('right');
+  for(const line of doc.querySelectorAll(`.bracket-backbone .connector[data-stage="${round}"]`)){
+   const d=line.getAttribute('d'),endY=Number(d.match(/ V ([\d.]+)/)?.[1]);
+   if(endY===y&&(Number(line.dataset.startX)>502)===right&&d.includes(' H '))crossed.push(node.dataset.name);
+  }
+ }
+ check(`${year} ${state}: filled round slots have no horizontal backbone`,!crossed.length,crossed);
 };
 try{
  for(const year of [2016,2017,2018,2019,2021,2022,2023,2024,2025,2026]){

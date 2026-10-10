@@ -160,7 +160,7 @@ function nodeMarkup(candidates, round, x, y, width, right, regionName) {
 
 function renderBracket() {
   let lines='', nodes='';
-  const path = (ids,stage,x,fromY,endX,y) => `<path class="connector" data-path-ids="${escape(ids.join(','))}" data-stage="${stage}" data-start-x="${x}" data-start-y="${fromY}" data-route-key="${stage}:${endX}:${y}" data-label-x="${(x+endX)/2}" data-label-y="${y+(stage===5||fromY>y?25:-13)}" d="M ${x} ${fromY} V ${y} H ${endX}"/>`;
+  const path = (ids,stage,x,fromY,endX,y,filled=false) => `<path class="connector" data-filled="${filled}" data-path-ids="${escape(ids.join(','))}" data-stage="${stage}" data-start-x="${x}" data-start-y="${fromY}" data-route-key="${stage}:${endX}:${y}" data-label-x="${(x+endX)/2}" data-label-y="${y+(stage===5||fromY>y?25:-13)}" d="M ${x} ${fromY} V ${y} H ${endX}"/>`;
   data.regionOrder.forEach((name,index)=>{
     const right=index>1, lower=index%2, mirror=x=>right?BRACKET_WIDTH-x:x;
     for(let round=0;round<=4;round++) {
@@ -169,10 +169,10 @@ function renderBracket() {
         const candidates=bracketCandidates(data,name,round,slot);
         nodes+=nodeMarkup(candidates,round,right?mirror(end):start,y,end-start,right,name);
         if(round===0) lines+=`<path class="terminal-connector" d="M ${mirror(end)} ${y} H ${mirror(roundX[1])}"/>`;
-        else for(let child=0;child<2;child++) lines+=path(bracketCandidates(data,name,round-1,slot*2+child).map(team=>team.id),round,mirror(roundX[round]),roundY(round-1,slot*2+child,lower),mirror(roundX[round+1]),y);
+        else for(let child=0;child<2;child++) lines+=path(bracketCandidates(data,name,round-1,slot*2+child).map(team=>team.id),round,mirror(roundX[round]),roundY(round-1,slot*2+child,lower),mirror(roundX[round+1]),y,candidates.some(team=>currentP(team.id)?.[round]===1));
       }
     }
-    lines+=path(data.teams.filter(team=>team.region===name).map(team=>team.id),5,mirror(roundX[5]),roundY(4,0,lower),mirror(roundX[6]),FINAL_Y);
+    lines+=path(data.teams.filter(team=>team.region===name).map(team=>team.id),5,mirror(roundX[5]),roundY(4,0,lower),mirror(roundX[6]),FINAL_Y,data.teams.some(team=>data.finalFourPairs[right?1:0].includes(team.region)&&currentP(team.id)?.[5]===1));
   });
   data.finalFourPairs.forEach((pair,index)=>{
     const candidates=data.teams.filter(team=>pair.includes(team.region));
@@ -222,7 +222,7 @@ function decorateRoute(id, round) {
       const stage=Number(line.dataset.stage);
       const active=line.dataset.pathIds.split(',').includes(id)&&unresolved.has(stage);
       line.style.display=active||line.dataset.routeKey==='title'&&activeKeys.has('title')?'none':'';
-      line.setAttribute('d',activeKeys.has(line.dataset.routeKey)?line.dataset.originalPath.split(' H ')[0]:line.dataset.originalPath);
+      line.setAttribute('d',line.dataset.filled==='true'||activeKeys.has(line.dataset.routeKey)?line.dataset.originalPath.split(' H ')[0]:line.dataset.originalPath);
     }
     const routeGroup=$('.active-route');
     routeGroup.querySelectorAll('.retiring').forEach(path=>path.remove());
