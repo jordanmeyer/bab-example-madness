@@ -113,3 +113,7 @@ Environment: Node 22.19.0, npm 10.9.3, Vite 8.3.4, ECharts 6.1.0, Codex in-app C
 ## Limits
 
 Actual screen-reader speech, novice usability, phone touch behavior, clean-machine installation, Windows, and model predictive accuracy remain unverified. Live Pages results are recorded separately in DEPLOYMENT.md. The final bounded independent delta review also passed the precision, narrow-region, and two-page publication changes.
+
+## Final-day timeline correction — 2026-10-10
+
+Evaluated source: `b2685ee89f20dba8a3214eccc06ddadf9f57ed23`. The calendar includes half a day beyond each endpoint; ticks, full-day shading, labels and click snapping share that range. Browser design regression: 110/110 (including 28 new geometry/click checks across all seven archived timelines); data/model checks: 80/80. Production build passed with the existing large-chunk warning. Desktop production preview at 1194 × 890 visibly centers Final beneath Apr 3. A narrow preview retained the full final band; the browser sizing override reported 341 CSS pixels rather than the requested 375, so the existing harness provides the exact 375px overflow check. No data, calculation, dependency, CSS or route-rendering changes.
