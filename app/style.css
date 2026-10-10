@@ -32,7 +32,7 @@ main { max-width: 1024px; margin: auto; padding: 0 10px; }
 .year-field { display: flex; gap: .5rem; align-items: center; font-size: .78rem; }
 .year-field select { font-weight: 600; padding: .35rem .6rem; min-height: 38px; }
 .button-group { display: flex; flex-shrink: 0; }
-.display-group { margin-left: auto; }
+.view-controls { display: flex; gap: inherit; margin-left: auto; }
 .button-group button { min-height: 38px; padding: .4rem 1rem; font-size: .77rem; font-weight: 600; }
 .button-group button + button { margin-left: -1px; }
 .button-group button[aria-pressed="true"] { background: var(--duke-navy-blue); color: white; border-color: var(--duke-navy-blue); }
