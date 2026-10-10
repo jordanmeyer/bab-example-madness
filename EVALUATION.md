@@ -1,8 +1,10 @@
 # Evaluation
 
-## Rounded route connections — October 9, 2026
+## Rejected round-cap workaround — October 9, 2026
 
-Evaluated source: `a58ed7b3aa92a22e090a3be3815377d08b65b00c`. The one-line CSS correction adds round caps to highlighted route segments. Round joins already covered bends inside each segment, but the separate paths left square ends at connections between rounds and at the title stem.
+**Rejected after publication.** The user’s enlarged screenshot demonstrated protruding caps at unequal-width connections. The earlier visual acceptance below was incorrect.
+
+Previously evaluated source: `a58ed7b3aa92a22e090a3be3815377d08b65b00c`. The one-line CSS correction adds round caps to highlighted route segments. Round joins already covered bends inside each segment, but the separate paths left square ends at connections between rounds and at the title stem.
 
 The production build passed, producing `main-DQNGODc9.js` and `style-DRKxRvGj.css`. Coordinator inspection of the rendered Houston route confirms rounded connections and unchanged settled widths (15.2813, 13.4165, 12.0046, 10.0643, 8.83306 and 7.5492 pixels). A separate mouse preview of Maryland, with no pinned team, displayed the same rounded connections and six settled route segments. No browser errors or warnings were observed. The [independent corner review](review/corner-review.md) records additional visual and interaction checks.
 

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tournament Atlas route rendering regression</title>
+<style>
+body{font:16px/1.5 Arial,sans-serif;margin:2rem;color:#172235}h1{font:2rem Georgia,serif;color:#012169}.pass{color:#176534}.fail{color:#a01515}iframe{width:1200px;height:1380px;border:1px solid #aaa}#proof{overflow:auto}#proof svg{display:block;width:1280px;height:1200px;background:white;border:1px solid #aaa}summary{cursor:pointer}code{font-size:.9em}
+</style>
+<h1>Actual route rendering regression</h1>
+<p>The iframe runs the application, including its event handlers and Web Animations. The raster checks use its rendered SVG paths and computed styles, not a replacement drawing. Animation times below are explicitly frozen for repeatability.</p>
+<p id="summary" role="status">Loading application…</p><ol id="results"></ol>
+<details open><summary>Alabama: actual settled SVG geometry enlarged 4×</summary><p>Crop of the application’s route and bracket backbone. This is a geometry inspection, not an application screenshot.</p><div id="proof"></div></details>
+<details open><summary>Application under test</summary><iframe id="app" src="../app/index.html" title="Tournament Atlas under test"></iframe></details>
+<script type="module">
+const frame=document.querySelector('#app'), results=[], list=document.querySelector('#results');
+const tick=()=>new Promise(resolve=>requestAnimationFrame(resolve));
+const assert=(condition,message)=>{if(!condition)throw Error(message);};
+async function check(name,run){try{await run();results.push({name,pass:true});}catch(error){results.push({name,pass:false,error:error.message});}const result=results.at(-1),li=document.createElement('li');li.className=result.pass?'pass':'fail';li.textContent=`${result.pass?'PASS':'FAIL'} ${name}${result.error?`: ${result.error}`:''}`;list.append(li);}
+async function ready(predicate){for(let i=0;i<500;i++){if(predicate())return;await new Promise(resolve=>setTimeout(resolve,20));}throw Error('Application did not become ready within 10 seconds.');}
+let doc, win;
+const route=()=>doc.querySelector('.active-route');
+const paths=()=>[...route().querySelectorAll('path:not(.retiring)')];
+const joins=()=>[...route().querySelectorAll('ellipse:not(.retiring)')];
+const style=node=>win.getComputedStyle(node);
+const width=node=>parseFloat(style(node).strokeWidth);
+const currentAnimations=()=>[...route().children].flatMap(node=>node.getAnimations());
+function select(id){const select=doc.querySelector('#team-select');select.value=id;select.dispatchEvent(new win.Event('change',{bubbles:true}));}
+async function freeze(time){for(const animation of currentAnimations()){animation.pause();animation.currentTime=time;}await tick();}
+async function finish(){for(const animation of currentAnimations())animation.finish();await tick();}
+function snapshot(node){const clone=node.cloneNode(false),computed=style(node);clone.removeAttribute('style');for(const property of ['fill','stroke','stroke-width','stroke-linecap','stroke-linejoin','stroke-dasharray','stroke-dashoffset','visibility','display'])clone.setAttribute(property,computed.getPropertyValue(property));if(node.tagName==='ellipse'){clone.setAttribute('rx',computed.rx);clone.setAttribute('ry',computed.ry);}return clone;}
+const svgNS='http://www.w3.org/2000/svg';
+function geometry(nodes,box){const svg=document.createElementNS(svgNS,'svg');svg.setAttribute('viewBox',box.join(' '));svg.setAttribute('xmlns',svgNS);nodes.forEach(node=>svg.append(snapshot(node)));return svg;}
+async function raster(nodes,cx,cy,oldCaps=false){
+  const size=24,scale=16,svg=geometry(nodes,[cx-size/2,cy-size/2,size,size]);
+  if(oldCaps){svg.querySelectorAll('ellipse').forEach(node=>node.remove());svg.querySelectorAll('path').forEach(node=>node.setAttribute('stroke-linecap','round'));}
+  svg.setAttribute('width',size*scale);svg.setAttribute('height',size*scale);
+  const url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'}));
+  const image=new Image();try{image.src=url;await image.decode();const canvas=document.createElement('canvas');canvas.width=canvas.height=size*scale;const context=canvas.getContext('2d');context.drawImage(image,0,0);return {pixels:context.getImageData(0,0,canvas.width,canvas.height).data,size,scale};}finally{URL.revokeObjectURL(url);}
+}
+function edgeErrors(raster,rx,ry,dx,dy){
+  const {pixels,size,scale}=raster,length=size*scale;let overhang=0;
+  const solid=(x,y)=>{const column=Math.floor((x+size/2)*scale),row=Math.floor((y+size/2)*scale);return pixels[(row*length+column)*4+3]>128;};
+  for(let row=0;row<length;row++)for(let column=0;column<length;column++){
+    const x=(column+.5)/scale-size/2,y=(row+.5)/scale-size/2;
+    if(dx*x>rx+.16&&dy*y<-.1&&dy*y>-ry&&pixels[(row*length+column)*4+3]>128)overhang++;
+  }
+  // Points just inside the quarter ellipse must join both straight edges without a notch.
+  const missing=[0,15,30,45,60,75,90].filter(degrees=>{const angle=degrees*Math.PI/180;return !solid(dx*Math.max(0,rx-.16)*Math.cos(angle),-dy*Math.max(0,ry-.16)*Math.sin(angle));});
+  return {overhang,missing};
+}
+function seam(join){const stage=Number(join.dataset.stage),incoming=paths().find(node=>Number(node.dataset.stage)===stage-1),outgoing=paths().find(node=>Number(node.dataset.stage)===stage);assert(incoming&&outgoing,`Stage ${stage} has both adjacent paths`);const end=incoming.getPointAtLength(incoming.getTotalLength()),before=incoming.getPointAtLength(incoming.getTotalLength()-1),after=outgoing.getPointAtLength(1);return {incoming,outgoing,cx:join.cx.baseVal.value,cy:join.cy.baseVal.value,dx:Math.sign(end.x-before.x),dy:Math.sign(after.y-end.y)};}
+try{
+  await ready(()=>frame.contentDocument?.querySelector('#explorer[aria-busy="false"]'));
+  doc=frame.contentDocument;win=frame.contentWindow;
+  const year=doc.querySelector('#year');if(year.value!=='2023'){year.value='2023';year.dispatchEvent(new win.Event('change',{bubbles:true}));await ready(()=>doc.querySelector('#explorer[aria-busy="false"]'));}
+  doc.querySelector('#bracket-view').click();
+  await check('Animation prerequisites: actual browser enables motion',()=>assert(!win.matchMedia('(prefers-reduced-motion: reduce)').matches,'Enable ordinary motion to run timed animation checks.'));
+  select('333');
+  for(const time of [0,100,200,400,700,1000])await check(`Alabama animation at ${time} ms: radii track adjacent widths; no detached joins`,async()=>{
+    await freeze(time);assert(joins().length===5,'Expected all five stage junctions, including the title stem.');
+    for(const join of joins()){
+      const {incoming,outgoing}=seam(join),computed=style(join),visible=computed.visibility!=='hidden';
+      assert(Math.abs(parseFloat(computed.rx)-width(outgoing)/2)<.015,`Stage ${join.dataset.stage}: horizontal radius differs from outgoing half-width.`);
+      assert(Math.abs(parseFloat(computed.ry)-width(incoming)/2)<.015,`Stage ${join.dataset.stage}: vertical radius differs from incoming half-width.`);
+      const dash=parseFloat(style(incoming).strokeDashoffset)||0;
+      assert(!visible||dash<.001,`Stage ${join.dataset.stage}: detached corner while incoming dash is still ${dash}.`);
+      if(time===1000)assert(visible,'Settled junction is hidden.');
+    }
+  });
+  for(const [id,name] of [['333','Alabama'],['120','Maryland'],['2305','Kansas'],['12','Arizona'],['248','Houston'],['161','Fairleigh Dickinson']])await check(`${name}: rasterized settled corners stay within the next band, without notches (including title)`,async()=>{
+    if(doc.querySelector('#team-select').value!==id)select(id);await finish();
+    assert(joins().length===5,'Expected five uncertain-stage junctions.');
+    for(const join of joins()){
+      const {incoming,outgoing,cx,cy,dx,dy}=seam(join),rx=width(outgoing)/2,ry=width(incoming)/2;
+      const errors=edgeErrors(await raster([incoming,outgoing,join],cx,cy),rx,ry,dx,dy);
+      assert(!errors.overhang,`Stage ${join.dataset.stage}: ${errors.overhang} pixels protrude past the next vertical edge.`);
+      assert(!errors.missing.length,`Stage ${join.dataset.stage}: notch at ${errors.missing.join(', ')} degrees.`);
+    }
+    if(id==='333'){
+      const svg=geometry([...doc.querySelectorAll('.bracket-backbone path'),...route().children],[122,40,320,300]);document.querySelector('#proof').replaceChildren(svg);
+      const join=joins()[0],{incoming,outgoing,cx,cy,dx,dy}=seam(join);
+      const old=edgeErrors(await raster([incoming,outgoing,join],cx,cy,true),width(outgoing)/2,width(incoming)/2,dx,dy);
+      assert(old.overhang>0,'Negative control failed: raster check must detect the old round-cap overhang.');
+    }
+  });
+  await check('Rapid team change preserves partial widths and dashes; hidden joins do not retire visibly',async()=>{
+    select('333');await freeze(200);
+    const old=[...route().children].filter(node=>!node.classList.contains('retiring'));
+    const before=new Map(old.map(node=>[node,{width:width(node),dash:style(node).strokeDashoffset,hidden:style(node).visibility==='hidden'}]));
+    assert(old.some(node=>node.tagName==='path'&&parseFloat(style(node).strokeDashoffset)>.1&&width(node)>0),'Expected a partially drawn stroke.');
+    select('120');
+    for(const node of old){const saved=before.get(node);if(saved.hidden){assert(!node.isConnected,'Hidden corner survived as a retiring node.');continue;}assert(node.classList.contains('retiring'),'Visible previous route did not retire.');for(const animation of node.getAnimations()){animation.pause();animation.currentTime=0;}}
+    await tick();
+    for(const node of old.filter(node=>node.tagName==='path'&&node.isConnected)){
+      const saved=before.get(node);assert(Math.abs(width(node)-saved.width)<.015,`Stage ${node.dataset.stage}: retiring width jumped.`);assert(Math.abs(parseFloat(style(node).strokeDashoffset)-parseFloat(saved.dash))<.001,`Stage ${node.dataset.stage}: retiring dash jumped.`);
+    }
+    await finish();assert(!route().querySelector('.retiring'),'Retired route nodes remain after animations finish.');
+  });
+  await check('Retiring junctions shrink with both adjacent paths at 0/100/300/600 ms',async()=>{
+    select('333');await finish();
+    const oldPaths=new Map(paths().map(node=>[Number(node.dataset.stage),node])),oldJoins=joins(),old=[...oldPaths.values(),...oldJoins];
+    select('120');
+    for(const time of [0,100,300,600]){
+      for(const node of old)for(const animation of node.getAnimations()){
+        if(time>=animation.effect.getComputedTiming().endTime)animation.finish();else{animation.pause();animation.currentTime=time;}
+      }
+      await tick();
+      for(const join of oldJoins.filter(node=>node.isConnected)){
+        const stage=Number(join.dataset.stage),incoming=oldPaths.get(stage-1),outgoing=oldPaths.get(stage),computed=style(join);
+        assert(Math.abs(parseFloat(computed.rx)-(outgoing.isConnected?width(outgoing)/2:0))<.015,`At ${time} ms, stage ${stage}: retiring corner protrudes beyond outgoing width.`);
+        assert(Math.abs(parseFloat(computed.ry)-(incoming.isConnected?width(incoming)/2:0))<.015,`At ${time} ms, stage ${stage}: retiring corner outlasts incoming width.`);
+      }
+    }
+    await finish();assert(old.every(node=>!node.isConnected),'Retired junction or path remains after completion.');
+  });
+  await check('Clearing selection removes every retired path and corner',async()=>{doc.querySelector('#clear-pin').click();await finish();assert(!route().children.length,'Route elements remain after clearing.');});
+  select('333');await finish();
+}catch(error){await check('Application/harness initialization',()=>{throw error;});}
+const passed=results.filter(result=>result.pass).length,summary=document.querySelector('#summary');summary.textContent=`${passed}/${results.length} rendered checks passed`;summary.className=passed===results.length?'pass':'fail';
+document.documentElement.dataset.result=passed===results.length?'pass':'fail';
+</script>
+</html>

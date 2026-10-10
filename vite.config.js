@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 const base = '/bab-example-madness/';
 export default defineConfig(({ mode }) => ({
   root: mode === 'test' ? '.' : 'app',
+  publicDir: resolve(import.meta.dirname, 'app/public'),
   base: mode === 'test' ? '/' : base,
   server: { host: '127.0.0.1', strictPort: true },
   preview: { host: '127.0.0.1', strictPort: true },

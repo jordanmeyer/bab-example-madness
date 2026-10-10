@@ -136,7 +136,7 @@ function nodeMarkup(candidates, round, x, y, width, right, regionName) {
 
 function renderBracket() {
   let lines='', nodes='';
-  const path = (ids,stage,x,fromY,endX,y) => `<path class="connector" data-path-ids="${escape(ids.join(','))}" data-stage="${stage}" data-route-key="${stage}:${endX}:${y}" data-label-x="${(x+endX)/2}" data-label-y="${y+(stage===5||fromY>y?25:-13)}" d="M ${x} ${fromY} V ${y} H ${endX}"/>`;
+  const path = (ids,stage,x,fromY,endX,y) => `<path class="connector" data-path-ids="${escape(ids.join(','))}" data-stage="${stage}" data-start-x="${x}" data-start-y="${fromY}" data-route-key="${stage}:${endX}:${y}" data-label-x="${(x+endX)/2}" data-label-y="${y+(stage===5||fromY>y?25:-13)}" d="M ${x} ${fromY} V ${y} H ${endX}"/>`;
   data.regionOrder.forEach((name,index)=>{
     const right=index>1, lower=index%2, mirror=x=>right?BRACKET_WIDTH-x:x;
     for(let round=0;round<=4;round++) {
@@ -153,7 +153,7 @@ function renderBracket() {
   data.finalFourPairs.forEach((pair,index)=>{
     const candidates=data.teams.filter(team=>pair.includes(team.region));
     nodes+=nodeMarkup(candidates,5,index===0?430:506,FINAL_Y,68,index===1);
-    lines+=`<path class="connector title-stem" data-path-ids="${escape(candidates.map(team=>team.id).join(','))}" data-stage="6" data-route-key="title" d="M 502 ${FINAL_Y} V ${FINAL_Y-45}"/>`;
+    lines+=`<path class="connector title-stem" data-path-ids="${escape(candidates.map(team=>team.id).join(','))}" data-stage="6" data-start-x="502" data-start-y="${FINAL_Y}" data-route-key="title" d="M 502 ${FINAL_Y} V ${FINAL_Y-45}"/>`;
   });
   nodes+=nodeMarkup(data.teams,6,466,FINAL_Y-45,72,false);
   const headings=['Round of 64','Round of 32','Sweet 16','Elite Eight','Final Four','Championship','Final Four','Elite Eight','Sweet 16','Round of 32','Round of 64'];
@@ -187,7 +187,10 @@ function decorateRoute(id, round) {
       const stage=Number(line.dataset.stage), p=probabilities[stage]??0;
       if(!line.dataset.pathIds.split(',').includes(id) || !unresolved.has(stage)) continue;
       activeKeys.add(line.dataset.routeKey);
-      routes.push(`<path class="connector route" data-stage="${stage}" pathLength="1" d="${line.dataset.originalPath}" style="stroke-width:${.5+15*Math.sqrt(p)}"/>`);
+      const width=.5+15*Math.sqrt(p);
+      routes.push(`<path class="connector route" data-stage="${stage}" pathLength="1" d="${line.dataset.originalPath}" style="stroke-width:${width}"/>`);
+      // The other three quarters lie inside the two strokes. Only the outer corner adds area.
+      if(stage>1 && unresolved.has(stage-1)) routes.push(`<ellipse class="route-join" data-stage="${stage}" cx="${line.dataset.startX}" cy="${line.dataset.startY}" style="rx:${width/2}px;ry:${(.5+15*Math.sqrt(probabilities[stage-1]))/2}px"/>`);
       if(stage<6 && mode==='forecast') labels.push(`<text data-stage="${stage}" x="${line.dataset.labelX}" y="${line.dataset.labelY}" text-anchor="middle">${probabilityLabel(p)}</text>`);
     }
     for(const line of lines) {
@@ -198,17 +201,12 @@ function decorateRoute(id, round) {
     }
     const routeGroup=$('.active-route');
     routeGroup.querySelectorAll('.retiring').forEach(path=>path.remove());
-    routeGroup.querySelectorAll('path').forEach(path=>{
-      if(reducedMotion.matches) { path.remove(); return; }
-      path.getAnimations().forEach(animation=>animation.cancel());
-      path.classList.add('retiring');
-      path.animate([{strokeWidth:path.style.strokeWidth},{strokeWidth:0}],{duration:50+Number(path.dataset.stage)*100,fill:'forwards'}).finished.then(()=>path.remove()).catch(()=>{});
+    [...routeGroup.children].forEach(element=>{
+      if(reducedMotion.matches) element.remove();
+      else animateRoute(element,true);
     });
     routeGroup.insertAdjacentHTML('beforeend',routes.join(''));
-    if(!reducedMotion.matches) routeGroup.querySelectorAll('path:not(.retiring)').forEach(path=>{
-      const stage=Number(path.dataset.stage);
-      path.animate([{strokeDasharray:'1',strokeDashoffset:1,strokeWidth:0},{strokeDasharray:'1',strokeDashoffset:0,strokeWidth:path.style.strokeWidth}],{duration:50+stage*100,delay:(stage-1)*45,fill:'backwards'});
-    });
+    if(!reducedMotion.matches) routeGroup.querySelectorAll(':scope > :not(.retiring)').forEach(element=>animateRoute(element,false));
     $('.route-probabilities').innerHTML=labels.join('');
     $('#title-team').textContent=team?.name??'';
     $('.title-probability').textContent=!team?'':mode==='results'?probabilities[6]===1?'Winner':'':probabilities[6]===1?'100%':probabilities[6]===0?'0%':probabilityLabel(probabilities[6]);
@@ -224,6 +222,35 @@ function decorateRoute(id, round) {
     }
   }
   $('.route-probabilities').querySelectorAll('text').forEach(label=>label.classList.toggle('selected-percentage',Number(label.dataset.stage)===round));
+}
+
+const routeTiming = stage => ({duration:50+stage*100,delay:(stage-1)*45});
+
+function animateRoute(element, retiring) {
+  const stage=Number(element.dataset.stage), line=element.tagName==='path';
+  const properties=line?{strokeWidth:stage}:{rx:stage,ry:stage-1};
+  const computed=getComputedStyle(element);
+  if(retiring && computed.visibility==='hidden') { element.remove(); return; }
+  // Snapshot before cancelling so a rapid pointer change cannot jump to full width.
+  const current=Object.fromEntries(Object.keys(properties).map(key=>[key,computed[key]]));
+  const dash={strokeDasharray:computed.strokeDasharray,strokeDashoffset:computed.strokeDashoffset};
+  element.getAnimations().forEach(animation=>animation.cancel());
+  if(retiring) element.classList.add('retiring');
+  const animations=Object.entries(properties).map(([property,round])=>{
+    const from={[property]:retiring?current[property]:'0px'};
+    const to={[property]:retiring?'0px':element.style[property]};
+    if(line) {
+      Object.assign(from,retiring?dash:{strokeDasharray:'1',strokeDashoffset:1});
+      Object.assign(to,retiring?dash:{strokeDasharray:'1',strokeDashoffset:0});
+    }
+    return element.animate([from,to],retiring?{duration:routeTiming(round).duration,fill:'forwards'}:{...routeTiming(round),fill:'backwards'});
+  });
+  if(!line && !retiring) {
+    const incoming=routeTiming(stage-1);
+    // Wait for the incoming dash to reach the seam; no detached corner during drawing.
+    element.animate([{visibility:'hidden'},{visibility:'hidden'}],{duration:incoming.delay+incoming.duration});
+  }
+  if(retiring) Promise.all(animations.map(animation=>animation.finished)).then(()=>element.remove()).catch(()=>{});
 }
 
 function renderTable() {

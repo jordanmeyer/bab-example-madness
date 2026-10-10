@@ -1,5 +1,7 @@
 # Independent rounded-corner review
 
+**Rejected and superseded.** The user’s enlarged screenshot exposed protruding circular caps where the next segment was narrower. This review incorrectly accepted that defect as a small shoulder. It is retained as a failed review record; the current correction uses an ellipse matched to both stroke widths.
+
 Reviewed source checkpoint `a58ed7b3aa92a22e090a3be3815377d08b65b00c` and its production preview at `http://localhost:9742/bab-example-madness/` on 2026-10-09, with the 1004-pixel bracket at a 1280-pixel browser viewport.
 
 **Pass for this bounded correction.** The defect was the join between separate SVG stage paths: `stroke-linejoin: round` covered each path's internal elbow, while its butt-capped endpoint left a square notch where the next stage began. Adding `stroke-linecap: round` to highlighted routes removes those notches without changing probability widths, route positions, data, or animation logic.
