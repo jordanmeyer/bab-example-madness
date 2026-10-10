@@ -282,14 +282,14 @@ function decorateRoute(id, round) {
       const length=paths.reduce((sum,path)=>sum+path.getTotalLength(),0), timing=new Map();
       let delay=0;
       for(const path of paths) {
-        const duration=900*path.getTotalLength()/length;
+        const duration=450*path.getTotalLength()/length;
         timing.set(Number(path.dataset.stage),{duration,delay});
         delay+=duration;
       }
       const startTime=document.timeline.currentTime;
       routeGroup.querySelectorAll(':scope > :not(.retiring)').forEach(element=>animateRoute(element,false,timing,startTime));
     }
-    // Reveal the title chance once its route has reached the center; replay steps are shorter than the drawing.
+    // Reveal the title chance once its route has reached the center; replay redraws every step, so keep it steady there.
     const center=$('.title-forecast'), drawing=timer?[]:[...routeGroup.querySelectorAll(':scope > :not(.retiring)')].flatMap(element=>element.getAnimations());
     center.classList.toggle('drawing',drawing.length>0);
     if(drawing.length) Promise.all(drawing.map(animation=>animation.finished)).then(()=>{if(previewId===id)center.classList.remove('drawing');},()=>{});
