@@ -27,6 +27,20 @@ try{
   for(const team of data.teams){const name=team.bracketName,shown=ctx.measureText(name).width<=62?name:narrowNames[name]??name;if(ctx.measureText(shown).width>62)missing[name]=Math.round(ctx.measureText(shown).width);}
   const names=data.teams.map(team=>ctx.measureText(team.bracketName).width<=62?team.bracketName:narrowNames[team.bracketName]??team.bracketName);
   check(`${year}: narrow labels identify distinct teams`,new Set(names).size===names.length);
+  if(data.forecasts.length>1){
+   const band=$('.round-band[title="Final"]').getBoundingClientRect(),label=$('.round-band[title="Final"] span').getBoundingClientRect(),track=$('#snapshot').getBoundingClientRect();
+   const finalDate=new Date(data.games.find(g=>g.round===6).date).toLocaleDateString('en-CA',{timeZone:'America/New_York'});
+   const index=data.forecasts.findIndex(f=>f.date===finalDate),tick=$(index<0?'.date-tick.unavailable':`.date-tick[data-snapshot="${index}"]`).getBoundingClientRect();
+   const center=tick.left+tick.width/2,first=$('.date-tick[data-snapshot="0"]').getBoundingClientRect();
+   const dayWidth=(center-first.left-first.width/2)/((Date.parse(finalDate)-Date.parse(data.forecasts[0].date))/86400000);
+   check(`${year}: final day has full centered shading and label`,Math.abs(band.width-dayWidth)<.1&&Math.abs((band.left+band.right)/2-center)<.1&&Math.abs((label.left+label.right)/2-center)<.1&&band.right<=track.right+.1,{bandWidth:band.width,dayWidth,labelOffset:(label.left+label.right)/2-center});
+   for(const target of [0,Math.floor(data.forecasts.length/2),data.forecasts.length-1]){
+    const mark=$(`.date-tick[data-snapshot="${target}"]`).getBoundingClientRect();
+    $('#snapshot').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:mark.left+mark.width/2,clientY:track.top+65}));
+    check(`${year}: calendar click selects snapshot ${target}`,Number($('#snapshot').getAttribute('aria-valuenow'))===target);
+   }
+   $('#snapshot').dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true}));
+  }
   labels(year,'initial');
   $('#snapshot').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));labels(year,'last');
   $('#results-mode').click();labels(year,'results');

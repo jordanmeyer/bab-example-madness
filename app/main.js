@@ -91,6 +91,12 @@ function stopPlaying() {
   $('#play').setAttribute('aria-label', 'Play tournament');
 }
 
+function snapshotRange() {
+  const finalDate = new Date(data.games.find(game=>game.round===6).date).toLocaleDateString('en-CA',{timeZone:'America/New_York'});
+  // Include the full first and final calendar days, not just their centers.
+  return { finalDate, start: snapshotDay(data.forecasts[0].date)-.5, end: Math.max(snapshotDay(data.forecasts.at(-1).date),snapshotDay(finalDate))+.5 };
+}
+
 function render() {
   refreshProbabilities();
   $('#forecast-mode').disabled = !data.forecasts?.length;
@@ -106,10 +112,8 @@ function render() {
   if (mode === 'forecast') {
     const status = snapshotStatus(data, snapshotIndex);
     $('#snapshot-title').textContent = snapshotName();
-    const firstDay = snapshotDay(data.forecasts[0].date);
-    const finalDate = new Date(data.games.find(game=>game.round===6).date).toLocaleDateString('en-CA',{timeZone:'America/New_York'});
-    const lastDay = Math.max(snapshotDay(data.forecasts.at(-1).date), snapshotDay(finalDate));
-    const position = date => lastDay===firstDay ? 0 : (snapshotDay(date)-firstDay)/(lastDay-firstDay)*100;
+    const { finalDate, start: firstDay, end: lastDay } = snapshotRange();
+    const position = date => (snapshotDay(date)-firstDay)/(lastDay-firstDay)*100;
     $('#snapshot').setAttribute('aria-valuemax', data.forecasts.length-1);
     $('#snapshot').setAttribute('aria-valuenow', snapshotIndex);
     $('#snapshot').setAttribute('aria-valuetext', `${snapshotName()}. ${status.label}`);
@@ -124,7 +128,7 @@ function render() {
     $('#snapshot').innerHTML = `${bands}<span class="track-line"></span>${data.forecasts.map((snapshot,index)=>{
       const monthStart=index===0 || snapshot.date.slice(0,7)!==data.forecasts[index-1].date.slice(0,7);
       return `<span class="date-tick ${index===snapshotIndex?'current':''} ${index===0?'first':''} ${index===data.forecasts.length-1?'last':''}" data-snapshot="${index}" style="left:${position(snapshot.date)}%" title="${dateLabel(snapshot.date,true)}"><span class="tick-label">${monthStart?dateLabel(snapshot.date):Number(snapshot.date.slice(8,10))}</span></span>`;
-    }).join('')}${snapshotDay(finalDate)>snapshotDay(data.forecasts.at(-1).date)?`<span class="date-tick unavailable" style="left:100%" title="${dateLabel(finalDate,true)} · Championship game · No archived forecast" aria-label="${dateLabel(finalDate,true)} championship game; forecast unavailable"><span class="tick-label">${dateLabel(finalDate)}</span></span>`:''}`;
+    }).join('')}${snapshotDay(finalDate)>snapshotDay(data.forecasts.at(-1).date)?`<span class="date-tick unavailable" style="left:${position(finalDate)}%" title="${dateLabel(finalDate,true)} · Championship game · No archived forecast" aria-label="${dateLabel(finalDate,true)} championship game; forecast unavailable"><span class="tick-label">${dateLabel(finalDate)}</span></span>`:''}`;
     $('#play').disabled = data.forecasts.length<2;
   } else {
     const champion = data.teams.find(team => currentP(team.id)?.[6] === 1);
@@ -387,8 +391,7 @@ function chooseSnapshot(index) { stopPlaying(); snapshotIndex=index; render(); }
 $('#snapshot').addEventListener('click',event=>{
   if(data.forecasts.length<2||event.target.closest('.unavailable')) return;
   const tick=event.target.closest('[data-snapshot]');
-  const firstDay=snapshotDay(data.forecasts[0].date), finalDate=new Date(data.games.find(game=>game.round===6).date).toLocaleDateString('en-CA',{timeZone:'America/New_York'});
-  const lastDay=Math.max(snapshotDay(data.forecasts.at(-1).date),snapshotDay(finalDate));
+  const { start: firstDay, end: lastDay } = snapshotRange();
   const bounds=event.currentTarget.getBoundingClientRect();
   chooseSnapshot(tick?Number(tick.dataset.snapshot):nearestSnapshot(data.forecasts,firstDay+(event.clientX-bounds.left)/bounds.width*(lastDay-firstDay)));
   $('#snapshot').focus();
