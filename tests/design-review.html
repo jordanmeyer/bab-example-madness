@@ -47,7 +47,7 @@ try{
   check(`${year}: championship score shown at rest`,/\d+–\d+/.test($('.title-probability').textContent));
   check(`${year}: advanced Results slots have score or no-contest tooltip`,[...doc.querySelectorAll('.team-node:not([data-round="0"])')].every(n=>/(Won \d+–\d+|Advanced by rule)/.test(n.title)));
  }
- await choose(2016);$('#bracket-view').click();$('#team-select').value='161';$('#team-select').dispatchEvent(new Event('change',{bubbles:true}));
+ await choose(2016);$('#bracket-view').click();$('.play-in [data-team="161"]').click();
  check('Rounded-zero active forecast never exposes a future loss',!$('.center-note').textContent.includes('Out')&&$('.big-probability').textContent==='<1%'&&$('.team-summary').textContent.includes('still in the tournament'));
  await choose(2023);$('#bracket-view').click();
  check('Ranked center clears championship slot',$('.title-forecast').getBoundingClientRect().bottom<$('.team-node[data-round="6"]').getBoundingClientRect().top);
@@ -58,9 +58,9 @@ try{
  $('#bracket-panel').dispatchEvent(new PointerEvent('pointerleave'));
  $('.team-node').focus();$('.team-node').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
  check('Arrow navigation retains one bracket tab stop',doc.activeElement.dataset.round==='1'&&doc.querySelectorAll('.team-node[tabindex="0"]').length===1);
- $('#team-select').focus();
+ $('#bracket-view').focus();
  check('Initial leaders match independent archived values', $('#title-leaders').textContent.startsWith('Houston22%Alabama16%Texas8%'));
- $('#team-select').value='333';$('#team-select').dispatchEvent(new Event('change',{bubbles:true}));
+ $('.team-node[data-round="0"][data-team="333"]').click();
  check('Initial selected probability is rounded; no one-point chart',$('.big-probability').textContent==='16%'&&!$('#history-chart'));
  check('Detail precedes First Four',Boolean($('#team-detail').compareDocumentPosition($('#first-four-panel'))&Node.DOCUMENT_POSITION_FOLLOWING));
  $('#snapshot').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));

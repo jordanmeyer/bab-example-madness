@@ -59,8 +59,6 @@ main { max-width: 1024px; margin: auto; padding: 0 10px; }
 .results-heading strong { color: var(--duke-navy-blue); }
 .explore-help { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .5rem 0; }
 .explore-help > p { margin: 0; font-size: 13px; color: var(--duke-graphite); flex: 1; }
-.team-picker { display: flex; align-items: center; gap: .6rem; font-size: 12px; white-space: nowrap; }
-.team-picker select { padding: .3rem .5rem; max-width: 240px; font-size: .75rem; min-height: 34px; }
 .pinned-chip { font-size: 12px; padding: .25rem .6rem; min-height: 32px; background: var(--duke-ginger-beer); white-space: nowrap; }
 .bracket-scroll { overflow-x: auto; }
 .bracket-scroll-hint { display: none; color: var(--duke-graphite); font-size: 12px; }
@@ -95,7 +93,7 @@ main { max-width: 1024px; margin: auto; padding: 0 10px; }
 .title-probability { font-family: var(--duke-font-heading); font-size: 3.3rem; line-height: 1.1; font-variant-numeric: lining-nums tabular-nums; }
 .title-probability.long-probability { font-size: 2.7rem; }
 .center-note { color: var(--duke-graphite); font-size: 12px; line-height: 1.4; margin: .3rem 0 0; }
-.title-forecast.unselected .center-note { font-size: 12px; }
+.center-note:empty { display: none; }
 .bracket-status { position: absolute; top: 8px; left: 415px; width: 174px; text-align: center; color: var(--duke-graphite); font-size: 12px; line-height: 1.4; pointer-events: none; }
 .bracket-status span { color: var(--duke-copper); }
 .bracket-status strong { font-size: 12px; font-weight: 600; }
@@ -192,8 +190,6 @@ footer { max-width: 1024px; margin: auto; padding: 1.3rem 10px; background: var(
   .table-scroll, .history-details .table-scroll { max-height: none; }
   .explore-help { flex-wrap: wrap; gap: .35rem; padding: .45rem 0; }
   .explore-help > p { flex-basis: 100%; font-size: 12px; }
-  .team-picker { flex: 1; justify-content: space-between; }
-  .team-picker select { max-width: 225px; flex: 1; }
   .pinned-chip { order: 2; }
   .first-four { display: block; }
   .first-four h3 { margin-bottom: .8rem; }

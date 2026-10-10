@@ -24,7 +24,7 @@ const joins=()=>[...route().querySelectorAll('ellipse:not(.retiring)')];
 const style=node=>win.getComputedStyle(node);
 const width=node=>parseFloat(style(node).strokeWidth);
 const currentAnimations=()=>[...route().children].flatMap(node=>node.getAnimations());
-function select(id){const select=doc.querySelector('#team-select');select.value=id;select.dispatchEvent(new win.Event('change',{bubbles:true}));}
+function select(id){if(!id){doc.querySelector('#clear-pin').click();return;}(doc.querySelector(`.play-in [data-team="${id}"]`)??doc.querySelector(`.team-node[data-round="0"][data-team="${id}"]`)).click();}
 async function freeze(time){for(const animation of currentAnimations()){animation.pause();animation.currentTime=time;}await tick();}
 async function finish(){for(const animation of currentAnimations())animation.finish();await tick();}
 function snapshot(node){const clone=node.cloneNode(false),computed=style(node);clone.removeAttribute('style');for(const property of ['fill','stroke','stroke-width','stroke-linecap','stroke-linejoin','stroke-dasharray','stroke-dashoffset','visibility','display'])clone.setAttribute(property,computed.getPropertyValue(property));if(node.tagName==='ellipse'){clone.setAttribute('rx',computed.rx);clone.setAttribute('ry',computed.ry);}return clone;}
@@ -78,7 +78,7 @@ try{
     }
   });
   for(const [id,name] of [['333','Alabama'],['120','Maryland'],['2305','Kansas'],['12','Arizona'],['248','Houston'],['161','Fairleigh Dickinson']])await check(`${name}: rasterized settled corners stay within the next band, without notches (including title)`,async()=>{
-    if(doc.querySelector('#team-select').value!==id)select(id);await finish();
+    select(id);await finish();
     assert(joins().length===5,'Expected five uncertain-stage junctions.');
     for(const join of joins()){
       const {incoming,outgoing,cx,cy,dx,dy}=seam(join),rx=width(outgoing)/2,ry=width(incoming)/2;

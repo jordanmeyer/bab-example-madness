@@ -68,7 +68,6 @@ async function loadYear(year) {
       return;
     }
     refreshProbabilities();
-    $('#team-select').innerHTML = '<option value="">Choose a team…</option>' + [...data.teams].sort((a,b) => a.name.localeCompare(b.name)).map(team => `<option value="${escape(team.id)}">${escape(team.name)} · ${team.seed} seed</option>`).join('');
     $('#workspace').hidden = false;
     render();
     $('#explorer').setAttribute('aria-busy', 'false');
@@ -135,7 +134,6 @@ function render() {
     $('#results-heading').innerHTML = `<strong>${data.year} champion: ${escape(champion?.name ?? 'Not recorded')}.</strong> Every stage below represents a completed result. Scores and game details appear when you select a team.`;
   }
   $('#explore-help').textContent = view === 'bracket' ? 'Move over the bracket to preview. Click to pin; Escape clears. Arrow keys move between slots.' : mode === 'forecast' ? 'Sort a stage to compare chances. Select a team to inspect its forecast history below.' : 'Checkmarks show stages reached. Select a team for its games and scores.';
-  $('#team-select').value = selectedId ?? '';
   updatePin();
   $('#bracket-panel').hidden = view !== 'bracket';
   $('#table-panel').hidden = view !== 'table';
@@ -241,7 +239,7 @@ function decorateRoute(id, round) {
     $('.title-probability').textContent=!team ? champion ? scoreLabel(final) : '' : mode==='results' ? probabilities[6]===1 ? scoreLabel(final) : '' : isEliminated(id) ? '' : probabilities[6]===0 ? '<1%' : percent(probabilities[6]);
     $('.title-probability').title=team&&mode==='forecast'?exactProbability(probabilities[6]):'';
     $('.title-probability').classList.toggle('long-probability',$('.title-probability').textContent.length>5);
-    $('.center-note').textContent=loss ? `Out · ${loss.status==='no-contest'?'did not advance against':'lost to'} ${teamById(loss.teamIds.find(other=>other!==id)).bracketName} in the ${loss.roundName??STAGES[loss.round-1]}` : !team ? champion ? `${data.year} champion · vs. ${teamById(final.teamIds.find(other=>other!==champion.id)).bracketName}` : 'Even the favorite is a long shot. Explore a team’s route.' : mode==='results' ? probabilities[6]===1 ? `${data.year} champion` : resultStatus(probabilities) : 'Chance of winning the tournament';
+    $('.center-note').textContent=loss ? `Out · ${loss.status==='no-contest'?'did not advance against':'lost to'} ${teamById(loss.teamIds.find(other=>other!==id)).bracketName} in the ${loss.roundName??STAGES[loss.round-1]}` : !team ? champion ? `${data.year} champion · vs. ${teamById(final.teamIds.find(other=>other!==champion.id)).bracketName}` : '' : mode==='results' ? probabilities[6]===1 ? `${data.year} champion` : resultStatus(probabilities) : 'Chance of winning the tournament';
     $('#title-leaders').innerHTML=!team && mode==='forecast' ? [...data.teams].filter(item=>!isEliminated(item.id)).sort((a,b)=>currentP(b.id)[6]-currentP(a.id)[6]).slice(0,5).map(item=>`<li><span>${escape(item.bracketName)}</span><strong title="${exactProbability(currentP(item.id)[6])}">${percent(currentP(item.id)[6])}</strong></li>`).join('') : '';
     $('.title-forecast').classList.toggle('unselected',!team);
     for(const {element:node} of slots) {
@@ -327,7 +325,6 @@ function updatePin() {
 
 function clearPin() {
   selectedId=null;
-  $('#team-select').value='';
   updatePin();
   if(view==='bracket') decorateRoute(null);
   else renderTable();
@@ -338,7 +335,6 @@ function clearPin() {
 function selectTeam(id) {
   if (!teamById(id)) return;
   selectedId = id;
-  $('#team-select').value = id;
   updatePin();
   if (view==='bracket') {
     decorateRoute(id, previewRound);
@@ -408,7 +404,6 @@ $('#forecast-mode').addEventListener('click',()=>{stopPlaying();mode='forecast';
 $('#results-mode').addEventListener('click',()=>{stopPlaying();mode='results';render();announce('Actual tournament results shown.');});
 $('#bracket-view').addEventListener('click',()=>{explicitView=true;view='bracket';render();});
 $('#table-view').addEventListener('click',()=>{explicitView=true;view='table';render();});
-$('#team-select').addEventListener('change',event=>event.target.value?selectTeam(event.target.value):clearPin());
 $('#clear-pin').addEventListener('click',clearPin);
 function chooseSnapshot(index) { stopPlaying(); snapshotIndex=index; render(); }
 $('#snapshot').addEventListener('click',event=>{
