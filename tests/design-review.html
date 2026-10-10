@@ -94,7 +94,7 @@ try{
  check('Probability cells use solid published colors',[...doc.querySelectorAll('.odds-table td[class^="odds-"]')].every(cell=>palette.includes(win.getComputedStyle(cell).backgroundColor)));
  check('Reached stages are unfilled',[...doc.querySelectorAll('.odds-reached')].every(cell=>win.getComputedStyle(cell).backgroundColor==='rgb(255, 255, 255)'));
  for(const year of [2024,2025,2026]){await choose(year);check(`${year}: single forecast replaces dead timeline`,$('#timeline').hidden&&!$('#single-snapshot').hidden);}
- await choose(2020);check('Cancelled controls are neutral',[...doc.querySelectorAll('.button-group button')].every(b=>b.disabled&&win.getComputedStyle(b).backgroundColor==='rgb(243, 242, 241)'));
+ await choose(2020);check('Cancelled controls are neutral',[...doc.querySelectorAll('.button-group button:not(#mens):not(#womens)')].every(b=>b.disabled&&win.getComputedStyle(b).backgroundColor==='rgb(243, 242, 241)'));
  await choose(2023);frame.style.width='1024px';await wait(()=>win.innerWidth===1024);$('#bracket-view').click();
  check('1024px explorer and bracket share both edges',Math.abs($('#explorer').getBoundingClientRect().left-$('.bracket-map').getBoundingClientRect().left)<1&&Math.abs($('#explorer').getBoundingClientRect().right-$('.bracket-map').getBoundingClientRect().right)<1);
  $('#table-view').click();frame.style.width='375px';await wait(()=>win.innerWidth===375);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));

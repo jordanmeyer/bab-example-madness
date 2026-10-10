@@ -2,17 +2,21 @@
 
 [Open the app](https://jordanmeyer.github.io/bab-example-madness/) · [Build story](https://jordanmeyer.github.io/bab-example-madness/build-story.html)
 
-Explore the men's NCAA tournament from 2016 through 2026: trace a team's bracket, compare its chance of reaching each round, and follow archived forecasts as games change the field. The 2020 cancellation is represented explicitly. This independent recreation draws its interaction pattern from [FiveThirtyEight's 2015 explorer](https://web.archive.org/web/20240411121651/https://projects.fivethirtyeight.com/madness-2015/index.html#mens).
+Explore the men’s and women’s NCAA tournaments from 2016 through 2026: trace a team's bracket, compare its chance of reaching each round, and follow archived forecasts as games change the field. The 2020 cancellation is represented explicitly. This independent recreation draws its interaction pattern from [FiveThirtyEight's 2015 explorer](https://web.archive.org/web/20240411121651/https://projects.fivethirtyeight.com/madness-2015/index.html#mens).
 
 The learning objective is to distinguish a strong contender from a certain champion and see how a knockout path compounds uncertainty.
 
+Use the Men/Women toggle beside the year selector. Switching keeps the year and resets the selected team and forecast playback.
+
 ## What the years contain
 
-- **2016–2019 and 2021–2023:** 83 original FiveThirtyEight daily snapshots, recovered from archived source CSVs. The latest available snapshots precede their championship games.
+- **2016–2019 and 2021–2023:** 83 men’s and 74 women’s original FiveThirtyEight daily snapshots, recovered from archived source CSVs. The latest available snapshots precede their championship games.
 - **2020:** no field, games, or invented forecasts.
-- **2024–2026:** one separately labeled reconstruction per year from frozen pre-tournament T-Rank ratings and Bart Torvik's documented neutral-court log5 formula. It averages across every possible opponent, including First Four teams. This is not a published FiveThirtyEight or T-Rank tournament forecast; there is no fabricated historical replay.
+- **2024–2026 men:** one separately labeled reconstruction per year from frozen pre-tournament T-Rank ratings and Bart Torvik's documented neutral-court log5 formula. It averages across every possible opponent, including First Four teams. This is not a published FiveThirtyEight or T-Rank tournament forecast; there is no fabricated historical replay.
 
 Actual game results are a separate view. Ratings in the reconstruction remain fixed and do not incorporate later results, injuries, venue effects, or rating uncertainty. See [the plan](PLAN.md), [data preparation and model explanation](data-preparation/README.md), and [data credits](app/public/DATA-NOTICES.txt).
+
+Women’s 2024–2026 include actual brackets and results only; verified pre-tournament forecast inputs are not bundled. Women’s fields have 64 teams through 2021 and 68 from 2022.
 
 ## Run locally
 

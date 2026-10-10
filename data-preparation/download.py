@@ -14,12 +14,13 @@ from normalize import ARCHIVES, BART_DATES, YEARS, forecast_url, scoreboard_url
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--gender', choices=['mens', 'womens'], default='mens')
     parser.add_argument('--raw', type=Path, required=True)
     args = parser.parse_args()
     args.raw.mkdir(parents=True, exist_ok=True)
-    jobs = [(f'espn-{year}-{month}.json', scoreboard_url(year, month)) for year in YEARS if year != 2020 for month in ['03', '04']]
+    jobs = [(f'espn-{year}-{month}.json', scoreboard_url(year, month, args.gender)) for year in YEARS if year != 2020 for month in ['03', '04']]
     jobs += [(f'forecast-{year}.csv', forecast_url(year)) for year in ARCHIVES]
-    jobs += [(f'bart-pre-{year}.source', f'https://barttorvik.com/timemachine/team_results/{date}_team_results.json.gz') for year, date in BART_DATES.items()]
+    jobs += [(f'bart-pre-{year}.source', f'https://barttorvik.com/timemachine/team_results/{date}_team_results.json.gz') for year, date in BART_DATES.items() if args.gender == 'mens']
 
     def fetch(job):
         name, url = job

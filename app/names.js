@@ -1,6 +1,8 @@
 // Reviewed narrow-strip labels; only used when bracketName exceeds measured space.
 // Full team names remain in tooltips and accessible labels. State schools stay distinct.
 export const narrowNames = {
+  'Albany (NY)':'Albany', 'Central Michigan':'C. Mich.',
+  'Missouri St.':'Mo. St.', 'South Dakota':'S. Dakota',
   'Abilene Chr.':'Abilene', 'Alabama St.':'Ala. St.', 'American U.':'American',
   'Austin Peay':'A. Peay', 'CSU Bakersfield':'Bakersfld', 'CSU Fullerton':'Fullerton',
   'Cal Baptist':'Cal Bap.', 'Charleston':'Charlest.', 'Chattanooga':'Chatt.',

@@ -1,0 +1,50 @@
+<!doctype html><meta charset="utf-8"><title>Women’s tournament regression</title>
+<style>body{font:14px system-ui;margin:20px}iframe{width:1200px;height:900px;border:1px solid #ccc}pre{white-space:pre-wrap}</style>
+<h1>Women’s tournament and switching checks</h1><p id="status">Running…</p><pre id="results"></pre><iframe src="../app/index.html" title="Actual application"></iframe>
+<script type="module">
+const frame=document.querySelector('iframe'),output=document.querySelector('#results'),results=[];
+const check=(name,pass,detail='')=>{results.push({name,pass,detail});output.textContent=JSON.stringify(results,null,2);};
+const wait=async fn=>{for(let i=0;i<500;i++){if(fn())return;await new Promise(r=>setTimeout(r,20));}throw Error('Timed out');};
+await wait(()=>frame.contentDocument.querySelector('.team-node'));
+const doc=frame.contentDocument,win=frame.contentWindow,$=s=>doc.querySelector(s);
+const loaded=()=>$('#explorer').getAttribute('aria-busy')==='false';
+const choose=async year=>{$('#year').value=year;$('#year').dispatchEvent(new Event('change',{bubbles:true}));await wait(loaded);};
+const switchTo=async gender=>{$(`#${gender}`).click();await wait(loaded);};
+const fit=label=>{const failed=[];for(const node of doc.querySelectorAll('.team-node:not(.empty)')){const range=doc.createRange();range.selectNodeContents(node.querySelector('.node-name'));const text=range.getBoundingClientRect(),box=node.getBoundingClientRect();if(text.left<box.left-.2||text.right>box.right+.2)failed.push(node.dataset.name);}check(`${label}: names fit`,!failed.length,failed);};
+try {
+ await switchTo('womens');
+ check('Toggle preserves 2023 and identifies Women', $('#year').value==='2023'&&$('#womens').getAttribute('aria-pressed')==='true'&&$('.bracket-status').textContent.startsWith('Women’s'));
+ const sc=$('.team-node[data-round="0"][data-team="2579"]'),box=sc.getBoundingClientRect();
+ sc.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:(box.left+box.right)/2,clientY:(box.top+box.bottom)/2}));
+ check('Women’s initial hover traces six uncertain rounds',doc.querySelectorAll('.active-route path:not(.retiring)').length===6&&$('.title-probability').textContent==='64%');
+ $('#bracket-panel').dispatchEvent(new PointerEvent('pointerleave'));
+ check('Women 2023 initially favors South Carolina at 64%',$('#title-leaders').textContent.startsWith('South Carolina64%'));
+ for(const year of [2016,2017,2018,2019,2021,2022,2023,2024,2025,2026]) {
+  await choose(year);$('#bracket-view').click();const data=await(await fetch(`/data/womens/${year}.json`)).json();
+  check(`${year}: women’s source download`, $('#source-list a[download]').getAttribute('href').endsWith(`/womens/${year}.json`));
+  check(`${year}: correct First Four visibility`,Boolean($('.first-four'))===(year>=2022));
+  fit(`${year} initial`);
+  if(data.forecasts.length) {
+   $('#snapshot').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));fit(`${year} last forecast`);
+   check(`${year}: timeline reaches actual final snapshot`,Number($('#snapshot').getAttribute('aria-valuenow'))===data.forecasts.length-1);
+   const team=data.teams.find(t=>t.seed===1);$(`.team-node[data-round="0"][data-team="${team.id}"]`).click();
+   check(`${year}: forecast history renders`,Boolean($('#history-chart svg')));$('#clear-pin').click();
+  } else check(`${year}: results-only is explicit`,$('#forecast-mode').disabled&&!$('#coverage-note').hidden&&$('#timeline').hidden&&$('#coverage-note').textContent.includes('Results only'));
+  $('#results-mode').click();fit(`${year} results`);
+  check(`${year}: champion matches women’s source`,$('.team-node[data-round="6"]').dataset.team===data.championTeamId);
+  const name=$('.team-node[data-round="6"] .node-name').getBoundingClientRect(),tree=$('.bracket-tree').getBoundingClientRect();
+  check(`${year}: champion is centered on title stem`,Math.abs((name.left+name.right)/2-tree.left-502)<.2);
+ }
+ await choose(2020);check('Women 2020 has no invented tournament',!$('#cancelled').hidden&&$('#workspace').hidden&&!$('#mens').disabled&&!$('#womens').disabled);
+ await switchTo('mens');check('Men 2020 stays cancelled and switchable',!$('#cancelled').hidden&&!$('#womens').disabled);
+ await choose(2023);$('#bracket-view').click();check('Men 2023 cache restores Houston favorite',$('#title-leaders').textContent.startsWith('Houston22%'));
+ $('#play').click();await switchTo('womens');check('Competition switch stops playback and clears pins',$('#play').getAttribute('aria-label')==='Play tournament'&&$('#clear-pin').hidden&&$('#snapshot').getAttribute('aria-valuenow')==='0');
+ check('Women 2023 cache restores South Carolina',$('#title-leaders').textContent.startsWith('South Carolina64%'));
+ $('#mens').click();$('#year').value='2025';$('#year').dispatchEvent(new Event('change',{bubbles:true}));$('#womens').click();await wait(loaded);
+ check('Rapid gender/year changes settle on requested women’s year',$('.bracket-status').textContent.startsWith('Women’s · 2025')&&$('.team-node[data-round="6"]').dataset.team==='41'&&$('#forecast-mode').disabled);
+ await choose(2023);$('#table-view').click();frame.style.width='375px';await wait(()=>win.innerWidth===375);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+ check('Phone toggle and page fit',doc.documentElement.scrollWidth===375&&$('#womens').getBoundingClientRect().right<=375);
+ $('#mens').focus();$('#mens').click();await wait(loaded);check('Phone Men switch preserves year/table',$('#year').value==='2023'&&!$('#table-panel').hidden&&$('#mens').getAttribute('aria-pressed')==='true');
+ document.querySelector('#status').textContent=`${results.filter(r=>r.pass).length}/${results.length} passed`;
+}catch(e){check('Harness completes',false,e.stack);document.querySelector('#status').textContent='ERROR';}
+</script>

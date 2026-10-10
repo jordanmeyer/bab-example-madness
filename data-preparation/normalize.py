@@ -19,6 +19,7 @@ ARCHIVES = {
 }
 BART_DATES = {2024: '20240318', 2025: '20250317', 2026: '20260316'}
 CHAMPIONS = {2016:'222', 2017:'153', 2018:'222', 2019:'258', 2021:'239', 2022:'2305', 2023:'41', 2024:'41', 2025:'57', 2026:'130'}
+WOMENS_CHAMPIONS = {2016:'41',2017:'2579',2018:'87',2019:'239',2021:'24',2022:'2579',2023:'99',2024:'2579',2025:'41',2026:'26'}
 NCAA_HISTORY = 'https://www.ncaa.com/history/basketball-men/d1'
 LIU_BRACKET = 'https://i.turner.ncaa.com/sites/default/files/external/printable-bracket/2018/bracket-ncaa.pdf'
 
@@ -54,48 +55,66 @@ def forecast_url(year):
     return f'https://web.archive.org/web/{ARCHIVES[year]}id_/https://projects.fivethirtyeight.com/march-madness-api/{year}/fivethirtyeight_ncaa_forecasts.csv'
 
 
-def scoreboard_url(year, month):
-    return f'https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates={year}{month}&groups=100&limit=1000'
+def scoreboard_url(year, month, gender="mens"):
+    return f'https://site.api.espn.com/apis/site/v2/sports/basketball/{gender}-college-basketball/scoreboard?dates={year}{month}&groups=100&limit=1000'
 
 
-def source(raw, name, url, label):
+def source(raw, name, url, label, retrieved_on="2026-10-09"):
     data = (raw / name).read_bytes()
-    return {'name': label, 'url': url, 'rawFile': name, 'sha256': hashlib.sha256(data).hexdigest(), 'retrievedOn': '2026-10-09'}
+    return {'name': label, 'url': url, 'rawFile': name, 'sha256': hashlib.sha256(data).hexdigest(), 'retrievedOn': retrieved_on}
 
 
-def normalize(raw, year):
+def normalize(raw, year, gender="mens"):
+    history = NCAA_HISTORY.replace("basketball-men", "basketball-women") if gender == "womens" else NCAA_HISTORY
     if year == 2020:
-        return {'year': year, 'status': 'cancelled', 'teams': [], 'games': [], 'forecasts': [], 'regionOrder': [], 'finalFourPairs': [], 'championTeamId': None, 'sources': [{'name': 'NCAA championship history: 2020 cancelled', 'url': NCAA_HISTORY}], 'corrections': [], 'note': 'The 2020 NCAA tournament was cancelled. No official bracket, games or championship forecast is fabricated.'}
+        return {'year': year, 'gender': gender, 'status': 'cancelled', 'teams': [], 'games': [], 'forecasts': [], 'regionOrder': [], 'finalFourPairs': [], 'championTeamId': None, 'sources': [{'name': 'NCAA championship history: 2020 cancelled', 'url': history}], 'corrections': [], 'note': 'The 2020 NCAA tournament was cancelled. No official bracket, games or championship forecast is fabricated.'}
     events = []
     sources = []
     for month in ['03', '04']:
         name = f'espn-{year}-{month}.json'
         events.extend(json.loads((raw / name).read_text())['events'])
-        sources.append(source(raw, name, scoreboard_url(year, month), f'ESPN tournament scoreboard, {year}-{month}'))
+        sources.append(source(raw, name, scoreboard_url(year, month, gender), f'ESPN tournament scoreboard, {year}-{month}', '2026-10-10' if gender == 'womens' else '2026-10-09'))
     forecast_rows = []
     if year in ARCHIVES:
-        forecast_rows = [r for r in csv.DictReader((raw / f'forecast-{year}.csv').open()) if r['gender'] == 'mens']
+        forecast_rows = [r for r in csv.DictReader((raw / f'forecast-{year}.csv').open()) if r['gender'] == gender]
         sources.append(source(raw, f'forecast-{year}.csv', forecast_url(year), f'FiveThirtyEight archived forecast CSV, {year}'))
     first_forecast = {r['team_id']: r for r in sorted(forecast_rows, key=lambda r: r['forecast_date'], reverse=True)}
-    if year == 2018:
+    if year == 2018 and gender == "mens":
         first_forecast['6446'] = first_forecast.pop('2341')
     teams, games, corrections = {}, [], []
     for event in sorted(events, key=lambda e: e['date']):
         c = event['competitions'][0]
         note = ' '.join(n['headline'] for n in c.get('notes', []))
-        round_no = next(i for i, text in enumerate(ROUND_MATCHES) if text in note.upper())
+        round_no = next((i for i, text in enumerate(ROUND_MATCHES) if text in note.upper()), None)
+        if round_no is None:
+            round_no = 3 if 'SEMIFINAL' in note.upper() else 4 if 'REGION' in note.upper() and note.upper().endswith('FINAL') else None
+        assert round_no is not None, (year, note)
         region_match = re.search(r'(East|West|South|Midwest) Region', note, re.I)
         region = region_match[1].title() if region_match else None
+        if gender == 'womens' and round_no < 5:
+            section = note.split(' - ')[1]
+            numbered = re.fullmatch(r'Regional (\d) in (.+)', section, re.I)
+            if numbered:
+                region = f'{numbered[2]} {numbered[1]}'
+            else:
+                region = re.sub(r' Region(?:al)?(?: (?:Semifinal|Final))?', '', section, flags=re.I).title()
         contestants = sorted(c['competitors'], key=lambda t: t['order'])
+        if gender == 'womens' and first_forecast and round_no < 5:
+            forecast_regions = {first_forecast[t['id']]['team_region'] for t in contestants}
+            assert len(forecast_regions) == 1, (year, event['id'], 'forecast regions disagree')
+            forecast_region = forecast_regions.pop()
+            if region != forecast_region:
+                corrections.append({'field': f"games[id={event['id']}].region", 'from': region, 'to': forecast_region, 'reason': 'Use the archived bracket region instead of the scoreboard host-site label.', 'sourceUrl': forecast_url(year)})
+                region = forecast_region
         for t in contestants:
             tid = t['id']
             rating_row = first_forecast.get(tid)
             seed = t['curatedRank']['current']
-            if year == 2018 and tid == '6446':
+            if year == 2018 and gender == 'mens' and tid == '6446':
                 seed = 16
             if tid not in teams:
                 name = rating_row['team_name'] if rating_row else t['team']['location']
-                if year == 2018 and tid == '6446':
+                if year == 2018 and gender == 'mens' and tid == '6446':
                     name = 'LIU Brooklyn'
                 bracket_name, super_short_name = bracket_names(tid, name, t['team'])
                 teams[tid] = {'id': tid, 'name': name, 'shortName': name, 'bracketName': bracket_name, 'superShortName': super_short_name, 'seed': seed, 'region': region, 'bracketSlot': SEEDS.index(seed), 'playIn': round_no == 0}
@@ -107,13 +126,13 @@ def normalize(raw, year):
         winners = [t['id'] for t in contestants if t.get('winner')]
         assert len(winners) == 1, (year, event['id'], 'winner count')
         assert no_contest or c['status']['type']['name'] == 'STATUS_FINAL'
-        games.append({'id': event['id'], 'date': c['date'], 'round': round_no, 'roundName': ROUND_LABELS[round_no], 'region': region, 'teamIds': [t['id'] for t in contestants], 'scores': [None, None] if no_contest else [int(t['score']) for t in contestants], 'winnerId': winners[0], 'status': 'no-contest' if no_contest else 'final', 'statusText': 'Oregon advanced; game not played' if no_contest else c['status']['type']['shortDetail'], 'sourceUrl': f'https://www.espn.com/mens-college-basketball/game/_/gameId/{event["id"]}'})
-    if year == 2018:
+        games.append({'id': event['id'], 'date': c['date'], 'round': round_no, 'roundName': ROUND_LABELS[round_no], 'region': region, 'teamIds': [t['id'] for t in contestants], 'scores': [None, None] if no_contest else [int(t['score']) for t in contestants], 'winnerId': winners[0], 'status': 'no-contest' if no_contest else 'final', 'statusText': 'Oregon advanced; game not played' if no_contest else c['status']['type']['shortDetail'], 'sourceUrl': f'https://www.espn.com/{gender}-college-basketball/game/_/gameId/{event["id"]}'})
+    if year == 2018 and gender == "mens":
         corrections.append({'field': 'teams[id=6446].seed/name and forecast team ID', 'from': 'ESPN seed 99; FiveThirtyEight team ID 2341, Long Island University', 'to': 'seed 16; historical name LIU Brooklyn; mapped forecast ID to ESPN 6446', 'reason': 'The 2018 East First Four was LIU Brooklyn vs Radford, both seed 16. This maps a historical provider ID change; it does not merge current LIU with unrelated teams.', 'sourceUrl': LIU_BRACKET})
-    if year == 2021:
+    if year == 2021 and gender == "mens":
         corrections.append({'field': 'games[id=401310924].scores', 'from': 'ESPN administrative score [1,0]', 'to': '[null,null]', 'reason': 'Provider status is UNCONTESTED and its note says Oregon advances. Administrative advancement is not a played 1–0 basketball score.', 'sourceUrl': 'https://www.espn.com/mens-college-basketball/game/_/gameId/401310924'})
     if year in ARCHIVES:
-        corrections.append({'field': 'team names', 'reason': 'Historical FiveThirtyEight names preferred to mutable current ESPN branding. Games join by stable numeric IDs, with the single documented 2018 LIU exception.', 'sourceUrl': forecast_url(year)})
+        corrections.append({'field': 'team names', 'reason': 'Historical FiveThirtyEight names preferred to mutable current ESPN branding. Games join by numeric team IDs; any explicit historical ID correction is separately recorded.', 'sourceUrl': forecast_url(year)})
     semifinals = [g for g in games if g['round'] == 5]
     pairs = [[teams[t]['region'] for t in g['teamIds']] for g in semifinals]
     regions = sum(pairs, [])
@@ -133,22 +152,25 @@ def normalize(raw, year):
     forecasts = []
     for date in sorted({r['forecast_date'] for r in forecast_rows}):
         rows = [r for r in forecast_rows if r['forecast_date'] == date]
-        forecasts.append({'date': date, 'teams': [{'id': '6446' if year == 2018 and r['team_id'] == '2341' else r['team_id'], 'p': [float(r[f'rd{i}_win']) for i in range(1, 8)], 'rating': float(r['team_rating']), 'alive': r['team_alive'] == '1'} for r in rows]})
+        forecasts.append({'date': date, 'teams': [{'id': '6446' if year == 2018 and gender == 'mens' and r['team_id'] == '2341' else r['team_id'], 'p': [float(r[f'rd{i}_win']) for i in range(1, 8)], 'rating': float(r['team_rating']), 'alive': r['team_alive'] == '1'} for r in rows]})
     champion = next(g['winnerId'] for g in games if g['round'] == 6)
-    sources.append({'name': 'NCAA championship history (champion cross-check)', 'url': NCAA_HISTORY})
-    return {'year': year, 'status': 'played', 'teams': sorted(teams.values(), key=lambda t: (regions.index(t['region']), t['bracketSlot'], t['id'])), 'games': sorted(games, key=lambda g: (g['round'], regions.index(g['region']) if g['region'] else 4, g['bracketOrder'], g['date'])), 'forecasts': forecasts, 'regionOrder': regions, 'finalFourPairs': pairs, 'championTeamId': champion, 'firstGameDate': min(g['date'] for g in games), 'lastGameDate': max(g['date'] for g in games), 'sources': sources, 'corrections': corrections, 'forecastNote': 'FiveThirtyEight daily archived snapshots; forecast_date is preserved as published and is not a precise live timestamp. Resolved advancement probabilities identify the games included in each snapshot; the interface derives its through-games status from those results. The latest snapshot precedes the championship.' if forecasts else 'FiveThirtyEight stopped updating sports forecasts in June 2023. This year contains actual tournament results, with no substituted forecast.'}
+    sources.append({'name': 'NCAA championship history (champion cross-check)', 'url': history})
+    return {'year': year, 'gender': gender, 'status': 'played', 'teams': sorted(teams.values(), key=lambda t: (regions.index(t['region']), t['bracketSlot'], t['id'])), 'games': sorted(games, key=lambda g: (g['round'], regions.index(g['region']) if g['region'] else 4, g['bracketOrder'], g['date'])), 'forecasts': forecasts, 'regionOrder': regions, 'finalFourPairs': pairs, 'championTeamId': champion, 'firstGameDate': min(g['date'] for g in games), 'lastGameDate': max(g['date'] for g in games), 'sources': sources, 'corrections': corrections, 'forecastNote': 'FiveThirtyEight daily archived snapshots; forecast_date is preserved as published and is not a precise live timestamp. Resolved advancement probabilities identify the games included in each snapshot; the interface derives its through-games status from those results. The latest snapshot precedes the championship.' if forecasts else 'FiveThirtyEight stopped updating sports forecasts in June 2023. This year contains actual tournament results, with no substituted forecast.'}
 
 
 def validate(d):
+    gender = d.get("gender", "mens")
+    field_size = 64 if gender == "womens" and d["year"] < 2022 else 68
+    round_counts = [field_size - 64, 32, 16, 8, 4, 2, 1]
     if d['status'] == 'cancelled':
         assert d['year'] == 2020 and not (d['teams'] or d['games'] or d['forecasts'])
         return {'year': 2020, 'status': 'cancelled', 'games': 0, 'teams': 0, 'snapshots': 0}
     teams = {t['id']: t for t in d['teams']}
-    assert len(teams) == len(d['teams']) == 68
-    assert len({g['id'] for g in d['games']}) == len(d['games']) == 67
+    assert len(teams) == len(d['teams']) == field_size
+    assert len({g['id'] for g in d['games']}) == len(d['games']) == field_size - 1
     assert len(set(d['regionOrder'])) == 4 and sum(d['finalFourPairs'], []) == d['regionOrder']
-    assert d['championTeamId'] == CHAMPIONS[d['year']]
-    assert [sum(g['round'] == r for g in d['games']) for r in range(7)] == [4, 32, 16, 8, 4, 2, 1]
+    assert d['championTeamId'] == (WOMENS_CHAMPIONS if gender == 'womens' else CHAMPIONS)[d['year']]
+    assert [sum(g['round'] == r for g in d['games']) for r in range(7)] == round_counts
     for region in d['regionOrder']:
         assert {t['seed'] for t in d['teams'] if t['region'] == region} == set(range(1, 17))
         for r in range(1, 5):
@@ -166,7 +188,7 @@ def validate(d):
             assert len(predecessors) == 2 and {p['winnerId'] for p in predecessors} == set(g['teamIds'])
     max_sum_error = 0
     for f in d['forecasts']:
-        assert {t['id'] for t in f['teams']} == teams.keys() and len(f['teams']) == 68
+        assert {t['id'] for t in f['teams']} == teams.keys() and len(f['teams']) == field_size
         for t in f['teams']:
             assert all(math.isfinite(p) and 0 <= p <= 1 for p in t['p'])
             assert all(a + 1e-9 >= b for a, b in zip(t['p'], t['p'][1:]))
@@ -174,23 +196,29 @@ def validate(d):
             error = abs(sum(t['p'][i] for t in f['teams']) - expected)
             max_sum_error = max(max_sum_error, error)
             assert error < 2e-6, (d['year'], f['date'], i, error)
-    return {'year': d['year'], 'status': 'validated', 'teams': 68, 'games': 67, 'playedGames': sum(g['status'] == 'final' for g in d['games']), 'roundCounts': [4,32,16,8,4,2,1], 'snapshots': len(d['forecasts']), 'earliestForecast': d['forecasts'][0]['date'] if d['forecasts'] else None, 'latestForecast': d['forecasts'][-1]['date'] if d['forecasts'] else None, 'maximumRoundProbabilitySumError': max_sum_error, 'championId': d['championTeamId'], 'championName': teams[d['championTeamId']]['name']}
+    return {'year': d['year'], 'status': 'validated', 'teams': field_size, 'games': field_size-1, 'playedGames': sum(g['status'] == 'final' for g in d['games']), 'roundCounts': round_counts, 'snapshots': len(d['forecasts']), 'earliestForecast': d['forecasts'][0]['date'] if d['forecasts'] else None, 'latestForecast': d['forecasts'][-1]['date'] if d['forecasts'] else None, 'maximumRoundProbabilitySumError': max_sum_error, 'championId': d['championTeamId'], 'championName': teams[d['championTeamId']]['name']}
 
 
 def main():
     p = argparse.ArgumentParser()
+    p.add_argument('--gender', choices=['mens','womens'], default='mens')
     p.add_argument('--raw', type=Path, required=True)
     p.add_argument('--out', type=Path, required=True)
     args = p.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
+    destination = args.out / 'womens' if args.gender == 'womens' else args.out
+    destination.mkdir(parents=True, exist_ok=True)
     index, results = [], []
     for year in YEARS:
-        d = normalize(args.raw, year)
+        d = normalize(args.raw, year, args.gender)
         results.append(validate(d))
-        (args.out / f'{year}.json').write_text(json.dumps(d, ensure_ascii=False, separators=(',', ':')) + '\n')
-        index.append({'year': year, 'status': d['status'], 'file': f'{year}.json', 'forecastDates': [f['date'] for f in d['forecasts']], 'championTeamId': d['championTeamId']})
-    (args.out / 'index.json').write_text(json.dumps({'schemaVersion': 1, 'gender': 'mens', 'years': index}, indent=2) + '\n')
-    (args.out / 'validation.json').write_text(json.dumps({'retrievedOn': '2026-10-09', 'checks': ['68 unique teams and 67 bracket games per played year', '4/32/16/8/4/2/1 round counts', 'All regional seeds and bracket orders', 'Actual Final Four region pairings', 'Winner/next-game topology and scores', 'Champions independently cross-checked against NCAA history', '68 mapped teams per snapshot', 'All probabilities finite, bounded and monotonically decreasing', 'Per-snapshot round probability totals 64/32/16/8/4/2/1 within 0.000002', '2020 cancelled and 2021 no-contest represented without scores'], 'years': results}, indent=2) + '\n')
+        (destination / f'{year}.json').write_text(json.dumps(d, ensure_ascii=False, separators=(',', ':')) + '\n')
+        index.append({'year': year, 'status': d['status'], 'file': f'womens/{year}.json' if args.gender == 'womens' else f'{year}.json', 'forecastDates': [f['date'] for f in d['forecasts']], 'championTeamId': d['championTeamId']})
+    catalog_path = args.out / 'index.json'
+    catalog = json.loads(catalog_path.read_text()) if catalog_path.exists() else {'schemaVersion': 2, 'competitions': {}}
+    catalog['competitions'][args.gender] = {'years': index}
+    catalog_path.write_text(json.dumps(catalog, indent=2) + '\n')
+    (destination / 'validation.json').write_text(json.dumps({'retrievedOn': '2026-10-10', 'checks': ['64 or 68 unique teams, one fewer bracket game', 'Correct field-size-specific round counts', 'All regional seeds and bracket orders', 'Actual Final Four region pairings', 'Winner/next-game topology and scores', 'Champions independently cross-checked against NCAA history', 'Every field team mapped per snapshot', 'All probabilities finite, bounded and monotonically decreasing', 'Per-snapshot round probability totals 64/32/16/8/4/2/1 within 0.000002', '2020 cancelled and 2021 no-contest represented without scores'], 'years': results}, indent=2) + '\n')
     print(json.dumps(results, indent=2))
 
 

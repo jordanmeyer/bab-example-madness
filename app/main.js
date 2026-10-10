@@ -8,16 +8,17 @@ echarts.use([LineChart, GridComponent, TooltipComponent, AriaComponent, SVGRende
 import { echartsTheme } from './theme/echarts.js';
 import { STAGES, probabilityLabel, exactProbability, probabilitiesFor, resultPath, teamHistory, bracketCandidates, sortTeams, snapshotDay, nearestSnapshot, snapshotStatus, unresolvedStages, lostAtStage, resultStatus } from './model.js';
 
-const DATA_REVISION = '2026-10-09-bracket-labels';
+const DATA_REVISION = '2026-10-10-womens';
 const $ = selector => document.querySelector(selector);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const dateLabel = (value, year = false) => new Date(`${value.slice(0, 10)}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', ...(year ? { year: 'numeric' } : {}), timeZone: 'UTC' });
 const narrow = matchMedia('(max-width: 680px)');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-let catalog, data, selectedId, snapshotIndex = 0, mode = 'forecast', view = $('#explorer').clientWidth >= 1004 ? 'bracket' : 'table';
+let catalog, data, selectedId, gender = 'mens', snapshotIndex = 0, mode = 'forecast', view = $('#explorer').clientWidth >= 1004 ? 'bracket' : 'table';
 let explicitView = false, previewId, previewRound, slots = [];
 let sort = { key: 'p6', direction: -1 }, timer, request = 0, chart, observer, pathMap;
 const cache = new Map();
+const competitionName = () => gender === 'womens' ? 'Women’s' : 'Men’s';
 const currentP = id => pathMap.get(id);
 const teamById = id => data.teams.find(team => team.id === id);
 const isEliminated = id => mode==='results' ? currentP(id)[6]===0 : data.forecasts[snapshotIndex].teams.find(team=>team.id===id).alive===false;
@@ -32,7 +33,14 @@ const displayName = (team, width) => nameMeasure.measureText(team.bracketName).w
 const scoreLabel = game => game.status === 'no-contest' ? 'Advanced by rule' : [game.scores[game.teamIds.indexOf(game.winnerId)], game.scores[1-game.teamIds.indexOf(game.winnerId)]].join('–');
 const announce = message => { $('#announcement').textContent = message; };
 
-async function loadYear(year) {
+async function loadYear(year, competition = gender) {
+  gender = competition;
+  const entry = catalog.competitions[competition].years.find(item => item.year === year);
+  const key = `${competition}/${year}`;
+  for (const name of ['mens','womens']) {
+    $(`#${name}`).disabled = false;
+    $(`#${name}`).setAttribute('aria-pressed', name === competition);
+  }
   const thisRequest = ++request;
   stopPlaying();
   disposeChart();
@@ -40,17 +48,16 @@ async function loadYear(year) {
   $('#workspace').hidden = true;
   $('#cancelled').hidden = true;
   $('#loading').hidden = false;
-  $('#loading').textContent = `Loading the ${year} tournament…`;
-  document.querySelectorAll('.toolbar button').forEach(button=>button.disabled=true);
+  $('#loading').textContent = `Loading the ${year} ${competitionName()} tournament…`;
+  document.querySelectorAll('.toolbar button:not(#mens):not(#womens)').forEach(button=>button.disabled=true);
   try {
-    if (!cache.has(year)) {
-      const entry = catalog.years.find(item => item.year === year);
-      const response = await fetch(`${import.meta.env.BASE_URL}data/${entry.file ?? `${year}.json`}?v=${DATA_REVISION}`);
+    if (!cache.has(key)) {
+      const response = await fetch(`${import.meta.env.BASE_URL}data/${entry.file}?v=${DATA_REVISION}`);
       if (!response.ok) throw new Error('Tournament file could not be loaded.');
-      cache.set(year, await response.json());
+      cache.set(key, await response.json());
     }
     if (thisRequest !== request) return;
-    data = cache.get(year);
+    data = cache.get(key);
     snapshotIndex = 0;
     mode = data.forecasts?.length ? 'forecast' : 'results';
     selectedId = null;
@@ -60,6 +67,7 @@ async function loadYear(year) {
     $('#results-mode').disabled = data.status === 'cancelled';
     $('#bracket-view').disabled = data.status === 'cancelled';
     $('#table-view').disabled = data.status === 'cancelled';
+    $('#cancelled a').href = `https://www.ncaa.com/history/basketball-${competition === 'womens' ? 'women' : 'men'}/d1`;
     renderSources();
     if (data.status === 'cancelled') {
       $('#cancelled').hidden = false;
@@ -71,7 +79,7 @@ async function loadYear(year) {
     $('#workspace').hidden = false;
     render();
     $('#explorer').setAttribute('aria-busy', 'false');
-    announce(`${year} loaded. ${data.teams.length} teams. ${mode === 'forecast' ? `${provider()} initial forecast.` : 'Actual results. Forecasts unavailable.'}`);
+    announce(`${competitionName()} ${year} loaded. ${data.teams.length} teams. ${mode === 'forecast' ? `${provider()} initial forecast.` : 'Actual results. Forecasts unavailable.'}`);
   } catch (error) {
     if (thisRequest !== request) return;
     $('#loading').textContent = `${error.message} Reload the page to try again.`;
@@ -107,7 +115,8 @@ function render() {
   $('#single-snapshot').hidden = mode !== 'forecast' || data.forecasts.length !== 1;
   if (data.forecasts.length === 1) $('#single-snapshot').textContent = `One pre-tournament forecast · ${dateLabel(data.forecasts[0].date, true)} · ${reconstructed()?'reconstructed model':provider()}`;
   $('#results-heading').hidden = mode !== 'results';
-  $('#coverage-note').hidden = !reconstructed() || mode !== 'forecast';
+  $('#coverage-note').hidden = data.forecasts.length > 0 && (!reconstructed() || mode !== 'forecast');
+  $('#coverage-note').textContent = data.forecasts.length ? 'Reconstructed from pre-tournament T-Rank ratings using log5. This is a separate model, not a FiveThirtyEight or published T-Rank bracket forecast.' : 'Results only · No verified pre-tournament forecast is bundled for this year.';
   if (mode === 'forecast') {
     const status = snapshotStatus(data, snapshotIndex);
     $('#snapshot-title').textContent = snapshotName();
@@ -190,7 +199,7 @@ function renderBracket() {
   const columns=[...leftColumns,502,...leftColumns.map(x=>BRACKET_WIDTH-x).reverse()];
   const coverage=mode==='forecast'?snapshotStatus(data,snapshotIndex):null;
   const status=!coverage?'Completed results':!coverage.throughDate?'Pre-tournament forecast':coverage.partial?coverage.label:`Through ${dateLabel(coverage.throughDate)} games`;
-  $('#bracket-panel').innerHTML=`<p class="bracket-scroll-hint">Scroll to see the full bracket, or choose Table.</p><div class="bracket-scroll"><div class="bracket-map"><div class="round-labels">${headings.map((label,index)=>`<span style="left:${columns[index]}px">${label}</span>`).join('')}</div><div class="bracket-tree"><svg class="connectors" viewBox="0 0 ${BRACKET_WIDTH} ${BRACKET_HEIGHT}" aria-hidden="true"><g class="bracket-backbone">${lines}</g><g class="active-route"></g><g class="route-probabilities"></g></svg>${data.regionOrder.map((name,index)=>`<h3 class="region-name ${index>1?'right':''}" style="top:${index%2?520:8}px">${escape(name)}</h3>`).join('')}${nodes}<p class="bracket-status">Men’s · ${data.year}<br><span>${escape(status)}</span>${mode==='forecast'&&reconstructed()?'<br><strong>Reconstructed model</strong>':''}</p><div class="title-forecast"><p id="title-team"></p><div class="title-probability"></div><p class="center-note"></p><ol id="title-leaders"></ol></div></div></div></div>`;
+  $('#bracket-panel').innerHTML=`<p class="bracket-scroll-hint">Scroll to see the full bracket, or choose Table.</p><div class="bracket-scroll"><div class="bracket-map"><div class="round-labels">${headings.map((label,index)=>`<span style="left:${columns[index]}px">${label}</span>`).join('')}</div><div class="bracket-tree"><svg class="connectors" viewBox="0 0 ${BRACKET_WIDTH} ${BRACKET_HEIGHT}" aria-hidden="true"><g class="bracket-backbone">${lines}</g><g class="active-route"></g><g class="route-probabilities"></g></svg>${data.regionOrder.map((name,index)=>`<h3 class="region-name ${index>1?'right':''}" style="top:${index%2?520:8}px">${escape(name)}</h3>`).join('')}${nodes}<p class="bracket-status">${competitionName()} · ${data.year}<br><span>${escape(status)}</span>${mode==='forecast'&&reconstructed()?'<br><strong>Reconstructed model</strong>':''}</p><div class="title-forecast"><p id="title-team"></p><div class="title-probability"></div><p class="center-note"></p><ol id="title-leaders"></ol></div></div></div></div>`;
   slots=[...$('#bracket-panel').querySelectorAll('.team-node')].map(element=>({element,x:Number(element.dataset.x),y:Number(element.dataset.y),round:Number(element.dataset.round),id:element.dataset.team}));
   slots[0].element.tabIndex=0;
   previewId=undefined;
@@ -402,9 +411,10 @@ function renderSources() {
   const forecasts=data.forecasts?.length??0;
   $('#about-coverage').textContent=data.status==='cancelled'?'2020 has no bracket because the tournament was cancelled.':forecasts?reconstructed() ? `${data.year} uses one reconstructed forecast from pre-tournament T-Rank ratings and a neutral-court log5 win-probability model. It is not a published FiveThirtyEight or T-Rank tournament forecast. Actual results are shown separately.` : `${data.year} includes ${forecasts} archived ${provider()} snapshots, from ${dateLabel(data.forecasts[0].date)} through ${dateLabel(data.forecasts.at(-1).date)}. The last available forecast may precede the championship game. Actual results are shown separately.`:`${data.year} includes the actual bracket and results. Archived FiveThirtyEight forecasts are unavailable, so there is no probability timeline for this year.`;
   const sources=(data.sources??[]).map(source=>typeof source==='string'?{url:source,label:source}:source);
-  $('#source-list').innerHTML=`<p>Selected year: ${data.year}. ${forecasts?reconstructed() ? 'One reconstructed pre-tournament forecast.' : `${forecasts} genuine archived forecasts.`:data.status==='cancelled'?'Tournament cancelled.':'Results only; no replacement forecasts.'}</p>${data.modelNote?`<p>${escape(data.modelNote)}</p>`:''}${data.forecastNote?`<p>${escape(data.forecastNote)}</p>`:''}<ul>${sources.map(source=>`<li>${source.url?`<a href="${escape(source.url)}" target="_blank" rel="noreferrer">${escape(source.label??source.name??source.title??source.provider??source.url)}</a>`:escape(source.label??source.name??source.title??'Source')}${source.license?` · ${escape(source.license)}`:''}${source.methodUrl?` · <a href="${escape(source.methodUrl)}" target="_blank" rel="noreferrer">Rating method</a>`:''}${source.bulkDataGuideUrl?` · <a href="${escape(source.bulkDataGuideUrl)}" target="_blank" rel="noreferrer">Source data guide</a>`:''}</li>`).join('')}</ul><p><a href="${import.meta.env.BASE_URL}data/${data.year}.json" download="tournament-${data.year}.json">Download this year’s bundled data</a></p>${data.corrections?.length?`<details><summary>Data reconciliation notes (${data.corrections.length})</summary><ul>${data.corrections.map(note=>`<li>${escape(typeof note==='string'?note:note.reason??JSON.stringify(note))}</li>`).join('')}</ul></details>`:''}`;
+  $('#source-list').innerHTML=`<p>${competitionName()} · ${data.year}. ${forecasts?reconstructed() ? 'One reconstructed pre-tournament forecast.' : `${forecasts} genuine archived forecasts.`:data.status==='cancelled'?'Tournament cancelled.':'Results only; no replacement forecasts.'}</p>${data.modelNote?`<p>${escape(data.modelNote)}</p>`:''}${data.forecastNote?`<p>${escape(data.forecastNote)}</p>`:''}<ul>${sources.map(source=>`<li>${source.url?`<a href="${escape(source.url)}" target="_blank" rel="noreferrer">${escape(source.label??source.name??source.title??source.provider??source.url)}</a>`:escape(source.label??source.name??source.title??'Source')}${source.license?` · ${escape(source.license)}`:''}${source.methodUrl?` · <a href="${escape(source.methodUrl)}" target="_blank" rel="noreferrer">Rating method</a>`:''}${source.bulkDataGuideUrl?` · <a href="${escape(source.bulkDataGuideUrl)}" target="_blank" rel="noreferrer">Source data guide</a>`:''}</li>`).join('')}</ul><p><a href="${import.meta.env.BASE_URL}data/${catalog.competitions[gender].years.find(entry=>entry.year===data.year).file}" download="tournament-${gender}-${data.year}.json">Download this year’s bundled data</a></p>${data.corrections?.length?`<details><summary>Data reconciliation notes (${data.corrections.length})</summary><ul>${data.corrections.map(note=>`<li>${escape(typeof note==='string'?note:note.reason??JSON.stringify(note))}</li>`).join('')}</ul></details>`:''}`;
 }
 
+for (const competition of ['mens','womens']) $(`#${competition}`).addEventListener('click',()=>loadYear(Number($('#year').value),competition));
 $('#year').addEventListener('change',event=>loadYear(Number(event.target.value)));
 $('#forecast-mode').addEventListener('click',()=>{stopPlaying();mode='forecast';render();announce(reconstructed()?'Reconstructed pre-tournament forecast shown.':'Archived forecasts shown.');});
 $('#results-mode').addEventListener('click',()=>{stopPlaying();mode='results';render();announce('Actual tournament results shown.');});
@@ -504,7 +514,7 @@ try {
   const response=await fetch(`${import.meta.env.BASE_URL}data/index.json?v=${DATA_REVISION}`);
   if(!response.ok)throw new Error('Could not load the tournament index.');
   catalog=await response.json();
-  $('#year').innerHTML=catalog.years.map(entry=>`<option value="${entry.year}">${entry.year}${entry.status==='cancelled'?' · Cancelled':''}</option>`).join('');
+  $('#year').innerHTML=catalog.competitions.mens.years.map(entry=>`<option value="${entry.year}">${entry.year}${entry.status==='cancelled'?' · Cancelled':''}</option>`).join('');
   $('#year').disabled=false;
   $('#year').value='2023';
   await loadYear(2023);

@@ -78,7 +78,7 @@ async function main() {
     results.push({year, date: ratings.date, teams: teams.length, totals, topFive: best, source: ratings.source});
   }
   const index = JSON.parse(await readFile(`${data}/index.json`, 'utf8'));
-  for (const year of index.years.filter(y => y.year >= 2024)) {
+  for (const year of index.competitions.mens.years.filter(y => y.year >= 2024)) {
     year.forecastDates = [results.find(r => r.year === year.year).date];
     year.forecastProvider = 'T-Rank / log5 reconstruction';
   }

@@ -6,25 +6,29 @@ export async function runChecks(load, model = {}) {
   const assert = (value, message) => { if (!value) throw Error(message); };
   const close = (actual, expected, tolerance = 1e-9) => assert(Math.abs(actual - expected) <= tolerance, `${actual} differs from ${expected}`);
   const index = await load('index.json');
-  const seasons = await Promise.all(index.years.map(({ file }) => load(file)));
-  check('Every year 2016–2026 is available once', () => assert(index.years.map(x => x.year).join() === '2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026', 'Year coverage differs'));
+  const seasons = await Promise.all(index.competitions.mens.years.map(({ file }) => load(file)));
+  check('Every year 2016–2026 is available once', () => assert(index.competitions.mens.years.map(x => x.year).join() === '2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026', 'Year coverage differs'));
   const expectedChampions = {2016:'222',2017:'153',2018:'222',2019:'258',2021:'239',2022:'2305',2023:'41',2024:'41',2025:'57',2026:'130'};
-  for (const d of seasons) {
+  const women = await Promise.all(index.competitions.womens.years.map(({file})=>load(file)));
+  check('Women: every year 2016–2026 is available once',()=>assert(women.map(d=>d.year).join()===seasons.map(d=>d.year).join(),'Year coverage differs'));
+  const womenChampions={2016:'41',2017:'2579',2018:'87',2019:'239',2021:'24',2022:'2579',2023:'99',2024:'2579',2025:'41',2026:'26'};
+  for (const d of [...seasons,...women]) {
+    const womens=d.gender==='womens', label=`${womens?'Women':'Men'} ${d.year}`, size=womens&&d.year<2022?64:68;
     if (d.year === 2020) {
-      check('2020 cancellation has no invented field, games or probabilities', () => assert(d.status === 'cancelled' && !d.teams.length && !d.games.length && !d.forecasts.length, 'Cancelled season contains tournament data'));
+      check(`${label}: cancellation has no invented field, games or probabilities`, () => assert(d.status === 'cancelled' && !d.teams.length && !d.games.length && !d.forecasts.length, 'Cancelled season contains tournament data'));
       continue;
     }
     const ids = new Set(d.teams.map(t => t.id));
-    check(`${d.year}: complete field and round structure`, () => {
-      assert(ids.size === 68 && d.teams.length === 68 && d.games.length === 67, 'Incorrect field size');
-      assert(new Set(d.games.map(g => g.id)).size === 67, 'Duplicate game ID');
-      assert([0,1,2,3,4,5,6].map(r => d.games.filter(g => g.round === r).length).join() === '4,32,16,8,4,2,1', 'Incorrect round counts');
+    check(`${label}: complete field and round structure`, () => {
+      assert(ids.size === size && d.teams.length === size && d.games.length === size-1, 'Incorrect field size');
+      assert(new Set(d.games.map(g => g.id)).size === size-1, 'Duplicate game ID');
+      assert([0,1,2,3,4,5,6].map(r => d.games.filter(g => g.round === r).length).join() === `${size-64},32,16,8,4,2,1`, 'Incorrect round counts');
       for (const region of d.regionOrder) {
         const slots = d.teams.filter(t => t.region === region).map(t => t.bracketSlot);
         assert(new Set(slots).size === 16 && slots.every(s => Number.isInteger(s) && s >= 0 && s < 16), `Invalid slots in ${region}`);
       }
     });
-    check(`${d.year}: winners advance through correct regional/semifinal topology`, () => {
+    check(`${label}: winners advance through correct regional/semifinal topology`, () => {
       for (const g of d.games) {
         assert(g.teamIds.length === 2 && new Set(g.teamIds).size === 2 && g.teamIds.every(id => ids.has(id)), `Invalid contestants: ${g.id}`);
         assert(g.teamIds.includes(g.winnerId), `Invalid winner: ${g.id}`);
@@ -38,13 +42,13 @@ export async function runChecks(load, model = {}) {
       const pairs = d.games.filter(g => g.round === 5).map(g => g.teamIds.map(id => d.teams.find(t => t.id === id).region).sort().join());
       assert(d.finalFourPairs.every(pair => pairs.includes([...pair].sort().join())), 'Incorrect semifinal pairings');
     });
-    check(`${d.year}: champion matches independent title record`, () => assert(d.games.find(g => g.round === 6).winnerId === expectedChampions[d.year] && d.championTeamId === expectedChampions[d.year], 'Champion mismatch'));
+    check(`${label}: champion matches independent title record`, () => assert(d.games.find(g => g.round === 6).winnerId === (womens?womenChampions:expectedChampions)[d.year] && d.championTeamId === (womens?womenChampions:expectedChampions)[d.year], 'Champion mismatch'));
     if (d.forecasts.length) {
-      check(`${d.year}: probabilities are complete, bounded and cumulative`, () => {
+      check(`${label}: probabilities are complete, bounded and cumulative`, () => {
         const dates = d.forecasts.map(s => s.date);
         assert(new Set(dates).size === dates.length && dates.join() === [...dates].sort().join(), 'Snapshot ordering');
         for (const s of d.forecasts) {
-          assert(s.teams.length === 68 && new Set(s.teams.map(t => t.id)).size === 68, `Incomplete snapshot ${s.date}`);
+          assert(s.teams.length === size && new Set(s.teams.map(t => t.id)).size === size, `Incomplete snapshot ${s.date}`);
           for (const t of s.teams) {
             assert(ids.has(t.id) && t.p.length === 7, `Missing team/round ${t.id}`);
             assert(t.p.every((p,i) => Number.isFinite(p) && p >= 0 && p <= 1 && (!i || p <= t.p[i-1] + 1e-10)), `Invalid probability ${s.date}/${t.id}`);
@@ -52,7 +56,7 @@ export async function runChecks(load, model = {}) {
           [64,32,16,8,4,2,1].forEach((n,r) => close(s.teams.reduce((sum,t) => sum+t.p[r],0),n,0.000002));
         }
       });
-      check(`${d.year}: First Four shares one Round-of-64 berth`, () => {
+      check(`${label}: First Four shares one Round-of-64 berth`, () => {
         for (const g of d.games.filter(g => g.round === 0)) {
           const team = d.teams.find(t => t.id === g.teamIds[0]);
           assert(d.teams.find(t => t.id === g.teamIds[1]).bracketSlot === team.bracketSlot, 'Play-in teams do not share slot');
@@ -227,5 +231,23 @@ export async function runChecks(load, model = {}) {
       assert(d.forecastProvider.includes('log5') && d.modelNote.includes('fixed'),'Missing model distinction');
     });
   }
+  const womenSeason=year=>women.find(d=>d.year===year);
+  check('Women: archived UConn 2016 title chance retains source precision',()=>close(womenSeason(2016).forecasts[0].teams.find(t=>t.id==='41').p[6],0.70373913));
+  check('Women: South Carolina and LSU 2023 title chances match archived source',()=>{close(womenSeason(2023).forecasts[0].teams.find(t=>t.id==='2579').p[6],0.644855834209);close(womenSeason(2023).forecasts[0].teams.find(t=>t.id==='99').p[6],0.03478964077);});
+  check('Women: all archived snapshot status calculations use only included results',()=>{
+    let count=0;
+    for(const d of women.filter(d=>d.forecasts.length)) {
+      d.forecasts.forEach((f,i)=>{const status=model.snapshotStatus(d,i);assert(status.includedGames<=d.games.length&&(!i?status.includedGames===0:true),`${d.year}/${f.date} invalid coverage`);count++;});
+      assert(model.snapshotStatus(d,d.forecasts.length-1).includedGames===d.games.length-1,`${d.year}: archive does not stop before final`);
+    }
+    assert(count===74,'Expected 74 genuine women’s snapshots');
+  });
+  check('Women: known championship scores match NCAA records',()=>{
+    const scores={2016:'82,51',2017:'67,55',2018:'61,58',2019:'82,81',2021:'54,53',2022:'64,49',2023:'102,85',2024:'87,75',2025:'82,59',2026:'79,51'};
+    for(const [year,score] of Object.entries(scores)) {const game=womenSeason(Number(year)).games.find(g=>g.round===6),i=game.teamIds.indexOf(game.winnerId);assert([game.scores[i],game.scores[1-i]].join()===score,`${year}: championship score differs`);}
+  });
+  check('Women: later years expose results without invented probabilities',()=>{
+    for(const year of [2024,2025,2026])assert(womenSeason(year).forecasts.length===0,`${year}: unverified forecast`);
+  });
   return reports;
 }

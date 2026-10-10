@@ -1,4 +1,4 @@
-# Men's tournament source data, 2016–2026
+# Men’s and women’s tournament source data, 2016–2026
 
 Retrieved October 9, 2026. These are build-time research utilities, not application runtime dependencies. The published browser application needs only the bundled `index.json` and year JSON files.
 
@@ -31,7 +31,7 @@ The downloader preserves existing input files. For a fresh retrieval, select a n
 
 ## Schema
 
-`index.json`: `{schemaVersion: 1, gender: "mens", years: [{year, status, file, forecastDates, championTeamId}]}`.
+`index.json`: `{schemaVersion: 2, competitions: {mens: {years: [...]}, womens: {years: [...]}}}`. Each year entry has year, status, file, forecastDates and championTeamId. Men’s filenames remain at the data root; women’s are under womens/.
 
 Each year: `{year, status, teams, games, forecasts, regionOrder, finalFourPairs, championTeamId, firstGameDate?, lastGameDate?, sources, corrections, forecastNote?}`.
 
@@ -100,3 +100,16 @@ Sources:
 `derive-forecasts.mjs` writes `derived-validation.json` into its selected `--out` directory. This generated report separately records the three reconstructions: frozen input dates, all 68 teams, four First Four pairs, finite/bounded/monotone probabilities, and seven round totals within 1e-10 of the expected counts. Independent mathematical and source audits are recorded separately by the reviewer.
 
 The validation files are generated outputs, not prerequisites or checked-in reports. The application/data/model checks can be rerun from the project root with `node tests/run.mjs` without reacquiring remote data.
+
+## Reproducing the women’s extension
+
+After the men’s normalized/derived data have been assembled in one output directory, run:
+
+    python3 download.py --gender womens --raw /tmp/madness-womens-raw
+    python3 normalize.py --gender womens --raw /tmp/madness-womens-raw --out /tmp/madness-combined
+
+Use that assembled directory as --out (the illustrative /tmp/madness-combined); normalization updates its catalog while preserving the men’s competition. Separate raw folders are necessary because scoreboard filenames share years. Existing original CSV downloads may be copied into the women’s raw directory: they contain both genders. Women’s mode does not download or use men’s T-Rank ratings. Copy only year JSON and the combined index into app/public/data; retain validation output as research evidence.
+
+Women’s results were retrieved October 10, 2026. Archived CSV bytes reuse the October 9 retrieval. There are 650 women’s games, 64-team fields before 2022 and 68-team fields thereafter, and 74 archived snapshots. All direct forecast IDs match ESPN IDs. Region labels in the original forecasts take precedence over local host-site names in ESPN notes; exact discrepancies are listed in each year’s corrections. 2019 Iowa City is one such host-site label within the Greensboro bracket. Regional semifinals/finals are normalized to Sweet 16/Elite Eight. Championship winners and scores were cross-checked against NCAA records. Sources and digests remain in each yearly JSON.
+
+No later women’s probabilities are invented: the available current T-Rank women’s ratings are completed-season data, not verified historical pre-tournament inputs, and the researched current Sports Reference forecast page did not yield a verified historical series. 2024–2026 are explicitly results only. Existing men’s frozen data are unchanged.
