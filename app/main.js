@@ -247,7 +247,7 @@ function decorateRoute(id, round) {
     $('.title-probability').classList.toggle('long-probability',$('.title-probability').textContent.length>5);
     $('.center-note').textContent=loss ? `Out · ${loss.status==='no-contest'?'did not advance against':'lost to'} ${teamById(loss.teamIds.find(other=>other!==id)).bracketName} in the ${loss.roundName??STAGES[loss.round-1]}` : !team ? champion ? `${data.year} champion · vs. ${teamById(final.teamIds.find(other=>other!==champion.id)).bracketName}` : '' : mode==='results' ? probabilities[6]===1 ? `${data.year} champion` : resultStatus(probabilities) : 'Chance of winning the tournament';
     $('#title-leaders').innerHTML=!team && mode==='forecast' ? [...data.teams].filter(item=>!isEliminated(item.id)).sort((a,b)=>currentP(b.id)[6]-currentP(a.id)[6]).slice(0,5).map(item=>`<li><span>${escape(item.bracketName)}</span><strong title="${exactProbability(currentP(item.id)[6])}">${percent(currentP(item.id)[6])}</strong></li>`).join('') : '';
-    $('.title-forecast').classList.toggle('unselected',!team);
+    $('.title-forecast').classList.toggle('team-forecast',Boolean(team)&&mode==='forecast');
     for(const {element:node} of slots) {
       const stage=Number(node.dataset.round), resolved=node.dataset.resolved;
       const inPath=Boolean(team&&node.dataset.candidates.split(',').includes(id)&&probabilities[stage]>0);

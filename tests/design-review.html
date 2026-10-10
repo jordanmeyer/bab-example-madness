@@ -61,6 +61,12 @@ try{
   $('#snapshot').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));labels(year,'last');
   $('#results-mode').click();labels(year,'results');
   check(`${year}: championship score shown at rest`,/\d+–\d+/.test($('.title-probability').textContent));
+  const restingScore=$('.title-probability').getBoundingClientRect(),champion=$('.team-node[data-round="6"]'),championBounds=champion.getBoundingClientRect();
+  champion.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:championBounds.left+championBounds.width/2,clientY:championBounds.top+championBounds.height/2}));
+  const hoveredScore=$('.title-probability').getBoundingClientRect();
+  check(`${year}: championship score stays fixed on hover`,Math.abs(restingScore.top-hoveredScore.top)<.1&&Math.abs(restingScore.left-hoveredScore.left)<.1&&/\d+–\d+/.test($('.title-probability').textContent));
+  $('#bracket-panel').dispatchEvent(new PointerEvent('pointerleave'));
+  check(`${year}: championship score stays fixed on exit`,Math.abs(restingScore.top-$('.title-probability').getBoundingClientRect().top)<.1);
   check(`${year}: advanced Results slots have score or no-contest tooltip`,[...doc.querySelectorAll('.team-node:not([data-round="0"])')].every(n=>/(Won \d+–\d+|Advanced by rule)/.test(n.title)));
  }
  await choose(2016);$('#bracket-view').click();$('.play-in [data-team="161"]').click();

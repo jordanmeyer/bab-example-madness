@@ -84,8 +84,8 @@ main { max-width: 1024px; margin: auto; padding: 0 10px; }
 .team-node:focus-visible { z-index: 2; outline: none; }
 .team-node:focus-visible .node-name { text-decoration: underline double var(--duke-copper); text-underline-offset: 3px; }
 .team-node.empty:focus-visible::after { content: ""; position: absolute; left: calc(50% - 3px); bottom: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--duke-copper); }
-.title-forecast { position: absolute; top: 342px; left: 430px; width: 144px; text-align: center; color: var(--duke-navy-blue); background: white; padding: .4rem 0; pointer-events: none; }
-.title-forecast.unselected { top: 210px; }
+.title-forecast { position: absolute; top: 210px; left: 430px; width: 144px; text-align: center; color: var(--duke-navy-blue); background: white; padding: .4rem 0; pointer-events: none; }
+.title-forecast.team-forecast { top: 342px; }
 #title-leaders { list-style: none; padding: 0; margin: .7rem 0 0; font-size: 12px; }
 #title-leaders li { display: flex; justify-content: space-between; gap: 6px; padding: .2rem 0; border-bottom: 1px solid var(--duke-limestone); text-align: left; }
 #title-leaders strong { font-weight: 600; font-variant-numeric: tabular-nums; }
