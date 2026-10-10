@@ -157,3 +157,7 @@ Evaluated source: `8029793f38ea9c925ad8d69c3e71a208d1541582`. Opening columns fi
 ## Matching connector ticks on filled rounds — 2026-10-10
 
 Evaluated source: `09d7087c67014d9179d89f2fd5aa07940101f8cd`. Filled regional and finalist slots retain the same 4px horizontal terminal ticks as the opening round, without restoring the line across the label area. The existing geometry checks now require these ticks at the actual slot edges on both sides: 140/140 layout checks pass across ten played seasons; 25/25 route checks pass. March 17 production preview visually confirms the matching brackets. Production build passes with the existing bundle-size warning. No data, model, dependencies, spacing or type changes.
+
+## Full-width evidence accordions — 2026-10-10
+
+Evaluated source: `da966192d8b50d860efa33fc6da5936d48cd424b`. Reading the evidence is a collapsed native details section beside Sources and How this was built. Removed the redundant heading and dashboard footer; retained source and license links inside the sections. All three sections span the content width (1004px desktop, 355px at a 375px viewport). Enter opens and Space closes each section; dynamic 2023 coverage and source links remain available. Narrow viewport body width equals 375px, with no page overflow. Production browser console has no errors. Build and whitespace checks pass; existing bundle-size warning remains. No bracket, data, model or dependency changes; no redundant tests added for this markup-only correction.
