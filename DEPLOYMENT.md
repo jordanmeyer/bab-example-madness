@@ -67,3 +67,12 @@ Evaluated source `58d7cdd5b1baffacf2312fc261b2f680c0fca20b` replaces the rejecte
 ## Campus Designer correction — October 10, 2026
 
 Evaluated source: `72fb26c2b55b93f87c4f810a90398b85b28ee27f`. Published app commit: `e1ea45770ee0816f265316d5750c55f6158cd846`. Exact GitHub Actions run [38024158838](https://github.com/jordanmeyer/bab-example-madness/actions/runs/38024158838) completed successfully. A returning browser loaded `main-CfqeVjX3.js` and `style-B90lqaW9.css`, showed Houston 22% / Alabama 16% / Texas 8% at rest, Connecticut's 76–59 title result, and Alabama's rounded 16% pinned detail. No production errors/warnings were captured. Source links and repository-path assets remain intact. This record is a documentation-only follow-up; application/test/configuration paths match the evaluated checkpoint.
+
+
+## Complete opening sources and blends — October 10, 2026
+
+Evaluated source: `7568eb9`; published source/evaluation commit: `70900ddacdb51bf33e3ba1e952738731e751884e`. [GitHub Actions run 38064231670](https://github.com/jordanmeyer/bab-example-madness/actions/runs/38064231670) completed successfully for that exact commit.
+
+A returning live browser loaded `main-DGtebEV4.js` and the source-blends data revision. Men 2023 exposes KenPom, Torvik, FiveThirtyEight, average and ensemble. Its ensemble shows Houston at 17% initially and the prior-season comparison includes the observed negative improvement versus FiveThirtyEight and the average. Women 2024 exposes Silver only, neither blend, and its final snapshot shows South Carolina as champion. Browser errors/warnings were empty. Source and data are served beneath the repository path. The production build excludes the temporary phone-layout harness. No application/test/tooling changes follow the evaluated checkpoint.
+
+The documentation-only publication receipt is a follow-up to that tested deployment. EVALUATION.md and data-preparation/SOURCE-MODEL.md record the reproduction commands, field coverage, mathematical assumptions and remaining human/device acceptance limits.
