@@ -1,5 +1,21 @@
 # Evaluation
 
+## Campus Designer checklist — October 10, 2026
+
+Evaluated source: `72fb26c2b55b93f87c4f810a90398b85b28ee27f` (application and browser regression implementation `d93f75a`; the final source commit only shortens the story's navigation label after a phone render exposed wrapping).
+
+The user's 32-item design review replaces the earlier literal black-strip/tinted-table styling. The explorer now shares one centered column, transparent Open Sans strips sit above their hairlines, selection and elimination differ visibly, dates form a calendar, and the table uses five published solid colors with unfilled reached checks. Single-snapshot years and one-point histories are compact. Results add winner-first score tooltips and a championship score. Pins scroll to detail before First Four. Whole-canvas nearest-slot hover, one bracket tab stop, arrow keys, Escape and tapered rounded route geometry remain.
+
+`node tests/run.mjs`: **80/80**. `tests/design-review.html`: **82/82** in the actual application iframe, including 2,984 rendered labels across all ten played years' initial/last/Results states, distinct compact names for each year's full field, all potential 62px labels, 1024px alignment, 375px scrolling/type floor, known 2023 values, one-point omission, elimination, rounded-zero active 2016 FDU, score tooltips, 2020 controls, and 2024–2026 single-forecast views. `tests/route-rendering.html`: **16/16**, including 30 rasterized seams, negative control, animation, interruption and retirement.
+
+Production screenshots and interactions were separately inspected: desktop 1313px and a second 1193px effective viewport; 375px phone; initial leaders; keyboard Alabama route; Mar 25 elimination and history; Results; table; 2020; 2025; build story. Pin scrolling settled with the detail top 16px from the viewport top. The phone table's visible height equals its scroll height, and the page width stays 375px. No captured production error/warning logs during representative interactions. Reduced-motion instant scrolling is source-reviewed; no OS preference was changed.
+
+Failed rounds retained in course evidence: first implementation passed 46/63 checks, exposing narrow labels; reviewed abbreviations brought that to 62/63, then all fit. Visual review caught hairlines crossing names and story-header wrapping. Source/data review caught an active team's rounded-zero title probability: elimination now requires the archive's alive flag, preventing a future-loss disclosure. Unresolved First Four slots use “First Four winner,” with both full names in the tooltip, accessible label and First Four section, instead of cramped codes.
+
+Build passed: `main-CfqeVjX3.js`, `style-B90lqaW9.css`. Frozen tournament files, model calculations, dependencies, lockfile and workflow compare unchanged against the previous release. Only static application files and notices are published. The existing 538.93 KB bundle warning remains; this task adds no library. Screen-reader speech, physical touch, novice usability, other browser engines and predictive calibration remain unverified. No independent reviewer was commissioned for this task; these are coordinator checks.
+
+Reproduce from the project root with the verified Node 22.19.0/npm 10.9.3 pair: `npm ci`, `node tests/run.mjs`, `npm run build`, `npm run test:browser -- --port 9741`, then open `/tests/design-review.html` and `/tests/route-rendering.html`. Separately run `npm run preview -- --port 9742` and open `/bab-example-madness/`. Evidence: the course repository's `evidence/browser-app-builder/madness/2026-10-10/design-review/`. Prior evidence below remains historical.
+
 ## Width-matched corner geometry — October 9, 2026
 
 Evaluated source: `58d7cdd5b1baffacf2312fc261b2f680c0fca20b`. This replaces the rejected round-cap workaround below. Flat path ends meet an ellipse whose radii match the two adjacent stroke widths; the curve cannot protrude beyond the narrower vertical band. The join waits for the incoming drawn path and follows both widths during growth and retirement. Interrupted paths preserve their current dash positions and widths.
