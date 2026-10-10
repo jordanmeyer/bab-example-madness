@@ -1,0 +1,257 @@
+[
+  {
+    "name": "ESPN tournament scoreboard, 2016-03",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=201603&groups=100&limit=1000",
+    "rawFile": "espn-2016-03.json",
+    "sha256": "bf362b15e6ec10051b234576776c5b379ff175007cea0ac3cc37ac4e31bb3416",
+    "retrievedOn": "2026-10-09",
+    "bytes": 850811
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2016-04",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=201604&groups=100&limit=1000",
+    "rawFile": "espn-2016-04.json",
+    "sha256": "42d2aeeb54224edf58b1f790b68f63969c552ca19ba844c39bb3c82e3e4e7f8f",
+    "retrievedOn": "2026-10-09",
+    "bytes": 43663
+  },
+  {
+    "name": "FiveThirtyEight archived forecast CSV, 2016",
+    "url": "https://web.archive.org/web/20170225054931id_/https://projects.fivethirtyeight.com/march-madness-api/2016/fivethirtyeight_ncaa_forecasts.csv",
+    "rawFile": "forecast-2016.csv",
+    "sha256": "e5a7090705fb8491ea286fed20210a76c793702a4264412dd0e9de2dd7a3cf3b",
+    "retrievedOn": "2026-10-09",
+    "bytes": 137893
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2017-03",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=201703&groups=100&limit=1000",
+    "rawFile": "espn-2017-03.json",
+    "sha256": "29a7bd726380fe3d67e86169c7f42994145c55ad02ac24f23d5a0dbe3b1f4f15",
+    "retrievedOn": "2026-10-09",
+    "bytes": 855487
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2017-04",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=201704&groups=100&limit=1000",
+    "rawFile": "espn-2017-04.json",
+    "sha256": "e09383726e2c54e59d07d042f2f3a239da808d304257b632b6af61540b648389",
+    "retrievedOn": "2026-10-09",
+    "bytes": 43782
+  },
+  {
+    "name": "FiveThirtyEight archived forecast CSV, 2017",
+    "url": "https://web.archive.org/web/20230427192747id_/https://projects.fivethirtyeight.com/march-madness-api/2017/fivethirtyeight_ncaa_forecasts.csv",
+    "rawFile": "forecast-2017.csv",
+    "sha256": "5528deaddd1439c3228e743d2d1ff1cfa851170db0a239bc19e457a242fbf180",
+    "retrievedOn": "2026-10-09",
+    "bytes": 150500
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2018-03",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=201803&groups=100&limit=1000",
+    "rawFile": "espn-2018-03.json",
+    "sha256": "a6b087a70ad9e8a41f6b91c74289d588d42e7183bd274b3b5b572939694d8bb4",
+    "retrievedOn": "2026-10-09",
+    "bytes": 895389
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2018-04",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=201804&groups=100&limit=1000",
+    "rawFile": "espn-2018-04.json",
+    "sha256": "4db53f04e85f21148d5a34616aa1114a2cc3533b4a6b369ac7971f18f10e01a3",
+    "retrievedOn": "2026-10-09",
+    "bytes": 17278
+  },
+  {
+    "name": "FiveThirtyEight archived forecast CSV, 2018",
+    "url": "https://web.archive.org/web/20180828014750id_/https://projects.fivethirtyeight.com/march-madness-api/2018/fivethirtyeight_ncaa_forecasts.csv",
+    "rawFile": "forecast-2018.csv",
+    "sha256": "ba92970f13419a35102d30fc77a0bb3beb21937e524dc3388113af3e448288c8",
+    "retrievedOn": "2026-10-09",
+    "bytes": 149315
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2019-03",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=201903&groups=100&limit=1000",
+    "rawFile": "espn-2019-03.json",
+    "sha256": "314efa7c93753e2532a428a3670b5edb35e373a92e0c2056ffc318301dd92081",
+    "retrievedOn": "2026-10-09",
+    "bytes": 898638
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2019-04",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=201904&groups=100&limit=1000",
+    "rawFile": "espn-2019-04.json",
+    "sha256": "e815d4bd6e35ddb4c231fcf647a6cc6936446eff91a9be970c7673cc47b06e49",
+    "retrievedOn": "2026-10-09",
+    "bytes": 46031
+  },
+  {
+    "name": "FiveThirtyEight archived forecast CSV, 2019",
+    "url": "https://web.archive.org/web/20230427215218id_/https://projects.fivethirtyeight.com/march-madness-api/2019/fivethirtyeight_ncaa_forecasts.csv",
+    "rawFile": "forecast-2019.csv",
+    "sha256": "7c47b034515028a76090b042b4bdccdd13abf40b30632c67728f7b509bb5c231",
+    "retrievedOn": "2026-10-09",
+    "bytes": 155781
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2021-03",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202103&groups=100&limit=1000",
+    "rawFile": "espn-2021-03.json",
+    "sha256": "ee910014753e7a67d3be6f9f86d5bd40bf6c64d0b762ff89438216ccad210c9c",
+    "retrievedOn": "2026-10-09",
+    "bytes": 875650
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2021-04",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202104&groups=100&limit=1000",
+    "rawFile": "espn-2021-04.json",
+    "sha256": "d0bd219bdddb6935a757c34c04d2bd82d9b31fdfcdef4e117987e4fd5315839f",
+    "retrievedOn": "2026-10-09",
+    "bytes": 44978
+  },
+  {
+    "name": "FiveThirtyEight archived forecast CSV, 2021",
+    "url": "https://web.archive.org/web/20220315183608id_/https://projects.fivethirtyeight.com/march-madness-api/2021/fivethirtyeight_ncaa_forecasts.csv",
+    "rawFile": "forecast-2021.csv",
+    "sha256": "636038dac8ad400cdf28176d5524ff5d7476fdb91ebe7c617f32768ab8f4ddd8",
+    "retrievedOn": "2026-10-09",
+    "bytes": 146508
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2022-03",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202203&groups=100&limit=1000",
+    "rawFile": "espn-2022-03.json",
+    "sha256": "1ec5457ce4373444a1f9a4b02e071121dcfc02789c020f072f4f3c58de118512",
+    "retrievedOn": "2026-10-09",
+    "bytes": 882574
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2022-04",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202204&groups=100&limit=1000",
+    "rawFile": "espn-2022-04.json",
+    "sha256": "071529ccde58259cd91d003cc0d4314d431377236ace32fba030a036e21d2fa2",
+    "retrievedOn": "2026-10-09",
+    "bytes": 45425
+  },
+  {
+    "name": "FiveThirtyEight archived forecast CSV, 2022",
+    "url": "https://web.archive.org/web/20220512011228id_/https://projects.fivethirtyeight.com/march-madness-api/2022/fivethirtyeight_ncaa_forecasts.csv",
+    "rawFile": "forecast-2022.csv",
+    "sha256": "b7d7e6fa2b397fc624d21c78e7ceaf20e766697ff85e379964bf1e2550b59ce1",
+    "retrievedOn": "2026-10-09",
+    "bytes": 180503
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2023-03",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202303&groups=100&limit=1000",
+    "rawFile": "espn-2023-03.json",
+    "sha256": "8e5182af9663b0336030b80e7bc85624edebf80879b475bb80dac553b2e73a7d",
+    "retrievedOn": "2026-10-09",
+    "bytes": 888253
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2023-04",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202304&groups=100&limit=1000",
+    "rawFile": "espn-2023-04.json",
+    "sha256": "9b4d4e579e0405abd827a6660c19ea93c4246e5287edd341f197a47dc445f996",
+    "retrievedOn": "2026-10-09",
+    "bytes": 45318
+  },
+  {
+    "name": "FiveThirtyEight archived forecast CSV, 2023",
+    "url": "https://web.archive.org/web/20230428024902id_/https://projects.fivethirtyeight.com/march-madness-api/2023/fivethirtyeight_ncaa_forecasts.csv",
+    "rawFile": "forecast-2023.csv",
+    "sha256": "5d2826b81ae740eab91dfc4b3f7cea1dfa27baadf320610a0adc337d6ed78ec0",
+    "retrievedOn": "2026-10-09",
+    "bytes": 182826
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2024-03",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202403&groups=100&limit=1000",
+    "rawFile": "espn-2024-03.json",
+    "sha256": "cc7ee425046f7d2bc4fd6ad0b49cc93ec51da1677e20deb6c3974a0773b27b0e",
+    "retrievedOn": "2026-10-09",
+    "bytes": 890716
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2024-04",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202404&groups=100&limit=1000",
+    "rawFile": "espn-2024-04.json",
+    "sha256": "82c4b3614d372ab9c97518e4029ad2da581ad3ad4517fcc2c65fae29f02a2b26",
+    "retrievedOn": "2026-10-09",
+    "bytes": 45448
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2025-03",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202503&groups=100&limit=1000",
+    "rawFile": "espn-2025-03.json",
+    "sha256": "8202d65c5e31a072a8c7f17288ef0df57baae61df55d094897616703f9f09037",
+    "retrievedOn": "2026-10-09",
+    "bytes": 900107
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2025-04",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202504&groups=100&limit=1000",
+    "rawFile": "espn-2025-04.json",
+    "sha256": "e2538de91d39cad0457000d2ec7749148b25ccb4f977a3a423573910e8527061",
+    "retrievedOn": "2026-10-09",
+    "bytes": 52843
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2026-03",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202603&groups=100&limit=1000",
+    "rawFile": "espn-2026-03.json",
+    "sha256": "e85083ea703d4804ab79b9d781656975182f7090a04a16ea9d34878f784fabe0",
+    "retrievedOn": "2026-10-09",
+    "bytes": 894318
+  },
+  {
+    "name": "ESPN tournament scoreboard, 2026-04",
+    "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=202604&groups=100&limit=1000",
+    "rawFile": "espn-2026-04.json",
+    "sha256": "32b1f33f92eb436564600188862299f3cb85653a4b96626212e53c418731d32d",
+    "retrievedOn": "2026-10-09",
+    "bytes": 46054
+  },
+  {
+    "name": "Bart Torvik T-Rank Time Machine",
+    "url": "https://barttorvik.com/timemachine/team_results/20240318_team_results.json.gz",
+    "sha256": "23d4195749664de3597273ec1c4b2e32997a9d1a22e773c57d2707ce19a04c2e",
+    "decodedSha256": "6eb4d006994bfc701d381b5315bc5fc14d9b490053d8bbd3a4128221d6c47b8e",
+    "retrievedOn": "2026-10-09",
+    "field": "Zero-based column 8: Barthag",
+    "originalTeamCount": 362,
+    "methodUrl": "https://adamcwisports.blogspot.com/p/every-possession-counts.html",
+    "bulkDataGuideUrl": "https://adamcwisports.blogspot.com/p/data.html",
+    "rawFile": "bart-pre-2024.source",
+    "bytes": 92560
+  },
+  {
+    "name": "Bart Torvik T-Rank Time Machine",
+    "url": "https://barttorvik.com/timemachine/team_results/20250317_team_results.json.gz",
+    "sha256": "90d5dd51eab7fae31bb311a7be4d20adb5b525dd80bcdc974d37a18a8be7e086",
+    "decodedSha256": "3352bc0863b7534588b1fce79d8689640fec0b0ff5fb4c0c5b37f501fbcf443b",
+    "retrievedOn": "2026-10-09",
+    "field": "Zero-based column 8: Barthag",
+    "originalTeamCount": 364,
+    "methodUrl": "https://adamcwisports.blogspot.com/p/every-possession-counts.html",
+    "bulkDataGuideUrl": "https://adamcwisports.blogspot.com/p/data.html",
+    "rawFile": "bart-pre-2025.source",
+    "bytes": 93006
+  },
+  {
+    "name": "Bart Torvik T-Rank Time Machine",
+    "url": "https://barttorvik.com/timemachine/team_results/20260316_team_results.json.gz",
+    "sha256": "91121969cc7fd1813b40939f04d05ff1051428363effed4216232bbd780b709f",
+    "decodedSha256": "e20a06ebd3fce19a00ced5d4f546e67a21a943196d2c812b28e1a5c2591ba4ce",
+    "retrievedOn": "2026-10-09",
+    "field": "Zero-based column 8: Barthag",
+    "originalTeamCount": 365,
+    "methodUrl": "https://adamcwisports.blogspot.com/p/every-possession-counts.html",
+    "bulkDataGuideUrl": "https://adamcwisports.blogspot.com/p/data.html",
+    "rawFile": "bart-pre-2026.source",
+    "bytes": 92906
+  }
+]

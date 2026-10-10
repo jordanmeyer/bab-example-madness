@@ -1,0 +1,102 @@
+# Men's tournament source data, 2016–2026
+
+Retrieved October 9, 2026. These are build-time research utilities, not application runtime dependencies. The published browser application needs only the bundled `index.json` and year JSON files.
+
+## Reproduce
+
+Using an existing Python 3 installation with its standard library:
+
+```sh
+cd data-preparation
+python3 download.py --raw /tmp/madness-raw
+python3 normalize.py --raw /tmp/madness-raw --out /tmp/madness-normalized
+python3 prepare-ratings.py --raw /tmp/madness-raw --data /tmp/madness-normalized --out /tmp/madness-ratings
+node ../scripts/derive-forecasts.mjs --data /tmp/madness-normalized --ratings /tmp/madness-ratings --out /tmp/madness-derived
+```
+
+Use the derived directory's 2024–2026 and index JSON files, with the normalized directory's earlier year files. The model generator uses existing Node only during preparation; the visitor receives precomputed static JSON. Pure `pairwise` and `propagate` exports are available for independent model tests.
+
+The downloader preserves existing input files. For a fresh retrieval, select a new directory. Archived CSV URLs are pinned to observed Wayback captures. ESPN is a public, undocumented publisher endpoint and may change or disappear. Date ranges returned HTTP 400 in this trial; month queries returned complete NCAA tournament records. Reproduction may require waiting/retrying Wayback after a transient timeout. Normalization validates data rather than silently accepting changed or partial responses.
+
+`source-inventory.json` records the exact URLs, SHA-256 values and sizes of the 30 raw files used in this run. Raw files are research inputs kept outside the application and are not needed by visitors. New downloads may differ in ESPN metadata; compare normalized factual output and investigate differences before replacing the committed application data. The source inventory records the original retrieval; the scripts do not generate a separate normalized-inventory file. The three frozen `../data-inputs/*.json` files retain only the 68 tournament teams' rating inputs and explicit source-name joins.
+
+## Coverage and meaning
+
+- Ten played tournaments: 2016–2019 and 2021–2026, each with 68 teams and 67 bracket games (670 games in all). One 2021 game was not played; Oregon advanced when the VCU game was declared a no-contest. Its scores are null, not ESPN's administrative 1–0 marker. Thus 669 games were played.
+- 2020 is an explicit cancelled year, with no invented bracket, games or forecasts.
+- Genuine FiveThirtyEight daily forecast snapshots cover 2016, 2017, 2018, 2019, 2021, 2022 and 2023: 83 snapshots, each containing 68 men's teams. These are archived publisher data, not reconstructed estimates.
+- FiveThirtyEight's publisher repository says sports forecasts stopped updating June 13, 2023. The 2024–2026 output adds one pre-tournament T-Rank / log5 reconstruction per year. This is a calculation from an existing documented model and frozen pre-tournament ratings, not an archived forecast published by FiveThirtyEight or Bart Torvik. Nate Silver published a separate paid 2024 spreadsheet; it is not copied here.
+- Snapshot dates preserve `forecast_date` exactly. The CSV does not give a precise intraday time. A dated snapshot can include results played that day. The latest snapshot is after the semifinals and before the championship; it is not a final-result forecast with a 100% champion.
+- Scores/results and forecasts are distinct datasets. A game's known eventual result must not appear as a prediction from an earlier snapshot.
+
+## Schema
+
+`index.json`: `{schemaVersion: 1, gender: "mens", years: [{year, status, file, forecastDates, championTeamId}]}`.
+
+Each year: `{year, status, teams, games, forecasts, regionOrder, finalFourPairs, championTeamId, firstGameDate?, lastGameDate?, sources, corrections, forecastNote?}`.
+
+- Team: `{id, name, shortName, seed, region, bracketSlot, playIn}`. IDs are ESPN IDs as strings. Names for forecast years use historical FiveThirtyEight values. The only ID translation is documented below. `bracketSlot` is 0–15 in seed order `[1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15]`. Both First Four participants share a slot; do not erase the eventual loser from an early forecast.
+- Game: `{id,date,round,roundName,region,teamIds,scores,winnerId,status,statusText,sourceUrl,nextGameId,nextGameSlot,bracketOrder}`. `date` is publisher UTC ISO time. Round 0 = First Four, 1 = Round of 64, 2 = Round of 32, 3 = Sweet 16, 4 = Elite Eight, 5 = Final Four, 6 = Championship. `teamIds`/`scores` are parallel arrays in the publisher home/away order. `nextGameSlot` indexes that next game's `teamIds`; it is not a drawing-side coordinate. `bracketOrder` orders games within region/round by the standard seed topology. Final Four games have orders 0 and 1.
+- `regionOrder` is `[topLeft,bottomLeft,topRight,bottomRight]`; adjacent pairs play each other in the Final Four. It is derived from actual regional champions in the two semifinals. `finalFourPairs` records those same two pairs explicitly.
+- Forecast: `{date, teams:[{id,p,rating,alive}]}`. `p` has seven numbers: reach Round of 64, Round of 32, Sweet 16, Elite Eight, Final Four, Championship game, win Championship. Probabilities are cumulative, not odds of winning one isolated game. `rating` is the publisher model rating, not a seed. Exact numeric data is retained; only the UI should round it for display.
+- Reconstructed forecasts instead have `{date,kind:"reconstructed",provider,teams:[{id,p,barthag}]}`. `barthag` is a probability against an average Division I opponent, not a FiveThirtyEight power rating. Their year files include `forecastProvider`, `modelNote`, and the precise source URL/date.
+
+## T-Rank / log5 reconstruction, 2024–2026
+
+Bart Torvik's own FAQ explains that Barthag estimates a team's win probability against an average Division I team on a neutral court, and that log5 converts two Barthags into a matchup probability. For ratings a and b:
+
+```text
+P(A beats B) = a(1 − b) / [a(1 − b) + b(1 − a)]
+```
+
+Frozen inputs come from the morning after Selection Sunday: March 18, 2024; March 17, 2025; March 16, 2026. They predate the First Four. The source publisher specifically identifies the `timemachine/team_results/YYYYMMDD_team_results.json.gz` files as actual archived ratings, unlike a retrospective regular-season filter that can change recency adjustments.
+
+The code starts with all 68 teams. Both First Four participants receive their computed chance of occupying their shared Round of 64 slot. Every subsequent team's advancement probability is its probability of reaching that game multiplied by the sum of each possible opposing team's probability of reaching it times the pairwise win probability. Thus it integrates all possible opponents rather than assuming favored teams win. Final Four pairings use the actual announced bracket topology. The calculation never reads actual game winners or scores.
+
+Ratings remain fixed throughout the tournament. The reconstruction adds no injury, venue, matchup-specific or uncertainty adjustment. It is not claimed to reproduce the provider's published tournament forecast exactly, and only one initial snapshot is supplied. Actual later results are a separate view.
+
+Explicit school-name aliases are retained in each ratings file. Matching never uses a fuzzy nearest-name selection. The 2026 provider changed NC State's display name; preparation prefers an exact normalized name when available and otherwise uses the explicit alias table. All 68 teams in each year map to 68 unique source schools.
+
+## Provenance and corrections
+
+Primary results source: ESPN's tournament scoreboards, queried for March and April per year. Each game retains a readable ESPN source link. Extracted fields are tournament facts; no ESPN article text, photographs, logos, athlete profiles, betting odds or site code is copied into the application.
+
+Primary forecast source: original FiveThirtyEight CSVs served through the Internet Archive. The original 538 endpoints now redirect to an ABC News page, so the downloader checks the CSV header instead of accepting a successful HTTP response alone. Exact archive URLs are stored per year.
+
+Two explicit data corrections:
+
+1. 2018 LIU Brooklyn: ESPN's inactive team ID 6446 carries seed 99; the NCAA's 2018 printable bracket identifies LIU Brooklyn as seed 16. The archived FiveThirtyEight forecast uses ID 2341 and name Long Island University. It is mapped to historical ESPN ID 6446 and labelled LIU Brooklyn for this year only. No other forecast ID mapping is needed.
+2. 2021 Oregon–VCU (ESPN game 401310924): provider status is `STATUS_UNCONTESTED`, with an explicit advancement note. Administrative numeric scores 1 and 0 are normalized to null; Oregon remains the advancing team.
+
+Champions were separately checked against NCAA championship history, including Michigan's 69–63 win over UConn in 2026. This independent check complements counts/topology; it does not claim a second-source audit of all 670 game facts.
+
+## Attribution and rights
+
+FiveThirtyEight declares its datasets Creative Commons Attribution 4.0 International unless otherwise noted. Keep [`LICENSE-fivethirtyeight-data.txt`](../app/public/LICENSE-fivethirtyeight-data.txt), attribute FiveThirtyEight, link its original data repository and the exact archived CSV, and identify transformations (men's rows extracted; fields renamed; IDs mapped; JSON conversion). The publisher README is retained as `FIVETHIRTYEIGHT-README.md`.
+
+ESPN and NCAA source material is not represented as CC-BY or MIT. This project retains a limited set of historical tournament facts, independently arranged, with source links. Their site text, imagery, logos, official bracket PDF layouts and code are not relicensed or bundled. This does not constitute a general permission claim about ESPN/NCAA content or endorsement by any institution.
+
+T-Rank inputs are attributed to Bart Torvik. His public bulk-data guidance supplies the exact downloadable archive path and describes sharing data; no formal CC-BY/MIT license has been identified for those rating values. Preserve that distinction rather than applying FiveThirtyEight's license to the T-Rank inputs. This example extracts only its 68-team pre-tournament inputs per year, preserves source links and transformations, and reproduces no publisher site code or article text.
+
+Sources:
+
+- https://github.com/fivethirtyeight/data/blob/master/README.md
+- https://github.com/fivethirtyeight/data/blob/master/LICENSE
+- https://github.com/fivethirtyeight/data/tree/master/march-madness-predictions-2018
+- https://www.ncaa.com/history/basketball-men/d1
+- https://i.turner.ncaa.com/sites/default/files/external/printable-bracket/2018/bracket-ncaa.pdf
+- https://www.espn.com/mens-college-basketball/game/_/gameId/401310924
+- https://www.natesilver.net/p/2024-march-madness-predictions (not copied)
+- https://adamcwisports.blogspot.com/p/every-possession-counts.html (Bart Torvik's model explanation)
+- https://adamcwisports.blogspot.com/p/data.html (Bart Torvik's archive download guidance and field key)
+- https://barttorvik.com/timemachine/team_results/20240318_team_results.json.gz
+- https://barttorvik.com/timemachine/team_results/20250317_team_results.json.gz
+- https://barttorvik.com/timemachine/team_results/20260316_team_results.json.gz
+
+## Validation
+
+`normalize.py` writes `validation.json` into its selected `--out` directory. This generated report records actual checks: unique 68-team/67-game counts, all seven round counts, regional seeds, bracket ordering, Final Four pairing, winner/next-game crosslinks, score winners, independent NCAA champion checks, snapshot ID coverage, finite/bounded/monotone probabilities, and per-round probability totals of 64/32/16/8/4/2/1. Maximum total error is about 0.00000004 in the lower-precision 2016 CSV; all other forecast years are within about 0.0000000000061. No claim is made that these invariants prove the predictive model accurate.
+
+`derive-forecasts.mjs` writes `derived-validation.json` into its selected `--out` directory. This generated report separately records the three reconstructions: frozen input dates, all 68 teams, four First Four pairs, finite/bounded/monotone probabilities, and seven round totals within 1e-10 of the expected counts. Independent mathematical and source audits are recorded separately by the reviewer.
+
+The validation files are generated outputs, not prerequisites or checked-in reports. The application/data/model checks can be rerun from the project root with `node tests/run.mjs` without reacquiring remote data.

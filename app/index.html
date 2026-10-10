@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#012169">
+  <meta name="description" content="Explore men's NCAA tournament brackets, archived FiveThirtyEight forecasts, and results from 2016 onward.">
+  <title>Tournament Atlas · The road to a title</title>
+</head>
+<body>
+  <a class="skip-link" href="#explorer">Skip to tournament explorer</a>
+  <header class="masthead"><a href="#" class="wordmark">Tournament Atlas</a><a href="#about">Data &amp; methods</a></header>
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow">Men’s college basketball · 2016–2026</p><h1>The road to a title.</h1><p class="dek">Sixty-eight teams. One champion. Explore the bracket, compare each team’s chances, and watch a tournament unfold.</p></div>
+      <div class="year-field"><label for="year">Tournament year</label><select id="year" disabled></select><p id="year-coverage"></p></div>
+    </section>
+    <section id="explorer" aria-labelledby="explorer-title" aria-busy="true">
+      <h2 id="explorer-title" class="sr-only">Tournament explorer</h2>
+      <p id="loading" class="loading" role="status">Loading tournament data…</p>
+      <div id="workspace" hidden>
+        <div class="toolbar">
+          <div class="button-group" role="group" aria-label="Tournament information"><button id="forecast-mode" type="button" aria-pressed="true">Forecasts</button><button id="results-mode" type="button" aria-pressed="false">Results</button></div>
+          <p id="coverage-note"></p>
+          <div class="button-group" role="group" aria-label="Display"><button id="bracket-view" type="button" aria-pressed="true">Bracket</button><button id="table-view" type="button" aria-pressed="false">Table</button></div>
+        </div>
+        <div id="timeline" class="timeline">
+          <div class="timeline-heading"><div><p class="eyebrow">Archived FiveThirtyEight forecast</p><h3 id="snapshot-title"></h3></div><button id="play" class="secondary" type="button">Play tournament</button></div>
+          <label class="sr-only" for="snapshot">Forecast snapshot</label><input id="snapshot" type="range" min="0" max="0" value="0"><div class="timeline-labels"><span id="first-date"></span><span>Move through the recorded forecasts</span><span id="last-date"></span></div>
+        </div>
+        <div id="results-heading" class="results-heading" hidden></div>
+        <div class="explore-help"><p id="explore-help"></p><label class="team-picker">Find a team <select id="team-select"></select></label></div>
+        <div id="bracket-panel"></div>
+        <div id="table-panel" hidden></div>
+        <section id="team-detail" class="team-detail" aria-labelledby="team-title"></section>
+      </div>
+      <section id="cancelled" class="cancelled" hidden><p class="eyebrow">2020 tournament</p><h2>A March without a bracket.</h2><p>The NCAA cancelled the 2020 men’s and women’s basketball tournaments because of COVID-19. There was no official field, no games, and no champion.</p><p>Choose another year to explore a tournament. A missing season is part of the history—not a gap to fill with predictions.</p><a href="https://www.ncaa.com/history/basketball-men/d1" target="_blank" rel="noreferrer">See the NCAA’s championship history</a></section>
+    </section>
+    <section class="about" id="about"><div><p class="eyebrow">Reading the evidence</p><h2>Chances are not results.</h2><p>Forecast percentages are a team’s chance of <em>reaching</em> each stage from the selected snapshot. They are not its chance of winning only the next game. A checkmark means the stage was already reached; a dash means zero chance.</p><p id="about-coverage">Forecast and result coverage varies by year. The selected year’s sources appear below.</p><p><a href="./DATA-NOTICES.txt">Data credits &amp; licenses</a> identifies the original sources, this app’s transformations, and the terms that apply to each source.</p><p>This independent educational recreation takes its interaction pattern from <a href="https://web.archive.org/web/20240411121651/https://projects.fivethirtyeight.com/madness-2015/index.html#mens" target="_blank" rel="noreferrer">FiveThirtyEight’s 2015 tournament explorer</a>. It is not affiliated with FiveThirtyEight, the NCAA, or any university.</p></div><div><details id="sources"><summary>Sources, coverage &amp; downloads</summary><div id="source-list"></div></details><details><summary>How this was built</summary><p>The request: recreate the archived tournament dashboard, with a selector for every year from 2016 onward.</p><p>The implementation uses native HTML for an accessible bracket and table, Apache ECharts for team forecast history, and locally bundled data and fonts. The 2016–2023 forecasts retain their original model. Later years use a separately labeled reconstruction from pre-tournament ratings; the two sources are never presented as one continuous model.</p><p><a id="source-link" href="./build-story.html">Read the build story</a> · <a href="./THIRD-PARTY-NOTICES.txt">Library notices</a></p></details></div></section>
+  </main>
+  <footer><span>Tournament Atlas</span><span>Archived forecasts · recorded results</span></footer>
+  <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

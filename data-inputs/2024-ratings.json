@@ -1,0 +1,904 @@
+{
+  "year": 2024,
+  "date": "2024-03-18",
+  "timing": "Morning after Selection Sunday, before First Four",
+  "teams": [
+    {
+      "id": "2509",
+      "name": "Purdue",
+      "bartName": "Purdue",
+      "barthag": 0.9643931306382676,
+      "record": "29-4"
+    },
+    {
+      "id": "147",
+      "name": "Montana State",
+      "bartName": "Montana St.",
+      "barthag": 0.4196350755300843,
+      "record": "17-17"
+    },
+    {
+      "id": "2755",
+      "name": "Grambling",
+      "bartName": "Grambling St.",
+      "barthag": 0.28052144972842785,
+      "record": "20-14"
+    },
+    {
+      "id": "328",
+      "name": "Utah State",
+      "bartName": "Utah St.",
+      "barthag": 0.8142570223625583,
+      "record": "27-6"
+    },
+    {
+      "id": "2628",
+      "name": "TCU",
+      "bartName": "TCU",
+      "barthag": 0.868828378332728,
+      "record": "21-12"
+    },
+    {
+      "id": "2250",
+      "name": "Gonzaga",
+      "bartName": "Gonzaga",
+      "barthag": 0.9151246994493325,
+      "record": "25-7"
+    },
+    {
+      "id": "2377",
+      "name": "McNeese",
+      "bartName": "McNeese St.",
+      "barthag": 0.7531000897276056,
+      "record": "30-3"
+    },
+    {
+      "id": "2305",
+      "name": "Kansas",
+      "bartName": "Kansas",
+      "barthag": 0.910800432249341,
+      "record": "22-10"
+    },
+    {
+      "id": "2535",
+      "name": "Samford",
+      "bartName": "Samford",
+      "barthag": 0.7315340461872258,
+      "record": "29-5"
+    },
+    {
+      "id": "2579",
+      "name": "South Carolina",
+      "bartName": "South Carolina",
+      "barthag": 0.8417081088076916,
+      "record": "26-7"
+    },
+    {
+      "id": "2483",
+      "name": "Oregon",
+      "bartName": "Oregon",
+      "barthag": 0.8149279482359181,
+      "record": "23-11"
+    },
+    {
+      "id": "156",
+      "name": "Creighton",
+      "bartName": "Creighton",
+      "barthag": 0.9290775657024061,
+      "record": "23-9"
+    },
+    {
+      "id": "2006",
+      "name": "Akron",
+      "bartName": "Akron",
+      "barthag": 0.59467935086438,
+      "record": "24-10"
+    },
+    {
+      "id": "251",
+      "name": "Texas",
+      "bartName": "Texas",
+      "barthag": 0.9006201701726119,
+      "record": "20-12"
+    },
+    {
+      "id": "258",
+      "name": "Virginia",
+      "bartName": "Virginia",
+      "barthag": 0.8145221015116092,
+      "record": "23-10"
+    },
+    {
+      "id": "36",
+      "name": "Colorado State",
+      "bartName": "Colorado St.",
+      "barthag": 0.8460815525612962,
+      "record": "24-10"
+    },
+    {
+      "id": "2633",
+      "name": "Tennessee",
+      "bartName": "Tennessee",
+      "barthag": 0.9380732407392046,
+      "record": "24-8"
+    },
+    {
+      "id": "2612",
+      "name": "Saint Peter's",
+      "bartName": "Saint Peter's",
+      "barthag": 0.403852664550917,
+      "record": "19-13"
+    },
+    {
+      "id": "248",
+      "name": "Houston",
+      "bartName": "Houston",
+      "barthag": 0.9785553037828987,
+      "record": "30-4"
+    },
+    {
+      "id": "2344",
+      "name": "Longwood",
+      "bartName": "Longwood",
+      "barthag": 0.47754988057974856,
+      "record": "21-13"
+    },
+    {
+      "id": "158",
+      "name": "Nebraska",
+      "bartName": "Nebraska",
+      "barthag": 0.9002161485530518,
+      "record": "23-10"
+    },
+    {
+      "id": "245",
+      "name": "Texas A&M",
+      "bartName": "Texas A&M",
+      "barthag": 0.8500263626823864,
+      "record": "20-14"
+    },
+    {
+      "id": "275",
+      "name": "Wisconsin",
+      "bartName": "Wisconsin",
+      "barthag": 0.9017037259554701,
+      "record": "22-13"
+    },
+    {
+      "id": "256",
+      "name": "James Madison",
+      "bartName": "James Madison",
+      "barthag": 0.778243266893519,
+      "record": "31-3"
+    },
+    {
+      "id": "150",
+      "name": "Duke",
+      "bartName": "Duke",
+      "barthag": 0.9271942339996484,
+      "record": "24-8"
+    },
+    {
+      "id": "261",
+      "name": "Vermont",
+      "bartName": "Vermont",
+      "barthag": 0.659034090115112,
+      "record": "28-6"
+    },
+    {
+      "id": "2641",
+      "name": "Texas Tech",
+      "bartName": "Texas Tech",
+      "barthag": 0.8845371827063686,
+      "record": "23-10"
+    },
+    {
+      "id": "152",
+      "name": "NC State",
+      "bartName": "North Carolina St.",
+      "barthag": 0.7982821731706679,
+      "record": "22-14"
+    },
+    {
+      "id": "96",
+      "name": "Kentucky",
+      "bartName": "Kentucky",
+      "barthag": 0.8934123562183536,
+      "record": "23-9"
+    },
+    {
+      "id": "2473",
+      "name": "Oakland",
+      "bartName": "Oakland",
+      "barthag": 0.5855573801340441,
+      "record": "23-11"
+    },
+    {
+      "id": "57",
+      "name": "Florida",
+      "bartName": "Florida",
+      "barthag": 0.8950116850072038,
+      "record": "24-11"
+    },
+    {
+      "id": "38",
+      "name": "Colorado",
+      "bartName": "Colorado",
+      "barthag": 0.886727122652113,
+      "record": "24-10"
+    },
+    {
+      "id": "68",
+      "name": "Boise State",
+      "bartName": "Boise St.",
+      "barthag": 0.8538599049177831,
+      "record": "22-10"
+    },
+    {
+      "id": "269",
+      "name": "Marquette",
+      "bartName": "Marquette",
+      "barthag": 0.9328226370605911,
+      "record": "25-9"
+    },
+    {
+      "id": "98",
+      "name": "Western Kentucky",
+      "bartName": "Western Kentucky",
+      "barthag": 0.5939915400499144,
+      "record": "22-11"
+    },
+    {
+      "id": "41",
+      "name": "UConn",
+      "bartName": "Connecticut",
+      "barthag": 0.9712457457912517,
+      "record": "31-3"
+    },
+    {
+      "id": "56",
+      "name": "Stetson",
+      "bartName": "Stetson",
+      "barthag": 0.35576453061730196,
+      "record": "22-12"
+    },
+    {
+      "id": "2226",
+      "name": "Florida Atlantic",
+      "bartName": "Florida Atlantic",
+      "barthag": 0.8174498181674981,
+      "record": "25-8"
+    },
+    {
+      "id": "77",
+      "name": "Northwestern",
+      "bartName": "Northwestern",
+      "barthag": 0.8715309174799923,
+      "record": "21-11"
+    },
+    {
+      "id": "21",
+      "name": "San Diego State",
+      "bartName": "San Diego St.",
+      "barthag": 0.8788632734084413,
+      "record": "24-10"
+    },
+    {
+      "id": "5",
+      "name": "UAB",
+      "bartName": "UAB",
+      "barthag": 0.6633827843995431,
+      "record": "23-11"
+    },
+    {
+      "id": "2",
+      "name": "Auburn",
+      "bartName": "Auburn",
+      "barthag": 0.9572749654411528,
+      "record": "27-7"
+    },
+    {
+      "id": "43",
+      "name": "Yale",
+      "bartName": "Yale",
+      "barthag": 0.7432433566822473,
+      "record": "22-9"
+    },
+    {
+      "id": "252",
+      "name": "BYU",
+      "bartName": "BYU",
+      "barthag": 0.9065493951550555,
+      "record": "23-10"
+    },
+    {
+      "id": "2184",
+      "name": "Duquesne",
+      "bartName": "Duquesne",
+      "barthag": 0.7618198364369084,
+      "record": "24-11"
+    },
+    {
+      "id": "356",
+      "name": "Illinois",
+      "bartName": "Illinois",
+      "barthag": 0.9220813390156939,
+      "record": "26-8"
+    },
+    {
+      "id": "2413",
+      "name": "Morehead State",
+      "bartName": "Morehead St.",
+      "barthag": 0.5886736634918576,
+      "record": "26-8"
+    },
+    {
+      "id": "265",
+      "name": "Washington State",
+      "bartName": "Washington St.",
+      "barthag": 0.8555000246337129,
+      "record": "24-9"
+    },
+    {
+      "id": "2181",
+      "name": "Drake",
+      "bartName": "Drake",
+      "barthag": 0.8281326987827708,
+      "record": "28-6"
+    },
+    {
+      "id": "66",
+      "name": "Iowa State",
+      "bartName": "Iowa St.",
+      "barthag": 0.9582759147812626,
+      "record": "27-7"
+    },
+    {
+      "id": "2571",
+      "name": "South Dakota State",
+      "bartName": "South Dakota St.",
+      "barthag": 0.5838020084099371,
+      "record": "22-12"
+    },
+    {
+      "id": "153",
+      "name": "North Carolina",
+      "bartName": "North Carolina",
+      "barthag": 0.9304306307685968,
+      "record": "27-7"
+    },
+    {
+      "id": "2681",
+      "name": "Wagner",
+      "bartName": "Wagner",
+      "barthag": 0.23973790289487076,
+      "record": "16-15"
+    },
+    {
+      "id": "47",
+      "name": "Howard",
+      "bartName": "Howard",
+      "barthag": 0.29140504014484286,
+      "record": "18-16"
+    },
+    {
+      "id": "344",
+      "name": "Mississippi State",
+      "bartName": "Mississippi St.",
+      "barthag": 0.8772146553588341,
+      "record": "21-13"
+    },
+    {
+      "id": "127",
+      "name": "Michigan State",
+      "bartName": "Michigan St.",
+      "barthag": 0.8982546608645026,
+      "record": "19-14"
+    },
+    {
+      "id": "2608",
+      "name": "Saint Mary's",
+      "bartName": "Saint Mary's",
+      "barthag": 0.9197170737008501,
+      "record": "26-7"
+    },
+    {
+      "id": "2253",
+      "name": "Grand Canyon",
+      "bartName": "Grand Canyon",
+      "barthag": 0.7732999714792214,
+      "record": "29-4"
+    },
+    {
+      "id": "333",
+      "name": "Alabama",
+      "bartName": "Alabama",
+      "barthag": 0.9124114567955758,
+      "record": "21-11"
+    },
+    {
+      "id": "232",
+      "name": "Charleston",
+      "bartName": "College of Charleston",
+      "barthag": 0.7023382133909832,
+      "record": "27-7"
+    },
+    {
+      "id": "228",
+      "name": "Clemson",
+      "bartName": "Clemson",
+      "barthag": 0.8648828216441167,
+      "record": "21-11"
+    },
+    {
+      "id": "167",
+      "name": "New Mexico",
+      "bartName": "New Mexico",
+      "barthag": 0.8926577599875718,
+      "record": "26-9"
+    },
+    {
+      "id": "239",
+      "name": "Baylor",
+      "bartName": "Baylor",
+      "barthag": 0.9102291209267234,
+      "record": "23-10"
+    },
+    {
+      "id": "2142",
+      "name": "Colgate",
+      "bartName": "Colgate",
+      "barthag": 0.5129834548339519,
+      "record": "25-9"
+    },
+    {
+      "id": "2168",
+      "name": "Dayton",
+      "bartName": "Dayton",
+      "barthag": 0.8545727609525356,
+      "record": "24-7"
+    },
+    {
+      "id": "2440",
+      "name": "Nevada",
+      "bartName": "Nevada",
+      "barthag": 0.8634144326893664,
+      "record": "26-7"
+    },
+    {
+      "id": "12",
+      "name": "Arizona",
+      "bartName": "Arizona",
+      "barthag": 0.9527336603207427,
+      "record": "25-8"
+    },
+    {
+      "id": "299",
+      "name": "Long Beach State",
+      "bartName": "Long Beach St.",
+      "barthag": 0.43144386121703693,
+      "record": "21-14"
+    }
+  ],
+  "source": {
+    "name": "Bart Torvik T-Rank Time Machine",
+    "url": "https://barttorvik.com/timemachine/team_results/20240318_team_results.json.gz",
+    "sha256": "23d4195749664de3597273ec1c4b2e32997a9d1a22e773c57d2707ce19a04c2e",
+    "decodedSha256": "6eb4d006994bfc701d381b5315bc5fc14d9b490053d8bbd3a4128221d6c47b8e",
+    "retrievedOn": "2026-10-09",
+    "field": "Zero-based column 8: Barthag",
+    "originalTeamCount": 362,
+    "methodUrl": "https://adamcwisports.blogspot.com/p/every-possession-counts.html",
+    "bulkDataGuideUrl": "https://adamcwisports.blogspot.com/p/data.html"
+  },
+  "joins": [
+    {
+      "id": "2509",
+      "bracketName": "Purdue",
+      "providerName": "Purdue",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "147",
+      "bracketName": "Montana State",
+      "providerName": "Montana St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2755",
+      "bracketName": "Grambling",
+      "providerName": "Grambling St.",
+      "join": "explicit school alias"
+    },
+    {
+      "id": "328",
+      "bracketName": "Utah State",
+      "providerName": "Utah St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2628",
+      "bracketName": "TCU",
+      "providerName": "TCU",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2250",
+      "bracketName": "Gonzaga",
+      "providerName": "Gonzaga",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2377",
+      "bracketName": "McNeese",
+      "providerName": "McNeese St.",
+      "join": "explicit school alias"
+    },
+    {
+      "id": "2305",
+      "bracketName": "Kansas",
+      "providerName": "Kansas",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2535",
+      "bracketName": "Samford",
+      "providerName": "Samford",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2579",
+      "bracketName": "South Carolina",
+      "providerName": "South Carolina",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2483",
+      "bracketName": "Oregon",
+      "providerName": "Oregon",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "156",
+      "bracketName": "Creighton",
+      "providerName": "Creighton",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2006",
+      "bracketName": "Akron",
+      "providerName": "Akron",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "251",
+      "bracketName": "Texas",
+      "providerName": "Texas",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "258",
+      "bracketName": "Virginia",
+      "providerName": "Virginia",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "36",
+      "bracketName": "Colorado State",
+      "providerName": "Colorado St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2633",
+      "bracketName": "Tennessee",
+      "providerName": "Tennessee",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2612",
+      "bracketName": "Saint Peter's",
+      "providerName": "Saint Peter's",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "248",
+      "bracketName": "Houston",
+      "providerName": "Houston",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2344",
+      "bracketName": "Longwood",
+      "providerName": "Longwood",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "158",
+      "bracketName": "Nebraska",
+      "providerName": "Nebraska",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "245",
+      "bracketName": "Texas A&M",
+      "providerName": "Texas A&M",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "275",
+      "bracketName": "Wisconsin",
+      "providerName": "Wisconsin",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "256",
+      "bracketName": "James Madison",
+      "providerName": "James Madison",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "150",
+      "bracketName": "Duke",
+      "providerName": "Duke",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "261",
+      "bracketName": "Vermont",
+      "providerName": "Vermont",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2641",
+      "bracketName": "Texas Tech",
+      "providerName": "Texas Tech",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "152",
+      "bracketName": "NC State",
+      "providerName": "North Carolina St.",
+      "join": "explicit school alias"
+    },
+    {
+      "id": "96",
+      "bracketName": "Kentucky",
+      "providerName": "Kentucky",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2473",
+      "bracketName": "Oakland",
+      "providerName": "Oakland",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "57",
+      "bracketName": "Florida",
+      "providerName": "Florida",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "38",
+      "bracketName": "Colorado",
+      "providerName": "Colorado",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "68",
+      "bracketName": "Boise State",
+      "providerName": "Boise St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "269",
+      "bracketName": "Marquette",
+      "providerName": "Marquette",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "98",
+      "bracketName": "Western Kentucky",
+      "providerName": "Western Kentucky",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "41",
+      "bracketName": "UConn",
+      "providerName": "Connecticut",
+      "join": "explicit school alias"
+    },
+    {
+      "id": "56",
+      "bracketName": "Stetson",
+      "providerName": "Stetson",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2226",
+      "bracketName": "Florida Atlantic",
+      "providerName": "Florida Atlantic",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "77",
+      "bracketName": "Northwestern",
+      "providerName": "Northwestern",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "21",
+      "bracketName": "San Diego State",
+      "providerName": "San Diego St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "5",
+      "bracketName": "UAB",
+      "providerName": "UAB",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2",
+      "bracketName": "Auburn",
+      "providerName": "Auburn",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "43",
+      "bracketName": "Yale",
+      "providerName": "Yale",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "252",
+      "bracketName": "BYU",
+      "providerName": "BYU",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2184",
+      "bracketName": "Duquesne",
+      "providerName": "Duquesne",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "356",
+      "bracketName": "Illinois",
+      "providerName": "Illinois",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2413",
+      "bracketName": "Morehead State",
+      "providerName": "Morehead St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "265",
+      "bracketName": "Washington State",
+      "providerName": "Washington St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2181",
+      "bracketName": "Drake",
+      "providerName": "Drake",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "66",
+      "bracketName": "Iowa State",
+      "providerName": "Iowa St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2571",
+      "bracketName": "South Dakota State",
+      "providerName": "South Dakota St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "153",
+      "bracketName": "North Carolina",
+      "providerName": "North Carolina",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2681",
+      "bracketName": "Wagner",
+      "providerName": "Wagner",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "47",
+      "bracketName": "Howard",
+      "providerName": "Howard",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "344",
+      "bracketName": "Mississippi State",
+      "providerName": "Mississippi St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "127",
+      "bracketName": "Michigan State",
+      "providerName": "Michigan St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2608",
+      "bracketName": "Saint Mary's",
+      "providerName": "Saint Mary's",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2253",
+      "bracketName": "Grand Canyon",
+      "providerName": "Grand Canyon",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "333",
+      "bracketName": "Alabama",
+      "providerName": "Alabama",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "232",
+      "bracketName": "Charleston",
+      "providerName": "College of Charleston",
+      "join": "explicit school alias"
+    },
+    {
+      "id": "228",
+      "bracketName": "Clemson",
+      "providerName": "Clemson",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "167",
+      "bracketName": "New Mexico",
+      "providerName": "New Mexico",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "239",
+      "bracketName": "Baylor",
+      "providerName": "Baylor",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2142",
+      "bracketName": "Colgate",
+      "providerName": "Colgate",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2168",
+      "bracketName": "Dayton",
+      "providerName": "Dayton",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "2440",
+      "bracketName": "Nevada",
+      "providerName": "Nevada",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "12",
+      "bracketName": "Arizona",
+      "providerName": "Arizona",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    },
+    {
+      "id": "299",
+      "bracketName": "Long Beach State",
+      "providerName": "Long Beach St.",
+      "join": "exact name after punctuation/State abbreviation normalization"
+    }
+  ]
+}

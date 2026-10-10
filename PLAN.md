@@ -1,0 +1,41 @@
+# Tournament Atlas
+
+## Request and intended use
+
+Recreate the archived FiveThirtyEight 2015 men's tournament forecast dashboard and provide a year selector for every year since 2016, through 2026. The supplied URL selects men. This is an independent educational recreation using real historical data; it is not an official publisher, NCAA, or university product.
+
+The user subsequently requested another online probability model for 2024–2026 that could be expressed at the same round-by-round granularity. The implementation uses frozen pre-tournament T-Rank ratings and Bart Torvik's documented neutral-court log5 formula, then calculates each team's chance of advancing through every possible opponent. This is explicitly labeled as our reconstruction, not a tournament forecast published by FiveThirtyEight or Bart Torvik.
+
+## Delivered scope
+
+A four-region bracket, sortable cumulative-probability table, archived forecast replay, selected-team route and forecast-history chart. Every year from 2016 through 2026 is available. The 2020 option explains the cancelled tournament rather than inventing a field. A separate Results view shows actual scores and advancement. All visitor assets and data are bundled; no account, external runtime API, or telemetry is required.
+
+The learning objective is to distinguish a strong contender from a certain champion and to explore how a team's path and a sequence of uncertain games affect its title chance. Selecting a team highlights its route; it does not condition or recalculate the forecast as though that team had already won.
+
+## Data and model boundaries
+
+| Years | Probability evidence | Timeline |
+| --- | --- | --- |
+| 2016–2019, 2021–2023 | 83 genuine archived FiveThirtyEight snapshots across seven tournaments | Recorded daily snapshots only; the last available snapshot precedes the title game |
+| 2020 | No tournament, field, games, or forecasts | None |
+| 2024–2026 | One T-Rank / log5 reconstruction per year, using ratings dated March 18, 2024; March 17, 2025; and March 16, 2026 | One pre-tournament snapshot; no invented daily replay |
+
+A probability vector records the chance to reach the Round of 64, Round of 32, Sweet 16, Elite Eight, Final Four, the title game, and to win the title. Values are unconditional at the selected snapshot. First Four participants share one bracket slot. Date-only archive snapshots retain the publisher's daily state; they are not precise live timestamps and can include games played that day. Actual game dates display in Eastern Time.
+
+For the reconstruction, if two teams' Barthag values are `a` and `b`, the pairwise probability is `a(1-b) / [a(1-b) + b(1-a)]`. Exact bracket propagation averages over every possible opposing team, including First Four uncertainty. Ratings remain fixed. Actual results, later ratings, injuries, venue effects, matchup-specific adjustments, and rating uncertainty do not enter the calculation. Different years' provider models are not presented as directly interchangeable.
+
+## Implementation choices
+
+Use native HTML and SVG for the fixed bracket and sortable table, Apache ECharts for a selected team's probability history, and managed JavaScript/Vite with pinned approved dependencies. Use Campus Designer's bundled fonts and unchanged Duke palette without university or publisher marks. Preserve keyboard equivalents, responsive table access, visible source distinctions, and original-source attribution.
+
+## Evidence and acceptance
+
+Independent source examples: Kansas's initial 2016 title chance is 0.19203143; Villanova's initial 2018 chance is 0.179788104721 and its post-semifinal chance is 0.644389873381; Gonzaga's initial 2021 chance is 0.281433472751; Houston's initial 2023 chance is 0.22085016963 and its final archived chance is zero. Data retains full precision; the interface labels tiny nonzero probabilities separately from zero and uncertain near-certainty separately from achieved stages.
+
+Each played year has 68 teams and 67 scheduled bracket games. Oregon advanced over VCU without playing in 2021: preserve no-contest status and null scores. There was no 2020 field or title game. Coherent forecasts sum to 64/32/16/8/4/2/1 expected round participants, with nonincreasing probabilities per team. Seeds, region assignments, and semifinal pairings are year-specific. The reconstruction must also pass independently calculated equal-strength and unequal-strength cases, not only structural invariants.
+
+Check keyboard-equivalent team details, numeric sorting, playback stop/reset, year-switch state, narrow table and bracket access, chart resizing, Back navigation, and same-origin production assets. First Four losers must not overwrite the actual Round-of-64 entrant when selected. The final evaluation must identify its tested source commit and distinguish browser observations from unperformed human or device checks.
+
+## Publication boundary
+
+The candidate repository name is `bab-example-madness`; Vite and the prepared Pages workflow use its repository path. No new GitHub repository or live deployment is authorized or claimed by this plan. Obtain destination authorization after the concrete local result is reviewed. Source history will contain the approved attribution recorded in SETUP.md.

@@ -1,0 +1,28 @@
+/* Screen values: https://brand.duke.edu/colors/ (checked 2026-10-02).
+   White: Duke color accessibility grid. Heading/body selection: skill defaults.
+   No font loading, component styling, or permission to use Duke marks. */
+:root {
+  --duke-navy-blue: #012169;
+  --duke-royal-blue: #00539B;
+  --duke-copper: #C84E00;
+  --duke-persimmon: #E89923;
+  --duke-dandelion: #FFD960;
+  --duke-piedmont: #A1B70D;
+  --duke-eno: #339898;
+  --duke-magnolia: #1D6363;
+  --duke-prussian-blue: #005587;
+  --duke-shale-blue: #0577B1;
+  --duke-ironweed: #993399;
+  --duke-hatteras: #E2E6ED;
+  --duke-whisper-gray: #F3F2F1;
+  --duke-ginger-beer: #FCF7E5;
+  --duke-dogwood: #988675;
+  --duke-shackleford: #DAD0C6;
+  --duke-cast-iron: #262626;
+  --duke-graphite: #666666;
+  --duke-granite: #B5B5B5;
+  --duke-limestone: #E5E5E5;
+  --duke-white: #FFFFFF;
+  --duke-font-heading: "EB Garamond", Garamond, Georgia, "Times New Roman", Times, serif;
+  --duke-font-body: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}

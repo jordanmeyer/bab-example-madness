@@ -1,0 +1,5 @@
+/* Local OFL fonts; retain the accompanying fonts/*-license.txt files.
+   Available styles: EB Garamond 400; Open Sans 400 and 600, normal only. */
+@font-face { font-family: "EB Garamond"; src: url("./fonts/eb-garamond-400.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Open Sans"; src: url("./fonts/open-sans-400.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Open Sans"; src: url("./fonts/open-sans-600.ttf") format("truetype"); font-weight: 600; font-style: normal; font-display: swap; }

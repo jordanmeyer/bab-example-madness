@@ -1,0 +1,9 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tournament Atlas checks</title><style>body{font:16px/1.6 system-ui;max-width:75rem;margin:2rem auto;padding:1rem} .fail{color:#a20b0b}.pass{color:#125122}</style><h1>Tournament Atlas checks</h1><p id="summary" role="status">Running…</p><ol id="results"></ol><script type="module">
+import { runChecks } from './cases.js';
+import * as model from '../app/model.js';
+try {
+ const rows=await runChecks(async name => { const r=await fetch(`../app/public/data/${name}`); if(!r.ok)throw Error(`${name}: ${r.status}`);return r.json(); }, model);
+ for(const row of rows){ const li=document.createElement('li');li.className=row.pass?'pass':'fail';li.textContent=`${row.pass?'PASS':'FAIL'} ${row.name}${row.error?': '+row.error:''}`;document.querySelector('#results').append(li); }
+ document.querySelector('#summary').textContent=`${rows.filter(r=>r.pass).length}/${rows.length} checks passed`;
+} catch(error) {document.querySelector('#summary').textContent=`FAILED: ${error.message}`;document.querySelector('#summary').className='fail';}
+</script></html>

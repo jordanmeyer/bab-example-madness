@@ -1,0 +1,18 @@
+{
+  "name": "tournament-atlas",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "test:browser": "vite --mode test",
+    "build": "node scripts/notices.mjs && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "8.3.4"
+  },
+  "dependencies": {
+    "echarts": "6.1.0"
+  }
+}
