@@ -150,8 +150,7 @@ th:first-child, td:first-child { text-align: left; }
 .game-list li { border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 80px 1fr auto; gap: 1rem; padding: .65rem 0; font-size: .81rem; }
 .game-list small { color: var(--duke-graphite); font-size: 12px; }
 .game-list strong { color: var(--duke-navy-blue); white-space: nowrap; font-variant-numeric: lining-nums tabular-nums; }
-.about { border-top: 1px solid var(--line); margin: 3rem 0; padding-top: 2rem; max-width: 65ch; }
-.about h2 { font-size: 2rem; }
+.about { margin: 3rem 0; }
 .about p { font-size: .82rem; color: var(--duke-graphite); }
 details { border-top: 1px solid var(--line); padding: .85rem 0; }
 summary { cursor: pointer; color: var(--duke-navy-blue); font-weight: 600; font-size: .83rem; }
@@ -204,8 +203,7 @@ footer { max-width: 1024px; margin: auto; padding: 1.3rem 10px; background: var(
   .team-detail .history { margin-top: 1.8rem; }
   .stage-strip dd { font-size: .85rem; }
   .stage-strip div { padding: .6rem .3rem; }
-  .about { display: block; margin: 2rem 0; }
-  .about > div + div { margin-top: 1.5rem; }
+  .about { margin: 2rem 0; }
   .game-list li { gap: .6rem; grid-template-columns: 65px 1fr auto; font-size: 12px; }
   footer { font-size: 12px; padding: 1rem; }
   .cancelled { padding: 2rem 0; }
