@@ -2,6 +2,8 @@
 
 ## Complete fidelity checklist — October 9, 2026
 
+Final presentation checkpoint: `8f9147c0ad0094c0ae7a3b9edd2946e23efd6962`. This one-line follow-up removes a duplicated Winner label for champions; it changes no model, layout, route or data. Independent source review and coordinator production-browser checks confirm Connecticut displays Winner once while Houston retains Eliminated in Sweet 16. The build passed with `main-DKaVtwEg.js`; CSS is unchanged. The broader evidence below is from `7ffc82d`, whose relevant sources differ only by this reviewed label expression.
+
 Evaluated source: `7ffc82d2df7e702bd3c3bf367c39e2537636e2f5`. The user’s 21-item checklist supersedes the prior bounded one-season geometry acceptance. The [independent checklist review](review/checklist-review.md) gives all 21 corrections a bounded pass, with no unresolved blocking findings. It covers every year, four desktop widths, initial/late/Results states, 375px phone output, pointer movement over empty space, keyboard navigation, pin/clear, animation and replay. Its 112-state matrix contains 11,168 named-strip measurements with zero clipping.
 
 The clean checkpoint passed **80/80 Node and browser checks** and a production build, producing `main-DQGqCqRq.js` and `style-BQIAlD77.css`. The existing ECharts chunk-size warning remains (533.39 KB minified, 182.22 KB gzip). No dependencies or publishing workflow changed. An independent whole-file comparison against `6f98ed0` confirms that every existing data field is identical after excluding only new display labels and explanatory forecast prose: probabilities, ratings, dates, scores and outcomes are preserved. All generated labels can be reproduced from retained source inputs.

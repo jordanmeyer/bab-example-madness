@@ -53,3 +53,9 @@ Evaluated source: `40c6a1e0b2036c7b7e02fc60a279f4954f1abdac`. Published correcti
 A returning live-browser tab reloaded and received `main-CGWQTFsc.js`, replacing the prior card-based build. Its bracket exposes distinct Final Four and championship columns, zero finalist cards, and Houston’s exact 22.085% initial title chance. Its six route widths measured 15.2813, 13.4165, 12.0046, 10.0643, 8.83306 and 7.5492 pixels, matching the reviewed local build. Browser logs were empty. Models, data, dependencies and workflow are unchanged. The independent original comparison, local Results/narrow checks and 74/74 clean-checkpoint suite are recorded in EVALUATION.md.
 
 This report-only follow-up changes no evaluated application source.
+
+## Complete fidelity checklist publication
+
+The checklist correction at evaluated source `7ffc82d` was published in `e0d920c4e56c21b610baef50899e74d08a4077c1`. [Actions run 38019543318](https://github.com/jordanmeyer/bab-example-madness/actions/runs/38019543318) succeeded. A returning live tab loaded `main-DQGqCqRq.js`, started without a pin, displayed Houston’s 22.085% initial probability, then showed Houston’s Sweet 16 elimination with no completed-round bands. The 2026 reconstruction retained Michigan’s 17.762% forecast; Results omitted the reconstruction badge. The 2020 cancellation and reset to 2023 were observed with no captured console errors.
+
+A final presentation follow-up at `8f9147c` removes a duplicated Winner label. Its local build and targeted champion/loser browser checks passed; the current exact publication result is also retained in the [course correction record](https://github.com/jordanmeyer/decision-999/blob/main/evidence/browser-app-builder/madness/2026-10-09/checklist-review/README.md). The full 21-item review, source checkpoints and limits are in EVALUATION.md.
