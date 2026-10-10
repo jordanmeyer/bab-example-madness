@@ -10,7 +10,7 @@ node tests/source-model.mjs
 node tests/generated-sources.mjs
 ```
 
-The generator reads the frozen `data-inputs/opening-sources.json` and the unchanged original fields in `app/public/data/`. Compare `/tmp/atlas-sources` with the committed year files and `source-audit.json`; investigate differences before copying. It appends `forecastOptions` and `ensembleReport`, preserving original `forecasts`, provenance and corrections. The catalog's original `forecastDates` describe those retained archives, not the reconstructed interface timeline.
+The generator reads the frozen `data-inputs/opening-sources.json` and the unchanged original fields in `app/public/data/`. Compare `/tmp/atlas-sources` with the committed year files and `source-audit.json`; investigate differences before copying. It appends `forecastOptions` and `ensembleReport`, preserving original `forecasts`, provenance and corrections. Selecting FiveThirtyEight displays the retained original `forecasts`, whose dates match the catalog's `forecastDates`. Other selections display their generated `forecastOptions` timelines. The FiveThirtyEight option's reconstruction is retained only for blend generation/comparison; it does not replace the published archive in the source view.
 
 To reproduce the frozen input normalization from the companion course research evidence:
 

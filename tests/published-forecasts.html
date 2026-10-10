@@ -1,0 +1,40 @@
+<!doctype html><meta charset="utf-8"><title>Published forecast regression</title>
+<style>body{font:14px system-ui;margin:20px}iframe{width:1200px;height:800px}pre{white-space:pre-wrap}</style>
+<h1>Published forecast regression</h1><p id="status">Running…</p><pre id="results"></pre><iframe src="../app/index.html" title="Actual application"></iframe>
+<script type="module">
+import {exactProbability} from '../app/model.js';
+const frame=document.querySelector('iframe'), results=[];
+const check=(name,pass)=>{results.push({name,pass});document.querySelector('#results').textContent=JSON.stringify(results,null,2);if(!pass)throw Error(name);};
+const wait=async fn=>{for(let i=0;i<500;i++){if(fn())return;await new Promise(r=>setTimeout(r,20));}throw Error('Timed out');};
+await wait(()=>frame.contentDocument.querySelector('.team-node'));
+const doc=frame.contentDocument,$=s=>doc.querySelector(s);
+const choose=(selector,value)=>{const element=$(selector);element.value=value;element.dispatchEvent(new Event('change',{bubbles:true}));};
+try {
+ for(const gender of ['mens','womens']) {
+  $(`#${gender}`).click();await wait(()=>$('#explorer').getAttribute('aria-busy')==='false');
+  for(const year of [2016,2017,2018,2019,2021,2022,2023]) {
+   choose('#year',String(year));await wait(()=>$('#explorer').getAttribute('aria-busy')==='false');
+   choose('#source','fivethirtyeight');$('#table-view').click();
+   const data=await fetch(`/data/${gender==='womens'?'womens/':''}${year}.json`).then(r=>r.json());
+   check(`${gender} ${year}: original snapshot count`,Number($('#snapshot').getAttribute('aria-valuemax'))===data.forecasts.length-1);
+   let values=0;
+   for(let i=0;i<data.forecasts.length;i++) {
+    $('#snapshot').dispatchEvent(new KeyboardEvent('keydown',{key:i===0?'Home':'ArrowRight',bubbles:true}));
+    const original=data.forecasts[i];
+    if(!$('#snapshot').getAttribute('aria-valuetext').startsWith(new Date(original.date+'T12:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'})))throw Error('Wrong snapshot date');
+    for(const team of original.teams) {
+     const cells=[...$(`.odds-table [data-team="${team.id}"]`).closest('tr').querySelectorAll('td')].slice(-7);
+     if(cells.some((cell,j)=>cell.title!==exactProbability(team.p[j])))throw Error(`${gender} ${year} ${original.date}: ${team.id} differs from archive`);
+     values+=7;
+    }
+   }
+   check(`${gender} ${year}: ${values} displayed probabilities match published snapshots`,true);
+   check(`${gender} ${year}: published label`, $('#coverage-note').textContent.includes('Published historical forecasts')&&!$('#about-coverage').textContent.includes('selected timeline recomputes'));
+   const other=[...$('#source').options].find(o=>o.value!=='fivethirtyeight');
+   if(other){choose('#source',other.value);check(`${gender} ${year}: other source is reconstructed`,$('#coverage-note').textContent.includes('Reconstructed opening odds'));choose('#source','fivethirtyeight');check(`${gender} ${year}: archive survives switching`,Number($('#snapshot').getAttribute('aria-valuemax'))===data.forecasts.length-1&&$('#coverage-note').textContent.includes('Published historical'));}
+   $('#results-mode').click();check(`${gender} ${year}: results remain available`,$('#results-heading').textContent.includes(`${year} champion`));
+  }
+ }
+ document.querySelector('#status').textContent=`${results.length}/${results.length} passed`;
+}catch(error){document.querySelector('#status').textContent='FAIL';document.querySelector('#results').textContent+='\n'+error.stack;}
+</script>
