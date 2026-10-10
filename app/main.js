@@ -213,7 +213,7 @@ function decorateRoute(id, round) {
     $('#title-team').textContent=team?.name??'';
     $('.title-probability').textContent=!team?'':mode==='results'?probabilities[6]===1?'Winner':'':probabilities[6]===1?'100%':probabilities[6]===0?'0%':probabilityLabel(probabilities[6]);
     $('.title-probability').title=team&&mode==='forecast'?exactProbability(probabilities[6]):'';
-    $('.center-note').textContent=!team?mode==='forecast'?'Hover over each slot to see the team most likely to get there.':'Hover over each slot to see the team that reached it.':mode==='results'?resultStatus(probabilities):'Chance of winning the tournament';
+    $('.center-note').textContent=!team?mode==='forecast'?'Hover over each slot to see the team most likely to get there.':'Hover over each slot to see the team that reached it.':mode==='results'?probabilities[6]===1?'':resultStatus(probabilities):'Chance of winning the tournament';
     $('.title-forecast').classList.toggle('unselected',!team);
     for(const {element:node} of slots) {
       const stage=Number(node.dataset.round), resolved=node.dataset.resolved;
