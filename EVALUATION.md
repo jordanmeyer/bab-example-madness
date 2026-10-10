@@ -1,6 +1,18 @@
 # Evaluation
 
-## Tested source
+## Comparison correction — October 9, 2026
+
+Current tested source: `34bd4335e7c8297b5534e3ce2fa35b41db05a5d0`. An independent reviewer compared the archived original with the live recreation and required six UI corrections. The [retained review](review/fidelity-review.md) preserves the failures and two follow-up correction rounds, ending in a bounded PASS. The final re-review combines corrected source, independently inspected captures and explicitly attributed coordinator interaction measurements; the reviewer's browser became unavailable during follow-up.
+
+Hover and keyboard focus now preview the same team through the complete bracket and title probability. Explicit selection pins the detail panel. Selected finalist hover remains white on navy (14.76:1). Final-round paths connect around the title card; a North Carolina–Asheville regression confirms resized cards and connector endpoints agree exactly. The first desktop team row moved from about699 to486 CSS pixels. The replay offers genuine dated choices positioned by elapsed days, and multi-point history uses UTC calendar spacing. One-point history has one date label.
+
+From the clean checkpoint, `node tests/run.mjs` and the browser `/tests/` page both passed **74/74** cases, including two new calendar-gap cases. `npm run build` passed with `main-DHFdrHeu.js` and `style-B25DorEd.css`. The existing chunk-size warning remains (532.21KB minified,181.35KB gzip); it is not a build failure. Data files, model derivation, dependencies and publication workflow match the initial release. A generated Finder metadata file was removed from `app/`; relevant source has no staged, unstaged or untracked files.
+
+Actual browser checks: Alabama focus showed16.176% and the complete regional/FinalFour/final path while Houston remained pinned; leaving restored Houston. Selected-card hover computed white onnavy. April1 selected the real last2023 snapshot and calendar gaps remained visible. At375×900, body width was375, table width343 and sticky names138; keyboard moved horizontal table scroll80px, and selecting Duke opened East. Long-name central cards grew to74.5625px and both final connector endpoints matched the title top at577.8203125px relative to the grid. No console errors/warnings were observed. Screenshots and measurements are retained in the course repository's fidelity-review evidence folder.
+
+Live publication is recorded in DEPLOYMENT.md. Human/device limitations below still apply.
+
+## Initial publication source
 
 Release source checkpoint: `2f44204` (publication links and retained review reports). Numerical and interaction implementation: `59f0fad2927ff297d650a41b45ce3a8d215e12ce`. The only application changes between them are source-repository links in two HTML pages. The final production build used the release checkpoint; its main JavaScript remains `main-CeFH68Bc.js`.
 
