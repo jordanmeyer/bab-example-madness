@@ -44,8 +44,7 @@ main { max-width: 1024px; margin: auto; padding: 0 10px; }
 .secondary { font-size: 13px; padding: .4rem; min-height: 38px; align-self: start; white-space: nowrap; }
 .snapshot-track { height: 76px; margin: 0 18px; position: relative; cursor: pointer; }
 .track-line { position: absolute; top: 12px; left: 0; right: 0; height: 2px; background: var(--duke-granite); }
-.round-band { position: absolute; top: 0; height: 76px; background: var(--duke-hatteras); border-inline: 1px solid white; pointer-events: none; }
-.round-band:nth-child(even) { background: var(--duke-limestone); }
+.round-band { position: absolute; top: 0; height: 76px; background: var(--duke-limestone); border-inline: 1px solid white; pointer-events: none; }
 .round-band span { position: absolute; top: 47px; left: 50%; transform: translateX(-50%); color: var(--duke-graphite); font-size: 12px; line-height: 1.1; text-align: center; }
 .date-tick { position: absolute; top: 8px; width: 42px; height: 38px; transform: translateX(-50%); text-align: center; color: var(--duke-graphite); font-size: 12px; }
 .date-tick::before { content: ''; display: block; width: 2px; height: 10px; margin: 0 auto 4px; background: var(--duke-graphite); }

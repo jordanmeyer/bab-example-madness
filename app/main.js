@@ -133,12 +133,11 @@ function render() {
     $('#snapshot').setAttribute('aria-valuenow', snapshotIndex);
     $('#snapshot').setAttribute('aria-valuetext', `${snapshotName()}. ${status.label}`);
     $('#snapshot').setAttribute('aria-disabled', data.forecasts.length<2);
-    const roundGroups = [{rounds:[0],label:'First Four'}, {rounds:[1,2],label:'First & second'}, {rounds:[3,4],label:'Regionals'}, {rounds:[5],label:'Final Four'}, {rounds:[6],label:'Final'}];
-    const bands = roundGroups.map(group => {
-      const days=data.games.filter(game=>group.rounds.includes(game.round)).map(game=>snapshotDay(new Date(game.date).toLocaleDateString('en-CA',{timeZone:'America/New_York'})));
+    const bands = ['First Four','Round of 64','Round of 32','Sweet 16','Elite Eight','Final Four','Final'].map((label, round) => {
+      const days=data.games.filter(game=>game.round === round).map(game=>snapshotDay(new Date(game.date).toLocaleDateString('en-CA',{timeZone:'America/New_York'})));
       if(!days.length) return '';
       const start=Math.max(firstDay,Math.min(...days)-.5), end=Math.min(lastDay,Math.max(...days)+.5);
-      return `<span class="round-band" style="left:${(start-firstDay)/(lastDay-firstDay)*100}%;width:${(end-start)/(lastDay-firstDay)*100}%" title="${group.label}"><span>${group.label}</span></span>`;
+      return `<span class="round-band" style="left:${(start-firstDay)/(lastDay-firstDay)*100}%;width:${(end-start)/(lastDay-firstDay)*100}%" title="${label}"><span>${label}</span></span>`;
     }).join('');
     $('#snapshot').innerHTML = `${bands}<span class="track-line"></span>${data.forecasts.map((snapshot,index)=>{
       const monthStart=index===0 || snapshot.date.slice(0,7)!==data.forecasts[index-1].date.slice(0,7);
