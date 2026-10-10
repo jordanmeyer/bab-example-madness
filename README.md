@@ -51,4 +51,4 @@ The website uses only same-origin bundled assets and data: no runtime APIs, acco
 
 ## Publication status
 
-A GitHub Actions Pages workflow is prepared for the candidate `bab-example-madness` repository path, but no live destination or deployment is claimed. Only `dist/` is uploaded by that workflow; tests, source handoff reports, and data-preparation tools remain outside the website. A build does not establish a live deployment. Once a destination is authorized, add its real source link, refresh the evaluated checkpoint, then publish and verify the exact deployed commit.
+The application is published at the linked GitHub Pages address. [DEPLOYMENT.md](DEPLOYMENT.md) records exact commits, successful workflow runs and observed live behavior. Only `dist/` is uploaded; tests, source handoff reports and data-preparation tools remain in the source repository. Subsequent corrections use ordinary commits to the same authorized repository, followed by evaluation and exact-commit deployment checks.

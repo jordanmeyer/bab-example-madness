@@ -5,14 +5,14 @@ import { GridComponent, TooltipComponent, AriaComponent } from 'echarts/componen
 import { SVGRenderer } from 'echarts/renderers';
 echarts.use([LineChart, GridComponent, TooltipComponent, AriaComponent, SVGRenderer]);
 import { echartsTheme } from './theme/echarts.js';
-import { STAGES, probabilityLabel, exactProbability, probabilitiesFor, resultPath, teamHistory, bracketCandidates, resolvedTeam, sortTeams, snapshotDay, nearestSnapshot } from './model.js';
+import { STAGES, probabilityLabel, exactProbability, probabilitiesFor, resultPath, teamHistory, bracketCandidates, sortTeams, snapshotDay, nearestSnapshot } from './model.js';
 
 const $ = selector => document.querySelector(selector);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const dateLabel = (value, year = false) => new Date(`${value.slice(0, 10)}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', ...(year ? { year: 'numeric' } : {}), timeZone: 'UTC' });
 const narrow = matchMedia('(max-width: 1100px)');
-let catalog, data, selectedId, region, snapshotIndex = 0, mode = 'forecast', view = narrow.matches ? 'table' : 'bracket';
-let sort = { key: 'p6', direction: -1 }, timer, request = 0, chart, observer, bracketObserver, pathMap, previewId;
+let catalog, data, selectedId, snapshotIndex = 0, mode = 'forecast', view = narrow.matches ? 'table' : 'bracket';
+let sort = { key: 'p6', direction: -1 }, timer, request = 0, chart, observer, pathMap;
 const cache = new Map();
 const currentP = id => pathMap.get(id);
 const teamById = id => data.teams.find(team => team.id === id);
@@ -26,7 +26,6 @@ async function loadYear(year) {
   const thisRequest = ++request;
   stopPlaying();
   disposeChart();
-  bracketObserver?.disconnect();
   $('#explorer').setAttribute('aria-busy', 'true');
   $('#workspace').hidden = true;
   $('#cancelled').hidden = true;
@@ -43,7 +42,6 @@ async function loadYear(year) {
     data = cache.get(year);
     snapshotIndex = 0;
     mode = data.forecasts?.length ? 'forecast' : 'results';
-    region = data.regionOrder?.[0];
     selectedId = null;
     $('#loading').hidden = true;
     $('#year-coverage').textContent = data.status === 'cancelled' ? 'Cancelled · no tournament' : data.forecasts?.length ? reconstructed() ? 'Reconstructed forecast & results' : 'Archived forecasts & results' : 'Results · forecasts unavailable';
@@ -117,97 +115,48 @@ function render() {
   renderDetail();
 }
 
-function nodeMarkup(candidates, round, slot, regionName, style) {
-  const resolved = round < 5 ? resolvedTeam(data, regionName, round, slot, snapshotIndex, mode) : candidates.find(team => currentP(team.id)?.[round] === 1);
-  const ids = candidates.map(team => team.id).join(',');
+// Shared coordinates make every round part of the same bilateral tree.
+const BRACKET_WIDTH = 1200, BRACKET_HEIGHT = 1024, FINAL_Y = 510;
+const roundX = [10, 150, 240, 330, 420, 510, 600];
+const bracketName = team => ({ 'Connecticut':'UConn', 'San Diego State':'SDSU', 'Louisiana State':'LSU', 'Brigham Young':'BYU', 'Central Florida':'UCF', 'Southern California':'USC', 'Southern Methodist':'SMU', 'Texas Christian':'TCU', 'Virginia Commonwealth':'VCU', 'Alabama-Birmingham':'UAB', 'North Carolina':'UNC', 'North Carolina State':'NC State', 'North Carolina-Asheville':'UNC Asheville', 'North Carolina-Greensboro':'UNCG', 'North Carolina-Wilmington':'UNCW', 'North Carolina Central':'NC Central', 'College of Charleston':'Charleston', 'Fairleigh Dickinson':'FDU', 'Florida Atlantic':'FAU', 'Southeast Missouri State':'SEMO', 'Texas A&M-Corpus Christi':'TAMU-CC', 'Texas Southern':'TX Southern', 'Maryland-Baltimore County':'UMBC', 'Long Island University':'LIU', 'Saint Mary\'s (CA)':'Saint Mary’s', 'St. John\'s (NY)':'St. John’s', 'Louisiana-Lafayette':'Louisiana' }[team.shortName] ?? team.shortName.replaceAll('State','St.').replaceAll('University','U.').replaceAll('Northern','N.').replaceAll('Eastern','E.').replaceAll('Western','W.'));
+const leafY = slot => 56 + Math.floor(slot / 2) * 54 + slot % 2 * 18;
+const roundY = (round, slot, lower) => (leafY(slot * 2 ** round) + leafY((slot + 1) * 2 ** round - 1)) / 2 + (lower ? 512 : 0);
+
+function nodeMarkup(candidates, round, x, y, width, right, regionName) {
+  const resolved = round === 0 && candidates.length === 1 ? candidates[0] : candidates.find(team => currentP(team.id)?.[round] === 1);
   const preferred = resolved ?? [...candidates].sort((a,b) => (currentP(b.id)?.[round] ?? 0) - (currentP(a.id)?.[round] ?? 0))[0];
-  const content = resolved ? `<span class="seed">${resolved.seed}</span><span class="node-name">${escape(round === 0 ? resolved.name : resolved.shortName)}</span>` : round === 0 ? `<span class="seed">${candidates[0]?.seed ?? ''}</span><span class="node-name">${escape(candidates.map(team => team.shortName).join(' / '))}</span>` : '<span class="node-name">Open slot</span>';
-  return `<button type="button" class="team-node ${resolved ? '' : 'empty'}" style="${style}" data-candidates="${escape(ids)}" data-round="${round}" data-slot="${slot}" data-region="${escape(regionName)}" data-resolved="${escape(resolved?.id ?? '')}" data-team="${escape(preferred?.id ?? '')}" title="${escape(resolved ? `${resolved.name} · ${STAGES[round]}` : `${STAGES[round]} slot: ${candidates.map(team => team.name).join(', ')}`)}" aria-label="${escape(resolved ? `${resolved.name}, seed ${resolved.seed}, ${STAGES[round]}. Select for details.` : `${STAGES[round]} open slot. Explore ${preferred?.name ?? 'team'} as its most likely entrant.`)}">${content}</button>`;
-}
-
-function regionMarkup(regionName, index) {
-  const right = index > 1 && !narrow.matches;
-  const start = [0, 40, 61, 82], widths = [38,18,18,18];
-  let nodes = '', lines = '';
-  for (let round = 0; round < 4; round++) {
-    const count = 16 / 2 ** round;
-    for (let slot = 0; slot < count; slot++) {
-      const y = (slot + .5) * 448 / count;
-      const candidates = bracketCandidates(data, regionName, round, slot);
-      const x = right ? 100 - start[round] - widths[round] : start[round];
-      nodes += nodeMarkup(candidates, round, slot, regionName, `left:${x}%;top:${y/448*100}%`);
-      if (round) {
-        const nextX = start[round] * 10, previousX = (start[round-1] + widths[round-1]) * 10;
-        for (let child = 0; child < 2; child++) {
-          const previousY = (slot * 2 + child + .5) * 448 / (count * 2);
-          const mirrored = value => right ? 1000 - value : value;
-          lines += `<path class="connector" data-path-ids="${escape(bracketCandidates(data,regionName,round-1,slot*2+child).map(team=>team.id).join(','))}" data-stage="${round}" d="M ${mirrored(previousX)} ${previousY} H ${mirrored((nextX+previousX)/2)} V ${y} H ${mirrored(nextX)}"/>`;
-        }
-      }
-    }
-  }
-  return `<section class="region ${index > 1 ? 'right' : 'left'} ${regionName === region ? 'mobile-active' : ''}" data-region-panel="${escape(regionName)}" aria-label="${escape(regionName)} regional bracket"><div class="region-header"><h3>${escape(regionName)}</h3><span>REGION</span></div><div class="region-tree-wrap" tabindex="0" aria-label="${escape(regionName)} bracket; scroll horizontally if needed"><div class="round-labels">${['Round of 64','Round of 32','Sweet 16','Elite Eight'].map((label,i)=>`<span style="${right ? 'right' : 'left'}:${start[i]}%">${label}</span>`).join('')}</div><div class="region-tree"><svg class="connectors" viewBox="0 0 1000 448" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>${nodes}</div></div></section>`;
-}
-
-function finalistState(candidates, round, label, id = selectedId) {
-  const settled = candidates.find(team => currentP(team.id)?.[round] === 1);
-  const selected = candidates.find(team => team.id === id);
-  const shown = settled ?? (selected && (currentP(selected.id)?.[round] ?? 0) > 0 ? selected : null);
-  const target = shown ?? [...candidates].sort((a,b)=>(currentP(b.id)?.[round]??0)-(currentP(a.id)?.[round]??0))[0];
-  return { shown, target, html: `<small>${escape(label)}</small><span>${shown ? escape(shown.shortName) : 'Undecided'}</span>${shown && mode === 'forecast' ? `<small>${settled ? 'Reached' : `${probabilityLabel(currentP(shown.id)?.[round])} chance`}</small>` : ''}` };
-}
-
-function finalistMarkup(candidates, round, label) {
-  const state = finalistState(candidates, round, label);
-  return `<button type="button" class="finalist-button ${state.shown?.id === selectedId ? 'selected' : ''}" data-team="${escape(state.target?.id ?? '')}" data-candidates="${escape(candidates.map(team=>team.id).join(','))}" data-round="${round}" data-label="${escape(label)}" title="${escape(label)}">${state.html}</button>`;
+  const names = resolved ? bracketName(resolved) : round === 0 ? candidates.map(team => ({ 'Mississippi State':'MSST', 'Arizona State':'ASU', 'Pittsburgh':'Pitt', 'Texas Southern':'TXSO', 'Texas A&M-Corpus Christi':'TAMUCC' }[team.shortName] ?? bracketName(team))).join(' / ') : '';
+  const label = `${STAGES[round]}${regionName ? ` · ${regionName}` : ''}. ${resolved ? resolved.name : `Most likely entrant: ${preferred?.name ?? 'unknown'}`}`;
+  return `<button type="button" class="team-node ${right ? 'right' : 'left'} ${names ? '' : 'empty'}" style="left:${x / BRACKET_WIDTH * 100}%;top:${y}px;width:${width / BRACKET_WIDTH * 100}%" data-candidates="${escape(candidates.map(team=>team.id).join(','))}" data-round="${round}" data-resolved="${escape(resolved?.id ?? '')}" data-region="${escape(regionName ?? '')}" data-team="${escape(preferred?.id ?? '')}" title="${escape(label)}" aria-label="${escape(label)}. Select for team details.">${names ? `${round===0?`<span class="seed">${resolved?.seed ?? candidates[0]?.seed}</span>`:''}<span class="node-name">${escape(names)}</span>` : ''}</button>`;
 }
 
 function renderBracket() {
-  bracketObserver?.disconnect();
-  const pairs = data.finalFourPairs;
-  const finalists = data.regionOrder.map((name, index) => `<div class="regional-winner ${index>1?'right':'left'} ${index%2?'bottom':'top'}" data-winner-region="${escape(name)}">${finalistMarkup(data.teams.filter(team=>team.region===name),4,`${name} · Final Four`)}</div>`).join('');
-  const center = `<section class="center-bracket" aria-label="Final Four and championship">${finalists}<div class="national-final"><p class="eyebrow">National final</p><div class="final-slots">${pairs.map((pair,index)=>finalistMarkup(data.teams.filter(team=>pair.includes(team.region)),5,`${pair.join(' / ')} winner`)).join('')}</div><div class="championship"><p id="title-team" class="eyebrow"></p><div class="title-probability"></div><p class="center-note">${mode==='forecast' ? 'Chance of winning the title' : 'National champion'}</p></div></div></section>`;
-  $('#bracket-panel').innerHTML = `<div class="region-navigation"><label for="region">Regional bracket</label><select id="region">${data.regionOrder.map(name=>`<option ${name===region?'selected':''}>${escape(name)}</option>`).join('')}</select><span>Final Four below</span></div><div class="bracket-grid"><svg class="national-connectors" aria-hidden="true"></svg>${regionMarkup(data.regionOrder[0],0)}${center}${regionMarkup(data.regionOrder[2],2)}${regionMarkup(data.regionOrder[1],1)}${regionMarkup(data.regionOrder[3],3)}</div>${firstFourMarkup()}`;
-  $('#region').addEventListener('change', event => { selectRegion(event.target.value); drawNationalConnections(); });
-  decorateRoute(selectedId);
-  bracketObserver = new ResizeObserver(drawNationalConnections);
-  $('.bracket-grid').querySelectorAll('.regional-winner, .national-final').forEach(element=>bracketObserver.observe(element));
-  bracketObserver.observe($('.bracket-grid'));
-  drawNationalConnections();
-}
-
-function drawNationalConnections() {
-  const grid = $('.bracket-grid');
-  if (!grid || view !== 'bracket') return;
-  const box = grid.getBoundingClientRect();
-  const point = (element, edge) => { const r = element.getBoundingClientRect(); return { x:(edge==='left'?r.left:edge==='right'?r.right:r.left+r.width/2)-box.left, y:(edge==='top'?r.top:edge==='bottom'?r.bottom:r.top+r.height/2)-box.top }; };
-  const paths = [];
-  const connect = (from, to, ids, stage, vertical = false) => {
-    const bend = vertical ? (from.y+to.y)/2 : (from.x+to.x)/2;
-    paths.push(`<path class="connector" data-path-ids="${escape(ids)}" data-stage="${stage}" d="M ${from.x} ${from.y} ${vertical?`V ${bend} H ${to.x} V ${to.y}`:`H ${bend} V ${to.y} H ${to.x}`}"/>`);
-  };
+  let lines = '', nodes = '';
+  const path = (ids, stage, x, fromY, endX, y) => `<path class="connector" data-path-ids="${escape(ids.join(','))}" data-stage="${stage}" data-route-key="${stage}:${endX}:${y}" data-label-x="${(x+endX)/2}" data-label-y="${y + (stage===5 || fromY>y ? 25 : -13)}" d="M ${x} ${fromY} V ${y} H ${endX}"/>`;
   data.regionOrder.forEach((name, index) => {
-    const regionPanel = [...grid.querySelectorAll('[data-region-panel]')].find(panel=>panel.dataset.regionPanel===name);
-    const winner = [...grid.querySelectorAll('[data-winner-region]')].find(node=>node.dataset.winnerRegion===name).querySelector('button');
-    const right = index > 1;
-    if (!narrow.matches) {
-      regionPanel.querySelectorAll('[data-round="3"]').forEach(node=>connect(point(node,right?'left':'right'),point(winner,right?'right':'left'),node.dataset.candidates,4));
+    const right = index > 1, lower = index % 2, mirror = x => right ? BRACKET_WIDTH - x : x;
+    for (let round = 0; round <= 4; round++) {
+      for (let slot = 0; slot < 16 / 2 ** round; slot++) {
+        const y = roundY(round, slot, lower), start = round === 0 ? 10 : roundX[round]+4, end = roundX[round+1]-4;
+        const candidates = bracketCandidates(data, name, round, slot);
+        nodes += nodeMarkup(candidates, round, right ? mirror(end) : start, y, end-start, right, name);
+        if (round === 0) lines += `<path class="terminal-connector" d="M ${mirror(end)} ${y} H ${mirror(roundX[1])}"/>`;
+        else for (let child = 0; child < 2; child++) {
+          lines += path(bracketCandidates(data,name,round-1,slot*2+child).map(team=>team.id), round, mirror(roundX[round]), roundY(round-1,slot*2+child,lower), mirror(roundX[round+1]), y);
+        }
+      }
     }
-    const final = [...grid.querySelectorAll('.final-slots button')].find(node=>node.dataset.candidates.split(',').some(id=>teamById(id).region===name));
-    const from = point(winner,index%2?'top':'bottom'), to = point(final,right?'right':'left');
-    const lane = to.x + (right?8:-8);
-    paths.push(`<path class="connector" data-path-ids="${escape(winner.dataset.candidates)}" data-stage="5" d="M ${from.x} ${from.y} V ${from.y+(index%2?-12:12)} H ${lane} V ${to.y} H ${to.x}"/>`);
+    lines += path(data.teams.filter(team=>team.region===name).map(team=>team.id),5,mirror(roundX[5]),roundY(4,0,lower),mirror(roundX[6]),FINAL_Y);
   });
-  grid.querySelectorAll('.final-slots button').forEach(node=>connect(point(node,'bottom'),point($('.championship'),'top'),node.dataset.candidates,6,true));
-  $('.national-connectors').setAttribute('viewBox',`0 0 ${box.width} ${box.height}`);
-  $('.national-connectors').innerHTML=paths.join('');
-  decorateRoute(previewId ?? selectedId);
-}
-
-function selectRegion(name) {
-  region = name;
-  if ($('#region')) $('#region').value = name;
-  document.querySelectorAll('[data-region-panel]').forEach(panel=>panel.classList.toggle('mobile-active',panel.dataset.regionPanel===name));
+  data.finalFourPairs.forEach((pair,index) => {
+    const candidates = data.teams.filter(team=>pair.includes(team.region));
+    nodes += nodeMarkup(candidates,5,index===0?514:604,FINAL_Y,82,index===1);
+    lines += `<path class="connector title-stem" data-path-ids="${escape(candidates.map(team=>team.id).join(','))}" data-stage="6" data-route-key="title" d="M 600 ${FINAL_Y} V ${FINAL_Y-45}"/>`;
+  });
+  const headings = ['Round of 64','Round of 32','Sweet 16','Elite Eight','Final Four','Championship','Final Four','Elite Eight','Sweet 16','Round of 32','Round of 64'];
+  const columns = [80,195,285,375,465,600,735,825,915,1005,1120];
+  $('#bracket-panel').innerHTML = `<p class="bracket-scroll-hint">The full bracket scrolls horizontally. Use the Table view for a compact comparison.</p><div class="bracket-scroll" tabindex="0" aria-label="Complete tournament bracket; scroll horizontally on smaller screens"><div class="bracket-map"><div class="round-labels">${headings.map((label,index)=>`<span style="left:${columns[index]/BRACKET_WIDTH*100}%">${label}</span>`).join('')}</div><div class="bracket-tree"><svg class="connectors" viewBox="0 0 ${BRACKET_WIDTH} ${BRACKET_HEIGHT}" preserveAspectRatio="none" aria-hidden="true"><g class="bracket-backbone">${lines}</g><g class="active-route"></g><g class="route-probabilities"></g></svg>${data.regionOrder.map((name,index)=>`<h3 class="region-name ${index>1?'right':''}" style="top:${index%2?520:8}px">${escape(name)}</h3>`).join('')}${nodes}<div class="title-forecast"><p id="title-team"></p><div class="title-probability"></div><p class="center-note">${mode==='forecast'?'Chance of winning<br>the tournament':'National champion'}</p></div><p class="bracket-guide">Hover or focus a slot<br>to trace a team’s route.<br>${mode==='forecast'?'Wider routes mean<br>greater chances.':'Highlighted branches<br>show stages reached.'}</p></div></div></div>${firstFourMarkup()}`;
+  decorateRoute(selectedId);
 }
 
 function firstFourMarkup() {
@@ -219,46 +168,39 @@ function firstFourMarkup() {
 function decorateRoute(id) {
   const team = teamById(id);
   if (!team) return;
-  previewId = id;
-  $('#bracket-panel').querySelectorAll('.connector').forEach(line=>{
-    const p = currentP(id)?.[Number(line.dataset.stage)] ?? 0;
-    const active = line.dataset.pathIds.split(',').includes(id) && p > 0;
-    line.classList.toggle('route', active);
-    line.style.strokeWidth = active ? 1 + 4 * Math.sqrt(p) : 1;
+  const routes = [], labels = [], activeKeys = new Set();
+  const lines = [...$('#bracket-panel').querySelectorAll('.bracket-backbone .connector')];
+  lines.forEach(line=>{
+    line.dataset.originalPath ??= line.getAttribute('d');
+    const stage = Number(line.dataset.stage), p = currentP(id)?.[stage] ?? 0;
+    if (!line.dataset.pathIds.split(',').includes(id) || p <= 0) return;
+    activeKeys.add(line.dataset.routeKey);
+    // Match the original's square-root scale, including its thin low-probability routes.
+    routes.push(`<path class="connector route" d="${line.dataset.originalPath}" style="stroke-width:${.5+15*Math.sqrt(p)}"/>`);
+    if (stage < 6 && mode === 'forecast') labels.push(`<text x="${line.dataset.labelX}" y="${line.dataset.labelY}" text-anchor="middle">${p===1?'100%':probabilityLabel(p)}</text>`);
   });
-  $('#bracket-panel').querySelectorAll('.finalist-button').forEach(button => {
-    const state = finalistState(button.dataset.candidates.split(',').map(teamById), Number(button.dataset.round), button.dataset.label, id);
-    button.innerHTML = state.html;
-    button.dataset.team = state.target?.id ?? '';
-    button.classList.toggle('selected', state.shown?.id === id);
-    button.setAttribute('aria-pressed', state.shown?.id === selectedId);
-    button.title = `${button.dataset.label}. ${state.shown ? `${state.shown.name} · ${mode==='forecast'?exactProbability(currentP(state.shown.id)?.[Number(button.dataset.round)]):'Reached'}` : `Open slot. Most likely entrant: ${state.target?.name}`}`;
-    button.setAttribute('aria-label', `${button.title}. Select for team details.`);
+  lines.forEach(line=>{
+    const active = line.dataset.pathIds.split(',').includes(id) && (currentP(id)?.[Number(line.dataset.stage)] ?? 0)>0;
+    line.style.display = active || line.dataset.routeKey==='title' && activeKeys.has('title') ? 'none' : '';
+    // Shared winner segments must not leave a thicker gray line under a tiny blue probability.
+    line.setAttribute('d', activeKeys.has(line.dataset.routeKey) ? line.dataset.originalPath.split(' H ')[0] : line.dataset.originalPath);
   });
-  if ($('#title-team')) {
-    const champion = data.teams.find(candidate=>currentP(candidate.id)?.[6]===1);
-    $('#title-team').textContent = mode==='forecast' ? team.name : 'Champion';
-    $('.title-probability').textContent = mode==='forecast' ? exactProbability(currentP(id)?.[6]) : champion?.shortName ?? '—';
-  }
+  $('.active-route').innerHTML = routes.join('');
+  $('.route-probabilities').innerHTML = labels.join('');
+  const champion = data.teams.find(candidate=>currentP(candidate.id)?.[6]===1);
+  $('#title-team').textContent = mode==='forecast' ? team.name : champion?.name ?? 'Champion';
+  $('.title-probability').textContent = mode==='forecast' ? currentP(id)?.[6]===1?'100%':currentP(id)?.[6]===0?'0%':probabilityLabel(currentP(id)?.[6]) : 'Winner';
+  $('.title-probability').title = mode==='forecast' ? exactProbability(currentP(id)?.[6]) : champion?.name ?? '';
   $('#bracket-panel').querySelectorAll('.team-node').forEach(node => {
-    const round = Number(node.dataset.round), candidates = node.dataset.candidates.split(','), resolved = teamById(node.dataset.resolved);
-    const inPath = candidates.includes(id) && (currentP(id)?.[round]??0)>0;
-    node.classList.toggle('eliminated', Boolean(resolved && currentP(resolved.id)?.[6] === 0));
+    const round = Number(node.dataset.round), candidates = node.dataset.candidates.split(',').map(teamById), resolved = teamById(node.dataset.resolved);
+    const inPath = candidates.some(candidate=>candidate.id===id) && (currentP(id)?.[round]??0)>0;
     node.classList.toggle('selected', inPath && (round===0 || resolved?.id===id));
-    node.classList.toggle('preview', inPath && round>0 && resolved?.id!==id);
-    if (inPath) {
-      node.innerHTML = `<span class="seed">${team.seed}</span><span class="node-name">${escape(round===0?team.name:team.shortName)}</span>${mode==='forecast' && (round>0 || currentP(id)?.[0]<1)?`<span class="node-value">${probabilityLabel(currentP(id)?.[round])}</span>`:''}`;
-      node.title = `${team.name} · ${STAGES[round]} · ${mode==='forecast'?exactProbability(currentP(id)?.[round]):'Reached'}`;
-      node.dataset.team = id;
-    } else {
-      const teams = candidates.map(teamById);
-      node.innerHTML = resolved ? `<span class="seed">${resolved.seed}</span><span class="node-name">${escape(round===0?resolved.name:resolved.shortName)}</span>` : round===0 ? `<span class="seed">${teams[0]?.seed??''}</span><span class="node-name">${escape(teams.map(t=>t.shortName).join(' / '))}</span>` : '<span class="node-name">Open slot</span>';
-      const preferred = resolved ?? [...teams].sort((a,b)=>(currentP(b.id)?.[round]??0)-(currentP(a.id)?.[round]??0))[0];
-      node.dataset.team = preferred?.id ?? '';
-      node.title = resolved ? `${resolved.name} · ${STAGES[round]}` : `${STAGES[round]} open slot. Most likely entrant: ${preferred?.name ?? 'unknown'}.`;
-    }
+    node.classList.toggle('eliminated', Boolean(resolved && currentP(resolved.id)?.[6]===0));
+    const preferred = resolved ?? [...candidates].sort((a,b)=>(currentP(b.id)?.[round]??0)-(currentP(a.id)?.[round]??0))[0];
+    node.dataset.team = preferred?.id ?? '';
+    node.title = `${STAGES[round]}${node.dataset.region?` · ${node.dataset.region}`:''}. ${resolved?resolved.name:`${round===0?`${candidates.map(candidate=>candidate.name).join(' or ')}. `:''}Most likely entrant: ${preferred?.name ?? 'unknown'}`}${mode==='forecast'&&preferred?` · ${exactProbability(currentP(preferred.id)?.[round])}`:''}`;
     node.setAttribute('aria-label', `${node.title}. Select for team details.`);
-    node.setAttribute('aria-pressed', node.dataset.team === selectedId && inPath);
+    node.setAttribute('aria-pressed', preferred?.id===selectedId && inPath);
   });
 }
 
@@ -274,6 +216,7 @@ function selectTeam(id, announcement = true) {
   $('#team-select').value = id;
   if (view==='bracket') {
     decorateRoute(id);
+    if(narrow.matches) { const terminal=[...$('#bracket-panel').querySelectorAll('.team-node[data-round="0"]')].find(node=>node.dataset.candidates.split(',').includes(id)); if(terminal) $('.bracket-scroll').scrollLeft=terminal.offsetLeft-16; }
     $('#bracket-panel').querySelectorAll('.play-in button').forEach(button=>button.setAttribute('aria-pressed',button.dataset.team===id));
   } else {
     $('#table-panel').querySelectorAll('tbody tr').forEach(row=>{const button=row.querySelector('[data-team]');row.classList.toggle('selected',button.dataset.team===id);button.setAttribute('aria-pressed',button.dataset.team===id);});
@@ -337,7 +280,6 @@ $('#results-mode').addEventListener('click',()=>{stopPlaying();mode='results';re
 $('#bracket-view').addEventListener('click',()=>{view='bracket';render();});
 $('#table-view').addEventListener('click',()=>{view='table';render();});
 $('#team-select').addEventListener('change',event=>{
-  if(narrow.matches)selectRegion(teamById(event.target.value).region);
   selectTeam(event.target.value);
 });
 function chooseSnapshot(index) { stopPlaying(); snapshotIndex=index; render(); }
@@ -365,9 +307,8 @@ $('#table-panel').addEventListener('click',event=>{
   if(button.dataset.team)selectTeam(button.dataset.team);
   if(button.dataset.sort){sort={key:button.dataset.sort,direction:sort.key===button.dataset.sort?-sort.direction:button.dataset.sort.startsWith('p')?-1:1};renderTable();$(`[data-sort="${sort.key}"]`).focus();}
 });
-narrow.addEventListener('change',()=>{if(data?.status==='played'&&view==='bracket')renderBracket();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPlaying();});
-window.addEventListener('pagehide',()=>{stopPlaying();disposeChart();bracketObserver?.disconnect();});
+window.addEventListener('pagehide',()=>{stopPlaying();disposeChart();});
 window.addEventListener('pageshow',event=>{if(event.persisted && data?.status==='played' && !$('#workspace').hidden){if(mode==='forecast')renderChart();if(view==='bracket')renderBracket();}});
 
 await document.fonts.ready;
