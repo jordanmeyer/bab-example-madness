@@ -83,6 +83,17 @@ try{
       assert(old.overhang>0,'Negative control failed: raster check must detect the old round-cap overhang.');
     }
   });
+  for(const id of ['333','120','2305','248','161'])await check(`Team ${id}: unboxed text connects to the first highlighted route`,async()=>{
+    select(id);await finish();
+    const lead=doc.querySelector('.route-origin path'),first=paths().reduce((a,b)=>Number(a.dataset.stage)<Number(b.dataset.stage)?a:b);
+    assert(lead,'Team-to-route connector missing.');
+    const end=lead.getPointAtLength(lead.getTotalLength()),start=first.getPointAtLength(0);
+    assert(Math.hypot(end.x-start.x,end.y-start.y)<.01,'Connector does not meet the highlighted route.');
+    const node=doc.querySelector('.team-node.selected'),name=node.querySelector('.node-name').getBoundingClientRect(),tree=doc.querySelector('.bracket-tree').getBoundingClientRect(),point=lead.getPointAtLength(0);
+    const edge=node.classList.contains('right')?name.left-4:name.right+4;
+    assert(Math.abs(point.x+tree.left-edge)<.02&&Math.abs(point.y+tree.top-(name.top+name.bottom)/2)<.02,'Connector does not start beside the selected team text.');
+    assert(style(node).backgroundColor==='rgba(0, 0, 0, 0)'&&style(node).boxShadow==='none'&&parseFloat(style(node).borderBottomWidth)===0,'Team still has box decoration.');
+  });
   await check('Rapid team change preserves partial widths and dashes; hidden joins do not retire visibly',async()=>{
     select('333');await freeze(200);
     const old=[...route().children].filter(node=>!node.classList.contains('retiring'));
@@ -113,7 +124,15 @@ try{
     }
     await finish();assert(old.every(node=>!node.isConnected),'Retired junction or path remains after completion.');
   });
-  await check('Clearing selection removes every retired path and corner',async()=>{doc.querySelector('#clear-pin').click();await finish();assert(!route().children.length,'Route elements remain after clearing.');});
+  await check('Late forecast connector starts beside the resolved advancing team',async()=>{
+    const slider=doc.querySelector('#snapshot');slider.dispatchEvent(new win.KeyboardEvent('keydown',{key:'End',bubbles:true}));select('41');await finish();
+    const lead=doc.querySelector('.route-origin path'),first=paths()[0];assert(lead&&first,'Late forecast connector missing.');
+    const a=lead.getPointAtLength(lead.getTotalLength()),b=first.getPointAtLength(0);
+    assert(Math.hypot(a.x-b.x,a.y-b.y)<.01,'Late connector is detached.');
+    assert(Number(first.dataset.stage)>1,'Expected already-completed rounds to be skipped.');
+    slider.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Home',bubbles:true}));
+  });
+  await check('Clearing selection removes every retired path and corner',async()=>{doc.querySelector('#clear-pin').click();await finish();assert(!route().children.length&&!doc.querySelector('.route-origin path'),'Route elements remain after clearing.');});
   select('333');await finish();
 }catch(error){await check('Application/harness initialization',()=>{throw error;});}
 const passed=results.filter(result=>result.pass).length,summary=document.querySelector('#summary');summary.textContent=`${passed}/${results.length} rendered checks passed`;summary.className=passed===results.length?'pass':'fail';

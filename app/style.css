@@ -7,7 +7,7 @@ button, select, input { font: inherit; }
 button, select { border: 1px solid var(--duke-graphite); border-radius: 0; background: white; color: var(--duke-navy-blue); }
 button { cursor: pointer; }
 button:disabled { cursor: default; color: var(--duke-graphite); background: var(--duke-whisper-gray); border-color: var(--duke-granite); }
-button:hover:not(:disabled), select:hover { border-color: var(--duke-navy-blue); box-shadow: inset 0 0 0 1px var(--duke-navy-blue); }
+button:not(.team-node):hover:not(:disabled), select:hover { border-color: var(--duke-navy-blue); box-shadow: inset 0 0 0 1px var(--duke-navy-blue); }
 a { color: var(--duke-navy-blue); text-underline-offset: .2em; }
 a:hover { color: var(--duke-royal-blue); }
 :focus-visible { outline: 3px solid var(--duke-copper); outline-offset: 3px; }
@@ -71,20 +71,22 @@ main { max-width: 1024px; margin: auto; padding: 0 10px; }
 .connectors { position: absolute; inset: 0; width: 1004px; height: 1024px; pointer-events: none; }
 .connector, .terminal-connector { fill: none; stroke: var(--duke-granite); stroke-width: 1.5; }
 .connector.route { stroke: var(--duke-navy-blue); stroke-linejoin: round; stroke-linecap: butt; }
+.route-origin { fill: none; stroke: var(--duke-navy-blue); stroke-width: 1.5; stroke-linejoin: round; }
 .route-join { fill: var(--duke-navy-blue); }
 .route-probabilities { fill: var(--duke-navy-blue); font: 600 13px var(--duke-font-body); font-variant-numeric: lining-nums tabular-nums; }
 .route-probabilities text { paint-order: stroke; stroke: white; stroke-width: 4px; stroke-linejoin: round; }
 .route-probabilities .selected-percentage { font-size: 15px; font-weight: 600; }
 .region-name { position: absolute; left: 6px; font-family: var(--duke-font-body); font-size: .85rem; line-height: 1.4; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; margin: 0; }
 .region-name.right { left: auto; right: 6px; }
-.team-node { position: absolute; height: 16px; transform: translateY(-100%); padding: 0 1px; border: 0; border-bottom: 1px solid var(--duke-limestone); background: transparent; color: var(--duke-cast-iron); font: 600 12px/15px var(--duke-font-body); display: flex; gap: 4px; align-items: center; text-align: left; white-space: nowrap; }
+.team-node { position: absolute; height: 16px; transform: translateY(-100%); padding: 0 1px; border: 0; background: transparent; color: var(--duke-cast-iron); font: 600 12px/15px var(--duke-font-body); display: flex; gap: 4px; align-items: center; text-align: left; white-space: nowrap; }
 .team-node.right { flex-direction: row-reverse; text-align: right; }
 .team-node .seed { flex: 0 0 16px; font-size: 12px; font-weight: 400; }
 .team-node .node-name { white-space: nowrap; }
-.team-node.empty { border: 0; }
 .team-node.eliminated:not(.selected) { color: var(--duke-graphite); font-weight: 400; }
-.team-node.selected { background: var(--duke-dandelion); color: var(--duke-navy-blue); }
-.team-node:focus-visible { z-index: 2; }
+.team-node.selected { color: var(--duke-navy-blue); }
+.team-node:focus-visible { z-index: 2; outline: none; }
+.team-node:focus-visible .node-name { text-decoration: underline double var(--duke-copper); text-underline-offset: 3px; }
+.team-node.empty:focus-visible::after { content: ""; position: absolute; left: calc(50% - 3px); bottom: 3px; width: 6px; height: 6px; border-radius: 50%; background: var(--duke-copper); }
 .title-forecast { position: absolute; top: 342px; left: 430px; width: 144px; text-align: center; color: var(--duke-navy-blue); background: white; padding: .4rem 0; pointer-events: none; }
 .title-forecast.unselected { top: 210px; }
 #title-leaders { list-style: none; padding: 0; margin: .7rem 0 0; font-size: 12px; }
