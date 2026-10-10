@@ -1,5 +1,7 @@
 # Tournament Atlas
 
+[Open the app](https://jordanmeyer.github.io/bab-example-madness/) · [Build story](https://jordanmeyer.github.io/bab-example-madness/build-story.html)
+
 Explore the men's NCAA tournament from 2016 through 2026: trace a team's bracket, compare its chance of reaching each round, and follow archived forecasts as games change the field. The 2020 cancellation is represented explicitly. This independent recreation draws its interaction pattern from [FiveThirtyEight's 2015 explorer](https://web.archive.org/web/20240411121651/https://projects.fivethirtyeight.com/madness-2015/index.html#mens).
 
 The learning objective is to distinguish a strong contender from a certain champion and see how a knockout path compounds uncertainty.

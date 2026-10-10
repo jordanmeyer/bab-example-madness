@@ -13,3 +13,5 @@ Decisions recorded on October 9, 2026.
 - Keep source attribution and rights distinct. FiveThirtyEight's CC-BY data license does not apply to other publishers. Link the T-Rank method and archive guidance and retain transformation notes.
 - Preserve review failures and their corrections. Source review led to fixes for stale finalist labels, accessible route descriptions, VCU's status, replay reset, First Four loser overlays, and chart restoration after browser Back.
 - Prepare the candidate Pages repository path locally, without creating or publishing a repository before destination authorization. Keep full project reports and data-preparation utilities out of website output.
+
+2026-10-09: The user authorized the public repository `jordanmeyer/bab-example-madness`, GitHub Pages, and a plugin gallery listing. The source and approved Git attribution will be public.
