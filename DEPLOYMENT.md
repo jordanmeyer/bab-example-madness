@@ -63,3 +63,7 @@ A final presentation follow-up at `8f9147c` removes a duplicated Winner label. I
 ## Width-matched corner correction
 
 Evaluated source `58d7cdd5b1baffacf2312fc261b2f680c0fca20b` replaces the rejected round-cap workaround. The production assets are `main-Dl6dz9Jv.js` and `style-DH0Cp_SR.css`. The exact published commit, Actions result and returning-browser verification are retained in the [course correction receipt](https://github.com/jordanmeyer/decision-999/blob/main/evidence/browser-app-builder/madness/2026-10-09/corner-geometry/README.md). EVALUATION.md records the 16 rendered regressions and bounded independent review.
+
+## Campus Designer correction — October 10, 2026
+
+Evaluated source: `72fb26c2b55b93f87c4f810a90398b85b28ee27f`. Published app commit: `e1ea45770ee0816f265316d5750c55f6158cd846`. Exact GitHub Actions run [38024158838](https://github.com/jordanmeyer/bab-example-madness/actions/runs/38024158838) completed successfully. A returning browser loaded `main-CfqeVjX3.js` and `style-B90lqaW9.css`, showed Houston 22% / Alabama 16% / Texas 8% at rest, Connecticut's 76–59 title result, and Alabama's rounded 16% pinned detail. No production errors/warnings were captured. Source links and repository-path assets remain intact. This record is a documentation-only follow-up; application/test/configuration paths match the evaluated checkpoint.
