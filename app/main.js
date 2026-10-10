@@ -186,7 +186,7 @@ function renderBracket() {
   const columns=[70,174,246,318,390,502,614,686,758,830,934];
   const coverage=mode==='forecast'?snapshotStatus(data,snapshotIndex):null;
   const status=!coverage?'Completed results':!coverage.throughDate?'Pre-tournament forecast':coverage.partial?coverage.label:`Through ${dateLabel(coverage.throughDate)} games`;
-  $('#bracket-panel').innerHTML=`<p class="bracket-scroll-hint">Scroll to see the full bracket, or choose Table.</p><div class="bracket-scroll"><div class="bracket-map"><div class="round-labels">${headings.map((label,index)=>`<span style="left:${columns[index]}px">${label}</span>`).join('')}</div><div class="bracket-tree"><svg class="connectors" viewBox="0 0 ${BRACKET_WIDTH} ${BRACKET_HEIGHT}" aria-hidden="true"><g class="bracket-backbone">${lines}</g><g class="route-origin"></g><g class="active-route"></g><g class="route-probabilities"></g></svg>${data.regionOrder.map((name,index)=>`<h3 class="region-name ${index>1?'right':''}" style="top:${index%2?520:8}px">${escape(name)}</h3>`).join('')}${nodes}<p class="bracket-status">Men’s · ${data.year}<br><span>${escape(status)}</span>${mode==='forecast'&&reconstructed()?'<br><strong>Reconstructed model</strong>':''}</p><div class="title-forecast"><p id="title-team"></p><div class="title-probability"></div><p class="center-note"></p><ol id="title-leaders"></ol></div></div></div></div>`;
+  $('#bracket-panel').innerHTML=`<p class="bracket-scroll-hint">Scroll to see the full bracket, or choose Table.</p><div class="bracket-scroll"><div class="bracket-map"><div class="round-labels">${headings.map((label,index)=>`<span style="left:${columns[index]}px">${label}</span>`).join('')}</div><div class="bracket-tree"><svg class="connectors" viewBox="0 0 ${BRACKET_WIDTH} ${BRACKET_HEIGHT}" aria-hidden="true"><g class="bracket-backbone">${lines}</g><g class="active-route"></g><g class="route-probabilities"></g></svg>${data.regionOrder.map((name,index)=>`<h3 class="region-name ${index>1?'right':''}" style="top:${index%2?520:8}px">${escape(name)}</h3>`).join('')}${nodes}<p class="bracket-status">Men’s · ${data.year}<br><span>${escape(status)}</span>${mode==='forecast'&&reconstructed()?'<br><strong>Reconstructed model</strong>':''}</p><div class="title-forecast"><p id="title-team"></p><div class="title-probability"></div><p class="center-note"></p><ol id="title-leaders"></ol></div></div></div></div>`;
   slots=[...$('#bracket-panel').querySelectorAll('.team-node')].map(element=>({element,x:Number(element.dataset.x),y:Number(element.dataset.y),round:Number(element.dataset.round),id:element.dataset.team}));
   slots[0].element.tabIndex=0;
   previewId=undefined;
@@ -254,12 +254,13 @@ function decorateRoute(id, round) {
     const firstStage=Math.min(...[...unresolved].filter(stage=>stage>0));
     const origin=slots.find(slot=>slot.round===firstStage-1&&slot.element.dataset.candidates.split(',').includes(id));
     const firstLine=lines.find(line=>Number(line.dataset.stage)===firstStage&&line.dataset.pathIds.split(',').includes(id));
-    $('.route-origin').innerHTML='';
     if(origin&&firstLine) {
       const name=origin.element.querySelector('.node-name').getBoundingClientRect(), tree=$('.bracket-tree').getBoundingClientRect();
       const right=origin.element.classList.contains('right');
-      const x=(right?name.left-4:name.right+4)-tree.left, y=(name.top+name.bottom)/2-tree.top;
-      $('.route-origin').innerHTML=`<path d="M ${x} ${y} H ${firstLine.dataset.startX} V ${firstLine.dataset.startY}"/>`;
+      const x=(right?name.left-4:name.right+4)-tree.left;
+      const path=$(`.active-route path[data-stage="${firstStage}"]:not(.retiring)`);
+      const turns=firstLine.dataset.originalPath.slice(firstLine.dataset.originalPath.indexOf(' V '));
+      path.setAttribute('d',`M ${x} ${firstLine.dataset.startY} H ${firstLine.dataset.startX}${turns}`);
     }
   }
   $('.route-probabilities').querySelectorAll('text').forEach(label=>label.classList.toggle('selected-percentage',Number(label.dataset.stage)===round));

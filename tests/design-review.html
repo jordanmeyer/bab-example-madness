@@ -51,7 +51,7 @@ try{
  check('Rounded-zero active forecast never exposes a future loss',!$('.center-note').textContent.includes('Out')&&$('.big-probability').textContent==='<1%'&&$('.team-summary').textContent.includes('still in the tournament'));
  await choose(2023);$('#bracket-view').click();
  check('Ranked center clears championship slot',$('.title-forecast').getBoundingClientRect().bottom<$('.team-node[data-round="6"]').getBoundingClientRect().top);
- check('Printed names sit above their route hairlines',[...doc.querySelectorAll('.team-node')].every(node=>node.offsetTop===Math.round(node.getBoundingClientRect().bottom-$('.bracket-tree').getBoundingClientRect().top)));
+ check('Printed names are vertically centered on bracket connections',[...doc.querySelectorAll('.team-node')].every(node=>Math.abs(node.offsetTop-((node.getBoundingClientRect().top+node.getBoundingClientRect().bottom)/2-$('.bracket-tree').getBoundingClientRect().top))<.1));
  const tree=$('.bracket-tree'),bounds=tree.getBoundingClientRect();
  tree.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:bounds.left+250,clientY:bounds.top+120}));
  check('Blank canvas still previews nearest slot',$('#title-team').textContent==='Alabama'&&$('#clear-pin').hidden);

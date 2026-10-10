@@ -71,17 +71,16 @@ main { max-width: 1024px; margin: auto; padding: 0 10px; }
 .connectors { position: absolute; inset: 0; width: 1004px; height: 1024px; pointer-events: none; }
 .connector, .terminal-connector { fill: none; stroke: var(--duke-granite); stroke-width: 1.5; }
 .connector.route { stroke: var(--duke-navy-blue); stroke-linejoin: round; stroke-linecap: butt; }
-.route-origin { fill: none; stroke: var(--duke-navy-blue); stroke-width: 1.5; stroke-linejoin: round; }
 .route-join { fill: var(--duke-navy-blue); }
 .route-probabilities { fill: var(--duke-navy-blue); font: 600 13px var(--duke-font-body); font-variant-numeric: lining-nums tabular-nums; }
 .route-probabilities text { paint-order: stroke; stroke: white; stroke-width: 4px; stroke-linejoin: round; }
 .route-probabilities .selected-percentage { font-size: 15px; font-weight: 600; }
 .region-name { position: absolute; left: 6px; font-family: var(--duke-font-body); font-size: .85rem; line-height: 1.4; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; margin: 0; }
 .region-name.right { left: auto; right: 6px; }
-.team-node { position: absolute; height: 16px; transform: translateY(-100%); padding: 0 1px; border: 0; background: transparent; color: var(--duke-cast-iron); font: 600 12px/15px var(--duke-font-body); display: flex; gap: 4px; align-items: center; text-align: left; white-space: nowrap; }
+.team-node { position: absolute; height: 16px; transform: translateY(-50%); padding: 0 1px; border: 0; background: transparent; color: var(--duke-cast-iron); font: 600 12px/15px var(--duke-font-body); display: flex; gap: 4px; align-items: center; text-align: left; white-space: nowrap; }
 .team-node.right { flex-direction: row-reverse; text-align: right; }
 .team-node .seed { flex: 0 0 16px; font-size: 12px; font-weight: 400; }
-.team-node .node-name { white-space: nowrap; }
+.team-node .node-name { white-space: nowrap; background: white; }
 .team-node.eliminated:not(.selected) { color: var(--duke-graphite); font-weight: 400; }
 .team-node.selected { color: var(--duke-navy-blue); }
 .team-node:focus-visible { z-index: 2; outline: none; }
