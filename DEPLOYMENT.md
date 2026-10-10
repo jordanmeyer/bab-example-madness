@@ -45,3 +45,11 @@ Evaluated source: `34bd4335e7c8297b5534e3ce2fa35b41db05a5d0`. Published correcti
 A returning live-browser tab reloaded and received `main-DHFdrHeu.js`, replacing the initial `main-CeFH68Bc.js`. It exposed twelve dated 2023 controls, displayed Houston 22.085%, and previewed Alabama 16.176% with all final-round routes while Houston remained pinned. The 2026 view retained one disabled-replay reconstruction, Michigan 17.762%, and its separate 69–63 championship result. The 2020 selection hid the workspace and showed cancellation. Observed error/warning logs were empty. The revised gallery image shows the complete connected 2023 bracket. The correction changes UI behavior and date presentation; all historical data, derivation, locked dependencies and the publication workflow remain unchanged.
 
 The source checkpoint passed 74/74 Node and browser cases and a clean production build. The independent comparison review passed with its evidence limits explicit in `review/fidelity-review.md`. This documentation follow-up changes no evaluated application source.
+
+## Original geometry correction deployment
+
+Evaluated source: `40c6a1e0b2036c7b7e02fc60a279f4954f1abdac`. Published correction/evaluation commit: `f8d1773d6d29e845a59abfac3be9add24aef3943`. [Actions run 38016901031](https://github.com/jordanmeyer/bab-example-madness/actions/runs/38016901031) completed successfully.
+
+A returning live-browser tab reloaded and received `main-CGWQTFsc.js`, replacing the prior card-based build. Its bracket exposes distinct Final Four and championship columns, zero finalist cards, and Houston’s exact 22.085% initial title chance. Its six route widths measured 15.2813, 13.4165, 12.0046, 10.0643, 8.83306 and 7.5492 pixels, matching the reviewed local build. Browser logs were empty. Models, data, dependencies and workflow are unchanged. The independent original comparison, local Results/narrow checks and 74/74 clean-checkpoint suite are recorded in EVALUATION.md.
+
+This report-only follow-up changes no evaluated application source.
