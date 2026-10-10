@@ -12,7 +12,7 @@
   <header class="masthead"><a href="#" class="wordmark">Tournament Atlas</a><a href="#about">Data &amp; methods</a></header>
   <main>
     <section class="intro">
-      <div><p class="eyebrow">Men’s college basketball · 2016–2026</p><h1>The road to a title.</h1><p class="dek">Sixty-eight teams. One champion. Explore the bracket, compare each team’s chances, and watch a tournament unfold.</p></div>
+      <div><p class="eyebrow">Men’s college basketball · 2016–2026</p><h1>The road to a title.</h1><p class="dek">Explore the bracket and each team’s chances, one recorded forecast at a time.</p></div>
       <div class="year-field"><label for="year">Tournament year</label><select id="year" disabled></select><p id="year-coverage"></p></div>
     </section>
     <section id="explorer" aria-labelledby="explorer-title" aria-busy="true">
@@ -25,8 +25,8 @@
           <div class="button-group" role="group" aria-label="Display"><button id="bracket-view" type="button" aria-pressed="true">Bracket</button><button id="table-view" type="button" aria-pressed="false">Table</button></div>
         </div>
         <div id="timeline" class="timeline">
-          <div class="timeline-heading"><div><p class="eyebrow">Archived FiveThirtyEight forecast</p><h3 id="snapshot-title"></h3></div><button id="play" class="secondary" type="button">Play tournament</button></div>
-          <label class="sr-only" for="snapshot">Forecast snapshot</label><input id="snapshot" type="range" min="0" max="0" value="0"><div class="timeline-labels"><span id="first-date"></span><span>Move through the recorded forecasts</span><span id="last-date"></span></div>
+          <div class="timeline-heading"><div><p class="eyebrow">Archived FiveThirtyEight forecast</p><h3 id="snapshot-title"></h3><p id="snapshot-phase"></p></div><button id="play" class="secondary" type="button">Play tournament</button></div>
+          <label class="sr-only" for="snapshot">Forecast snapshot</label><input id="snapshot" type="range" min="0" max="0" value="0"><div id="snapshot-dates" class="snapshot-dates" aria-label="Available forecast dates"></div><label class="snapshot-picker" for="snapshot-select">Recorded date <select id="snapshot-select"></select></label>
         </div>
         <div id="results-heading" class="results-heading" hidden></div>
         <div class="explore-help"><p id="explore-help"></p><label class="team-picker">Find a team <select id="team-select"></select></label></div>

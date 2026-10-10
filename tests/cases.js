@@ -116,6 +116,20 @@ export async function runChecks(load, model = {}) {
       assert(model.sortTeams(teams,snapshot,{key:'p0',direction:-1})[0].id==='b','Sort rounded labels instead of numbers');
     });
   }
+  if (model.snapshotDay && model.nearestSnapshot) {
+    check('Replay preserves real calendar gaps instead of equal snapshot spacing', () => {
+      const forecasts=season(2023).forecasts, day=model.snapshotDay;
+      assert(day('2023-04-01')-day('2023-03-26')===6, 'Six-day gap compressed');
+      assert(day('2023-03-26')-day('2023-03-25')===1, 'Ordinary daily interval changed');
+      assert(day(forecasts.at(-1).date)-day(forecasts[0].date)===20, 'Tournament calendar extent changed');
+    });
+    check('Replay snaps unavailable dates to a genuine forecast and handles one-snapshot years', () => {
+      const forecasts=season(2023).forecasts;
+      assert(forecasts[model.nearestSnapshot(forecasts,model.snapshotDay('2023-03-20'))].date==='2023-03-19', 'Invented or wrong snapshot in gap');
+      assert(forecasts[model.nearestSnapshot(forecasts,model.snapshotDay('2023-03-30'))].date==='2023-04-01', 'Wrong side of long gap');
+      assert(model.nearestSnapshot(season(2026).forecasts,model.snapshotDay('2026-04-01'))===0, 'Single reconstruction lost');
+    });
+  }
   check('Log5 known answers, symmetry and complementarity', () => {
     close(pairwise(0.8,0.2),16/17); close(pairwise(0.8,0.5),0.8); close(pairwise(0.9,0.9),0.5);
     close(pairwise(0.7,0.3)+pairwise(0.3,0.7),1);

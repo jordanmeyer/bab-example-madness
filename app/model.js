@@ -60,3 +60,10 @@ export function sortTeams(teams, snapshot, sort = { key: 'p6', direction: -1 }) 
     return comparison * sort.direction || a.name.localeCompare(b.name);
   });
 }
+
+// Calendar spacing preserves the days with no archived forecast.
+export const snapshotDay = date => Date.parse(`${date.slice(0, 10)}T00:00:00Z`) / 86400000;
+
+export function nearestSnapshot(forecasts, day) {
+  return forecasts.reduce((best, snapshot, index) => Math.abs(snapshotDay(snapshot.date) - day) < Math.abs(snapshotDay(forecasts[best].date) - day) ? index : best, 0);
+}

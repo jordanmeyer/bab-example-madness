@@ -38,4 +38,10 @@ Check keyboard-equivalent team details, numeric sorting, playback stop/reset, ye
 
 ## Publication boundary
 
-The candidate repository name is `bab-example-madness`; Vite and the prepared Pages workflow use its repository path. No new GitHub repository or live deployment is authorized or claimed by this plan. Obtain destination authorization after the concrete local result is reviewed. Source history will contain the approved attribution recorded in SETUP.md.
+The user authorized the public `jordanmeyer/bab-example-madness` repository, its GitHub Pages application and its course-gallery listing. Vite and the Pages workflow use `/bab-example-madness/`. Subsequent corrections are ordinary commits to this destination. Source history uses the approved attribution recorded in SETUP.md.
+
+## Comparison-review corrections — October 9, 2026
+
+The user requested an independent original-versus-recreation review and correction of the reported issues. Hover and keyboard focus must preview one team consistently through the regional rounds, Final Four, national final and title probability. Explicit selection pins the longer team detail; exiting a transient preview restores that selection. Selected cards remain legible in hover and focus states. Final-round connections must follow each year's real semifinal pairings. Compact introductory material gives the bracket priority. Recorded dates are directly selectable, and replay positions and forecast-history chart spacing reflect elapsed calendar days. Missing dates remain unavailable and later-year reconstructions retain one snapshot. These interface corrections leave the underlying data and probability model unchanged.
+
+Acceptance adds an independent rendered re-review of these behaviors, desktop and actual narrow-width inspection, and preservation of the existing calculation and publication checks.
