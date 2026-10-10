@@ -19,3 +19,7 @@ Decisions recorded on October 9, 2026.
 ## Restore the original bracket geometry
 
 The user rejected connected central cards. One shared coordinate tree now owns all round positions, replacing the cards, dynamic connector measurements and separate mobile regional layout. Compact labels, external probabilities and tapered widths follow observed original conventions. The table remains the narrow default; the full tree scrolls horizontally.
+
+## Apply the complete fidelity checklist
+
+2026-10-09: Replace the automatic-favorite resting state, node-only hover, duplicate date controls and stretched geometry with the original’s clean/preview/pin behavior and one fixed drawing. Generate abbreviations with the data so all years share one naming policy. Snapshot status is based on recorded certainties and actual game records, retaining date-only precision. The user explicitly requested a continuous single-hue numerical heat scale; preserve brand colors elsewhere. Expand independent acceptance to all seasons, multiple desktop widths, phone, late forecasts and Results because the earlier bounded passes missed these failures.

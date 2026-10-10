@@ -67,3 +67,34 @@ export const snapshotDay = date => Date.parse(`${date.slice(0, 10)}T00:00:00Z`) 
 export function nearestSnapshot(forecasts, day) {
   return forecasts.reduce((best, snapshot, index) => Math.abs(snapshotDay(snapshot.date) - day) < Math.abs(snapshotDay(forecasts[best].date) - day) ? index : best, 0);
 }
+
+// A completed stage has a filled name strip; only uncertain advancement gets a route band.
+export const unresolvedStages = p => p.flatMap((chance, stage) => chance > 0 && chance < 1 ? [stage] : []);
+export const lostAtStage = (p, stage) => stage < 6 && p[stage] === 1 && p[stage + 1] === 0;
+
+export function resultStatus(p) {
+  if (p[6] === 1) return 'Winner';
+  const stage = p.lastIndexOf(1);
+  return `Eliminated in ${stage < 0 ? 'First Four' : STAGES[stage]}`;
+}
+
+// Dates in the archive are daily, not timestamps. A game is included only when its
+// winner's next berth is certain and the other team's chance of that berth is zero.
+export function snapshotStatus(data, snapshotIndex) {
+  const snapshot = data.forecasts[snapshotIndex];
+  const probabilities = new Map(snapshot.teams.map(team => [team.id, team.p]));
+  const included = data.games.filter(game => probabilities.get(game.winnerId)[game.round] === 1 &&
+    game.teamIds.filter(id => id !== game.winnerId).every(id => probabilities.get(id)[game.round] === 0));
+  if (!included.length) return { label: 'Pre-tournament predictions', roundLabel: 'Pre-tournament', throughDate: null, partial: false, includedGames: 0, totalGames: data.games.length };
+  const gameDay = game => new Date(game.date).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  const throughDate = included.map(gameDay).sort().at(-1);
+  const dayGames = data.games.filter(game => gameDay(game) === throughDate);
+  const includedDay = included.filter(game => gameDay(game) === throughDate);
+  const partial = includedDay.length !== dayGames.length;
+  const date = new Date(`${throughDate}T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' });
+  return {
+    label: partial ? `Includes ${includedDay.length} of ${dayGames.length} ${date} games` : `Predictions through ${date} games`,
+    roundLabel: [...new Set(includedDay.map(game => game.roundName))].join(' / '),
+    throughDate, partial, includedGames: included.length, totalGames: data.games.length,
+  };
+}

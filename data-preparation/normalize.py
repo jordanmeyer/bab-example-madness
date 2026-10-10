@@ -22,6 +22,33 @@ CHAMPIONS = {2016:'222', 2017:'153', 2018:'222', 2019:'258', 2021:'239', 2022:'2
 NCAA_HISTORY = 'https://www.ncaa.com/history/basketball-men/d1'
 LIU_BRACKET = 'https://i.turner.ncaa.com/sites/default/files/external/printable-bracket/2018/bracket-ncaa.pdf'
 
+# Stable school IDs, shared across seasons. Full historical names remain in `name`.
+# Compact conventional names are presentation metadata, never identity joins.
+BRACKET_NAMES = {
+    '41': 'UConn', '252': 'BYU', '2031': 'Little Rock', '2934': 'CSU Bakersfield',
+    '2239': 'CSU Fullerton', '2856': 'Cal Baptist', '2193': 'ETSU',
+    '161': 'FDU', '526': 'FGCU', '99': 'LSU', '309': 'Louisiana',
+    '2393': 'Middle Tenn.', '116': "Mt. St. Mary's", '2428': 'NC Central',
+    '2427': 'UNC Asheville', '2430': 'UNC Greensboro', '350': 'UNC Wilmington',
+    '2546': 'SE Missouri St.', '30': 'USC', '2567': 'SMU', '2617': 'SF Austin',
+    '357': 'Texas A&M-CC', '2670': 'VCU', '112358': 'LIU', '6446': 'LIU Brooklyn',
+    '2350': 'Loyola Chicago', '2504': 'Prairie View', '2000': 'Abilene Chr.',
+    '2511': 'Queens', '2390': 'Miami (FL)', '193': 'Miami (OH)',
+    '2378': 'UMBC', '152': 'NC State', '232': 'Charleston', '2540': 'UCSB', '5': 'UAB',
+}
+
+
+def bracket_names(team_id, historical_name, source_team):
+    name = BRACKET_NAMES.get(team_id, historical_name)
+    for original, short in [('State', 'St.'), ('University', 'U.'), ('Saint', 'St.'),
+                            ('Eastern', 'E.'), ('Northern', 'N.'), ('Western', 'W.'),
+                            ('Southern', 'S.'), ('Southeast', 'SE'), ('Appalachian', 'App.')]:
+        name = name.replace(original, short)
+    # The frozen scoreboard's publisher abbreviation is already designed for small labels.
+    super_short = {'6446': 'LIU', '112358': 'LIU', '2443': 'UNO'}.get(team_id, source_team.get('abbreviation'))
+    assert super_short, (team_id, historical_name, 'missing publisher abbreviation')
+    return name, super_short
+
 
 def forecast_url(year):
     return f'https://web.archive.org/web/{ARCHIVES[year]}id_/https://projects.fivethirtyeight.com/march-madness-api/{year}/fivethirtyeight_ncaa_forecasts.csv'
@@ -70,7 +97,8 @@ def normalize(raw, year):
                 name = rating_row['team_name'] if rating_row else t['team']['location']
                 if year == 2018 and tid == '6446':
                     name = 'LIU Brooklyn'
-                teams[tid] = {'id': tid, 'name': name, 'shortName': name, 'seed': seed, 'region': region, 'bracketSlot': SEEDS.index(seed), 'playIn': round_no == 0}
+                bracket_name, super_short_name = bracket_names(tid, name, t['team'])
+                teams[tid] = {'id': tid, 'name': name, 'shortName': name, 'bracketName': bracket_name, 'superShortName': super_short_name, 'seed': seed, 'region': region, 'bracketSlot': SEEDS.index(seed), 'playIn': round_no == 0}
             else:
                 assert teams[tid]['seed'] == seed, (year, tid, 'seed drift')
                 if region:
@@ -108,7 +136,7 @@ def normalize(raw, year):
         forecasts.append({'date': date, 'teams': [{'id': '6446' if year == 2018 and r['team_id'] == '2341' else r['team_id'], 'p': [float(r[f'rd{i}_win']) for i in range(1, 8)], 'rating': float(r['team_rating']), 'alive': r['team_alive'] == '1'} for r in rows]})
     champion = next(g['winnerId'] for g in games if g['round'] == 6)
     sources.append({'name': 'NCAA championship history (champion cross-check)', 'url': NCAA_HISTORY})
-    return {'year': year, 'status': 'played', 'teams': sorted(teams.values(), key=lambda t: (regions.index(t['region']), t['bracketSlot'], t['id'])), 'games': sorted(games, key=lambda g: (g['round'], regions.index(g['region']) if g['region'] else 4, g['bracketOrder'], g['date'])), 'forecasts': forecasts, 'regionOrder': regions, 'finalFourPairs': pairs, 'championTeamId': champion, 'firstGameDate': min(g['date'] for g in games), 'lastGameDate': max(g['date'] for g in games), 'sources': sources, 'corrections': corrections, 'forecastNote': 'FiveThirtyEight daily archived snapshots; forecast_date is preserved as published and is not a precise live timestamp. Snapshot dates can include games already played that day. The latest snapshot precedes the championship.' if forecasts else 'FiveThirtyEight stopped updating sports forecasts in June 2023. This year contains actual tournament results, with no substituted forecast.'}
+    return {'year': year, 'status': 'played', 'teams': sorted(teams.values(), key=lambda t: (regions.index(t['region']), t['bracketSlot'], t['id'])), 'games': sorted(games, key=lambda g: (g['round'], regions.index(g['region']) if g['region'] else 4, g['bracketOrder'], g['date'])), 'forecasts': forecasts, 'regionOrder': regions, 'finalFourPairs': pairs, 'championTeamId': champion, 'firstGameDate': min(g['date'] for g in games), 'lastGameDate': max(g['date'] for g in games), 'sources': sources, 'corrections': corrections, 'forecastNote': 'FiveThirtyEight daily archived snapshots; forecast_date is preserved as published and is not a precise live timestamp. Resolved advancement probabilities identify the games included in each snapshot; the interface derives its through-games status from those results. The latest snapshot precedes the championship.' if forecasts else 'FiveThirtyEight stopped updating sports forecasts in June 2023. This year contains actual tournament results, with no substituted forecast.'}
 
 
 def validate(d):

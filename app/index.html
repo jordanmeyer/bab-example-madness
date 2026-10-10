@@ -13,23 +13,23 @@
   <main>
     <section class="intro">
       <div><p class="eyebrow">Men’s college basketball · 2016–2026</p><h1>The road to a title.</h1><p class="dek">Explore the bracket and each team’s chances, one recorded forecast at a time.</p></div>
-      <div class="year-field"><label for="year">Tournament year</label><select id="year" disabled></select><p id="year-coverage"></p></div>
     </section>
     <section id="explorer" aria-labelledby="explorer-title" aria-busy="true">
       <h2 id="explorer-title" class="sr-only">Tournament explorer</h2>
+      <div class="toolbar">
+        <label class="year-field" for="year">Year <select id="year" aria-label="Tournament year" disabled></select></label><span id="year-coverage" class="sr-only"></span>
+        <div class="button-group" role="group" aria-label="Tournament information"><button id="forecast-mode" type="button" disabled aria-pressed="true">Forecasts</button><button id="results-mode" type="button" disabled aria-pressed="false">Results</button></div>
+        <div class="button-group display-group" role="group" aria-label="Display"><button id="bracket-view" type="button" disabled aria-pressed="true">Bracket</button><button id="table-view" type="button" disabled aria-pressed="false">Table</button></div>
+      </div>
       <p id="loading" class="loading" role="status">Loading tournament data…</p>
       <div id="workspace" hidden>
-        <div class="toolbar">
-          <div class="button-group" role="group" aria-label="Tournament information"><button id="forecast-mode" type="button" aria-pressed="true">Forecasts</button><button id="results-mode" type="button" aria-pressed="false">Results</button></div>
-          <p id="coverage-note"></p>
-          <div class="button-group" role="group" aria-label="Display"><button id="bracket-view" type="button" aria-pressed="true">Bracket</button><button id="table-view" type="button" aria-pressed="false">Table</button></div>
-        </div>
+        <p id="coverage-note" class="coverage-note">Reconstructed from pre-tournament T-Rank ratings using log5. This is a separate model, not a FiveThirtyEight or published T-Rank bracket forecast.</p>
         <div id="timeline" class="timeline">
-          <div class="timeline-heading"><div><p class="eyebrow">Archived FiveThirtyEight forecast</p><h3 id="snapshot-title"></h3><p id="snapshot-phase"></p></div><button id="play" class="secondary" type="button">Play tournament</button></div>
-          <label class="sr-only" for="snapshot">Forecast snapshot</label><input id="snapshot" type="range" min="0" max="0" value="0"><div id="snapshot-dates" class="snapshot-dates" aria-label="Available forecast dates"></div><label class="snapshot-picker" for="snapshot-select">Recorded date <select id="snapshot-select"></select></label>
+          <div class="timeline-heading"><h3 id="snapshot-title"></h3><button id="play" class="secondary" type="button">Play tournament</button></div>
+          <div id="snapshot" class="snapshot-track" role="slider" tabindex="0" aria-label="Forecast snapshot" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"></div>
         </div>
         <div id="results-heading" class="results-heading" hidden></div>
-        <div class="explore-help"><p id="explore-help"></p><label class="team-picker">Find a team <select id="team-select"></select></label></div>
+        <div class="explore-help"><p id="explore-help"></p><button id="clear-pin" class="pinned-chip" type="button" aria-label="Clear pinned team" hidden></button><label class="team-picker">Find a team <select id="team-select"></select></label></div>
         <div id="bracket-panel"></div>
         <div id="table-panel" hidden></div>
         <section id="team-detail" class="team-detail" aria-labelledby="team-title"></section>

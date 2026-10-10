@@ -130,6 +130,66 @@ export async function runChecks(load, model = {}) {
       assert(model.nearestSnapshot(season(2026).forecasts,model.snapshotDay('2026-04-01'))===0, 'Single reconstruction lost');
     });
   }
+  check('Every played season has complete, unambiguous canonical bracket labels', () => {
+    for (const d of seasons.filter(d => d.status === 'played')) {
+      for (const field of ['bracketName', 'superShortName']) {
+        assert(d.teams.every(team => typeof team[field] === 'string' && team[field].trim()), `${d.year}: missing ${field}`);
+        assert(new Set(d.teams.map(team => team[field])).size === 68, `${d.year}: ambiguous ${field}`);
+      }
+      for (const game of d.games.filter(game => game.round === 0)) {
+        const labels = game.teamIds.map(id => d.teams.find(team => team.id === id).superShortName);
+        assert(labels[0] !== labels[1], `${d.year}: indistinguishable First Four entrants`);
+      }
+    }
+    assert(season(2016).teams.find(team => team.id === '2031').bracketName === 'Little Rock', 'Historical school alias lost');
+    assert(season(2018).teams.find(team => team.id === '6446').bracketName === 'LIU Brooklyn', 'Historical LIU identity lost');
+  });
+  if (model.unresolvedStages && model.lostAtStage && model.resultStatus) {
+    check('A late forecast traces only uncertain rounds, never completed or eliminated stages', () => {
+      assert(model.unresolvedStages([1,1,1,.75,.4,.2,.1]).join() === '3,4,5,6', 'Completed rounds get route bands');
+      assert(model.unresolvedStages([1,1,1,0,0,0,0]).length === 0, 'Eliminated route remains');
+      assert(model.unresolvedStages([1,1,1,1,1,1,1]).length === 0, 'Champion gets a probability band');
+    });
+    check('Only the strip for the game a team lost is grey; center status follows that team', () => {
+      const houston = model.resultPath(season(2023), '248');
+      assert(houston.map((_, stage) => model.lostAtStage(houston, stage)).join() === 'false,false,true,false,false,false,false', 'All Houston wins incorrectly greyed');
+      assert(model.resultStatus(houston) === 'Eliminated in Sweet 16', 'Houston assigned a champion identity');
+      assert(model.resultStatus(model.resultPath(season(2023), '41')) === 'Winner', 'UConn champion status');
+      assert(model.resultStatus(model.resultPath(season(2023), '2640')) === 'Eliminated in First Four', 'First Four loss is a Round-of-64 appearance');
+    });
+  }
+  if (model.snapshotStatus) {
+    check('Snapshot status comes from included game outcomes, not merely the calendar date', () => {
+      const d = season(2023);
+      const first = model.snapshotStatus(d, 0);
+      assert(first.throughDate === null && first.includedGames === 0 && first.roundLabel === 'Pre-tournament', 'Invented initial results');
+      const march16 = model.snapshotStatus(d, d.forecasts.findIndex(s => s.date === '2023-03-16'));
+      assert(march16.includedGames === 20 && march16.label === 'Predictions through March 16 games' && march16.roundLabel === 'Round of 64', 'First full game day described incorrectly');
+      const last = model.snapshotStatus(d, d.forecasts.length - 1);
+      assert(last.includedGames === 66 && last.totalGames === 67 && last.throughDate === '2023-04-01' && last.roundLabel === 'Final Four', 'Final result leaks into archived forecast');
+    });
+    check('All 83 archived snapshots accurately identify complete game days, including the 2021 no-contest', () => {
+      let count = 0;
+      for (const d of seasons.filter(d => d.year <= 2023 && d.status === 'played')) {
+        d.forecasts.forEach((snapshot, index) => {
+          const status = model.snapshotStatus(d, index); count++;
+          assert(!status.partial && status.throughDate === (index ? snapshot.date : null), `${d.year}/${snapshot.date}: incorrect through-games date`);
+        });
+        assert(model.snapshotStatus(d, d.forecasts.length - 1).includedGames === 66, `${d.year}: archive should stop before final`);
+      }
+      assert(count === 83, 'Archived snapshot coverage changed');
+      const d = season(2021), status = model.snapshotStatus(d, d.forecasts.findIndex(s => s.date === '2021-03-20'));
+      assert(status.includedGames === 36, 'Oregon advancement omitted or turned into an extra played game');
+    });
+    check('An explicitly partial same-day snapshot reports its coverage without claiming a timestamp', () => {
+      const d = structuredClone(season(2023)), initial = d.forecasts[0], partial = d.forecasts[1];
+      const game = d.games.find(game => game.id === '401522116');
+      // One of the two March 14 Eastern-time First Four games remains unresolved.
+      for (const id of game.teamIds) partial.teams.find(team => team.id === id).p = initial.teams.find(team => team.id === id).p;
+      const status = model.snapshotStatus(d, 1);
+      assert(status.partial && status.includedGames === 1 && status.label === 'Includes 1 of 2 March 14 games', 'Partial day falsely presented as a completed day');
+    });
+  }
   check('Log5 known answers, symmetry and complementarity', () => {
     close(pairwise(0.8,0.2),16/17); close(pairwise(0.8,0.5),0.8); close(pairwise(0.9,0.9),0.5);
     close(pairwise(0.7,0.3)+pairwise(0.3,0.7),1);
