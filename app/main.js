@@ -172,8 +172,8 @@ function renderBracket() {
         const y=roundY(round,slot,lower), start=round===0?6:roundX[round]+4, end=roundX[round+1]-4;
         const candidates=bracketCandidates(data,name,round,slot);
         nodes+=nodeMarkup(candidates,round,right?mirror(end):start,y,end-start,right,name);
-        if(round===0) lines+=`<path class="terminal-connector" d="M ${mirror(end)} ${y} H ${mirror(roundX[1])}"/>`;
-        else for(let child=0;child<2;child++) lines+=path(bracketCandidates(data,name,round-1,slot*2+child).map(team=>team.id),round,mirror(roundX[round]),roundY(round-1,slot*2+child,lower),mirror(roundX[round+1]),y,candidates.some(team=>currentP(team.id)?.[round]===1));
+        if(round===0||candidates.some(team=>currentP(team.id)?.[round]===1)) lines+=`<path class="terminal-connector" d="M ${mirror(end)} ${y} H ${mirror(roundX[round+1])}"/>`;
+        if(round>0) for(let child=0;child<2;child++) lines+=path(bracketCandidates(data,name,round-1,slot*2+child).map(team=>team.id),round,mirror(roundX[round]),roundY(round-1,slot*2+child,lower),mirror(roundX[round+1]),y,candidates.some(team=>currentP(team.id)?.[round]===1));
       }
     }
     lines+=path(data.teams.filter(team=>team.region===name).map(team=>team.id),5,mirror(roundX[5]),roundY(4,0,lower),mirror(roundX[6]),FINAL_Y,data.teams.some(team=>data.finalFourPairs[right?1:0].includes(team.region)&&currentP(team.id)?.[5]===1));
@@ -181,6 +181,7 @@ function renderBracket() {
   data.finalFourPairs.forEach((pair,index)=>{
     const candidates=data.teams.filter(team=>pair.includes(team.region));
     nodes+=nodeMarkup(candidates,5,index===0?roundX[5]+4:506,FINAL_Y,502-roundX[5]-8,index===1);
+    if(candidates.some(team=>currentP(team.id)?.[5]===1)) lines+=`<path class="terminal-connector" d="M ${index===0?498:506} ${FINAL_Y} H 502"/>`;
     lines+=`<path class="connector title-stem" data-path-ids="${escape(candidates.map(team=>team.id).join(','))}" data-stage="6" data-start-x="502" data-start-y="${FINAL_Y}" data-route-key="title" d="M 502 ${FINAL_Y} V ${FINAL_Y-45}"/>`;
   });
   nodes+=nodeMarkup(data.teams,6,466,FINAL_Y-45,72,false);

@@ -23,12 +23,18 @@ const labels=(year,state)=>{
  for(const node of doc.querySelectorAll('.team-node:not(.empty)')){
   const round=Number(node.dataset.round);if(round===0||round===6)continue;
   const y=Number(node.dataset.y),right=node.classList.contains('right');
+  const edge=parseFloat(node.style.left)+(right?0:parseFloat(node.style.width));
+  const tick=[...doc.querySelectorAll('.terminal-connector')].some(line=>{
+   const start=line.getPointAtLength(0),end=line.getPointAtLength(line.getTotalLength());
+   return Math.abs(start.x-edge)<.02&&start.y===y&&end.y===y&&Math.abs(end.x-edge-(right?-4:4))<.02;
+  });
+  if(!tick)crossed.push(`${node.dataset.name}: missing 4px tick`);
   for(const line of doc.querySelectorAll(`.bracket-backbone .connector[data-stage="${round}"]`)){
    const d=line.getAttribute('d'),endY=Number(d.match(/ V ([\d.]+)/)?.[1]);
    if(endY===y&&(Number(line.dataset.startX)>502)===right&&d.includes(' H '))crossed.push(node.dataset.name);
   }
  }
- check(`${year} ${state}: filled round slots have no horizontal backbone`,!crossed.length,crossed);
+ check(`${year} ${state}: filled round slots keep 4px ticks without lines behind names`,!crossed.length,crossed);
 };
 try{
  for(const year of [2016,2017,2018,2019,2021,2022,2023,2024,2025,2026]){
