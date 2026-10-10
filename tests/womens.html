@@ -12,6 +12,7 @@ const choose=async year=>{$('#year').value=year;$('#year').dispatchEvent(new Eve
 const switchTo=async gender=>{$(`#${gender}`).click();await wait(loaded);};
 const fit=label=>{const failed=[];for(const node of doc.querySelectorAll('.team-node:not(.empty)')){const range=doc.createRange();range.selectNodeContents(node.querySelector('.node-name'));const text=range.getBoundingClientRect(),box=node.getBoundingClientRect();if(text.left<box.left-.2||text.right>box.right+.2)failed.push(node.dataset.name);}check(`${label}: names fit`,!failed.length,failed);};
 try {
+ await choose(2023);
  await switchTo('womens');
  check('Toggle preserves 2023 and identifies Women', $('#year').value==='2023'&&$('#womens').getAttribute('aria-pressed')==='true'&&$('.bracket-status').textContent.startsWith('Women’s'));
  const sc=$('.team-node[data-round="0"][data-team="2579"]'),box=sc.getBoundingClientRect();

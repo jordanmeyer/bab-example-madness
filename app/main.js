@@ -18,7 +18,8 @@ let catalog, data, selectedId, gender = 'mens', snapshotIndex = 0, mode = 'forec
 let explicitView = false, previewId, previewRound, slots = [];
 let sort = { key: 'p6', direction: -1 }, timer, request = 0, chart, observer, pathMap;
 const cache = new Map();
-let sourceId = 'fivethirtyeight';
+// A year without the chosen source falls back without changing the visitor's choice.
+let sourceId = 'fivethirtyeight', preferredSource = sourceId;
 const activeSource = () => data.forecastOptions?.find(option => option.id === sourceId);
 const competitionName = () => gender === 'womens' ? 'Women’s' : 'Men’s';
 const currentP = id => pathMap.get(id);
@@ -64,7 +65,7 @@ async function loadYear(year, competition = gender) {
     const options = data.forecastOptions ?? [];
     $('#source').innerHTML = options.length ? options.map(option => `<option value="${escape(option.id)}">${escape(option.name)}</option>`).join('') : '<option>No forecasts</option>';
     $('#source').disabled = !options.length;
-    if(options.length) applySource(options.some(option => option.id === sourceId) ? sourceId : options[0].id);
+    if(options.length) applySource(options.some(option => option.id === preferredSource) ? preferredSource : options[0].id);
     snapshotIndex = 0;
     mode = data.forecasts?.length ? 'forecast' : 'results';
     selectedId = null;
@@ -182,7 +183,7 @@ function renderBracket() {
   const reclaimed=128-openingWidth;
   const roundX=[6,...[138,210,282,354,426,502].map((x,index)=>x-reclaimed*(5-index)/5+(bracketWidth-BRACKET_WIDTH)/2*index/5)];
   let lines='', nodes='';
-  const path = (ids,stage,x,fromY,endX,y,filled=false) => `<path class="connector" data-filled="${filled}" data-path-ids="${escape(ids.join(','))}" data-stage="${stage}" data-start-x="${x}" data-start-y="${fromY}" data-route-key="${stage}:${endX}:${y}" data-label-x="${(x+endX)/2}" data-label-y="${y+(stage===5||fromY>y?25:-13)}" d="M ${x} ${fromY} V ${y} H ${endX}"/>`;
+  const path = (ids,stage,x,fromY,endX,y,filled=false) => `<path class="connector" data-path-ids="${escape(ids.join(','))}" data-stage="${stage}" data-start-x="${x}" data-start-y="${fromY}" data-label-x="${(x+endX)/2}" data-label-y="${y+(stage===5||fromY>y?25:-13)}" d="M ${x} ${fromY} V ${y}${filled?'':` H ${endX}`}"/>`;
   data.regionOrder.forEach((name,index)=>{
     const right=index>1, lower=index%2, mirror=x=>right?bracketWidth-x:x;
     for(let round=0;round<=4;round++) {
@@ -200,7 +201,7 @@ function renderBracket() {
     const candidates=data.teams.filter(team=>pair.includes(team.region));
     nodes+=nodeMarkup(candidates,5,index===0?roundX[5]+4:center+4,FINAL_Y,center-roundX[5]-8,index===1);
     if(candidates.some(team=>currentP(team.id)?.[5]===1)) lines+=`<path class="terminal-connector" d="M ${center+(index===0?-4:4)} ${FINAL_Y} H ${center}"/>`;
-    lines+=`<path class="connector title-stem" data-path-ids="${escape(candidates.map(team=>team.id).join(','))}" data-stage="6" data-start-x="${center}" data-start-y="${FINAL_Y}" data-route-key="title" d="M ${center} ${FINAL_Y} V ${FINAL_Y-45}"/>`;
+    lines+=`<path class="connector title-stem" data-path-ids="${escape(candidates.map(team=>team.id).join(','))}" data-stage="6" data-start-x="${center}" data-start-y="${FINAL_Y}" d="M ${center} ${FINAL_Y} V ${FINAL_Y-45}"/>`;
   });
   nodes+=nodeMarkup(data.teams,6,center-36,FINAL_Y-45,72,false);
   const headings=['Round of 64','Round of 32','Sweet 16','Elite Eight','Final Four','Championship','Final Four','Elite Eight','Sweet 16','Round of 32','Round of 64'];
@@ -229,24 +230,16 @@ function decorateRoute(id, round) {
   previewRound=round;
   const team=teamById(id), probabilities=team?currentP(id):[];
   if(changedTeam) {
-    const activeKeys=new Set(), routes=[], labels=[], unresolved=new Set(unresolvedStages(probabilities));
+    const routes=[], labels=[], unresolved=new Set(unresolvedStages(probabilities));
     const lines=[...$('#bracket-panel').querySelectorAll('.bracket-backbone .connector')];
     for(const line of lines) {
-      line.dataset.originalPath??=line.getAttribute('d');
       const stage=Number(line.dataset.stage), p=probabilities[stage]??0;
       if(!line.dataset.pathIds.split(',').includes(id) || !unresolved.has(stage)) continue;
-      activeKeys.add(line.dataset.routeKey);
       const width=.5+15*Math.sqrt(p);
-      routes.push(`<path class="connector route" data-stage="${stage}" pathLength="1" d="${line.dataset.originalPath}" style="stroke-width:${width}"/>`);
+      routes.push(`<path class="connector route" data-stage="${stage}" pathLength="1" d="${line.getAttribute('d')}" style="stroke-width:${width}"/>`);
       // The other three quarters lie inside the two strokes. Only the outer corner adds area.
       if(stage>1 && unresolved.has(stage-1)) routes.push(`<ellipse class="route-join" data-stage="${stage}" cx="${line.dataset.startX}" cy="${line.dataset.startY}" style="rx:${width/2}px;ry:${(.5+15*Math.sqrt(probabilities[stage-1]))/2}px"/>`);
       if(stage<6 && mode==='forecast') labels.push(`<text data-stage="${stage}" x="${line.dataset.labelX}" y="${line.dataset.labelY}" text-anchor="middle">${probabilityLabel(p)}</text>`);
-    }
-    for(const line of lines) {
-      const stage=Number(line.dataset.stage);
-      const active=line.dataset.pathIds.split(',').includes(id)&&unresolved.has(stage);
-      line.style.display=active||line.dataset.routeKey==='title'&&activeKeys.has('title')?'none':'';
-      line.setAttribute('d',line.dataset.filled==='true'||activeKeys.has(line.dataset.routeKey)?line.dataset.originalPath.split(' H ')[0]:line.dataset.originalPath);
     }
     const routeGroup=$('.active-route');
     routeGroup.querySelectorAll('.retiring').forEach(path=>path.remove());
@@ -281,7 +274,7 @@ function decorateRoute(id, round) {
       const right=origin.element.classList.contains('right');
       const x=(right?name.left-4:name.right+4)-tree.left;
       const path=$(`.active-route path[data-stage="${firstStage}"]:not(.retiring)`);
-      const turns=firstLine.dataset.originalPath.slice(firstLine.dataset.originalPath.indexOf(' V '));
+      const turns=firstLine.getAttribute('d').slice(firstLine.getAttribute('d').indexOf(' V '));
       path.setAttribute('d',`M ${x} ${firstLine.dataset.startY} H ${firstLine.dataset.startX}${turns}`);
     }
     if(!reducedMotion.matches) {
@@ -296,6 +289,10 @@ function decorateRoute(id, round) {
       const startTime=document.timeline.currentTime;
       routeGroup.querySelectorAll(':scope > :not(.retiring)').forEach(element=>animateRoute(element,false,timing,startTime));
     }
+    // Reveal the title chance once its route has reached the center; replay steps are shorter than the drawing.
+    const center=$('.title-forecast'), drawing=timer?[]:[...routeGroup.querySelectorAll(':scope > :not(.retiring)')].flatMap(element=>element.getAnimations());
+    center.classList.toggle('drawing',drawing.length>0);
+    if(drawing.length) Promise.all(drawing.map(animation=>animation.finished)).then(()=>{if(previewId===id)center.classList.remove('drawing');},()=>{});
   }
   $('.route-probabilities').querySelectorAll('text').forEach(label=>label.classList.toggle('selected-percentage',Number(label.dataset.stage)===round));
 }
@@ -445,7 +442,7 @@ for (const competition of ['mens','womens']) $(`#${competition}`).addEventListen
 $('#year').addEventListener('change',event=>loadYear(Number(event.target.value)));
 $('#source').addEventListener('change', event => {
   const date = data.forecasts[snapshotIndex]?.date;
-  stopPlaying(); disposeChart(); applySource(event.target.value);
+  stopPlaying(); disposeChart(); preferredSource = event.target.value; applySource(preferredSource);
   snapshotIndex = date ? nearestSnapshot(data.forecasts, snapshotDay(date)) : 0;
   renderSources(); render(); announce(`${provider()} selected. ${snapshotName()}.`);
 });
@@ -551,6 +548,6 @@ try {
   catalog=await response.json();
   $('#year').innerHTML=catalog.competitions.mens.years.map(entry=>`<option value="${entry.year}">${entry.year}${entry.status==='cancelled'?' · Cancelled':''}</option>`).join('');
   $('#year').disabled=false;
-  $('#year').value='2023';
-  await loadYear(2023);
+  $('#year').value='2026';
+  await loadYear(2026);
 } catch(error) { $('#loading').textContent=`${error.message} Reload to try again.`; $('#explorer').setAttribute('aria-busy','false'); }
