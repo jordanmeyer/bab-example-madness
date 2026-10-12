@@ -16,35 +16,35 @@
     </div>
   </header>
   <main>
-    <section class="intro">
-      <p class="dek">Compare tournament forecasts and see how each team’s chances change as games are played.</p>
-    </section>
     <section id="explorer" aria-labelledby="explorer-title" aria-busy="true">
-      <h2 id="explorer-title" class="sr-only">Tournament explorer</h2>
-      <div class="toolbar">
-        <div class="button-group" role="group" aria-label="Tournament"><button id="mens" type="button" aria-pressed="true" disabled>Men</button><button id="womens" type="button" aria-pressed="false" disabled>Women</button></div>
-        <label class="year-field" for="year">Year <select id="year" aria-label="Tournament year" disabled></select></label><span id="year-coverage" class="sr-only"></span>
-        <label class="source-field" for="source">Source <select id="source" disabled></select></label>
-        <div class="view-controls">
-          <div class="button-group" role="group" aria-label="Tournament information"><button id="forecast-mode" type="button" disabled aria-pressed="true">Forecasts</button><button id="results-mode" type="button" disabled aria-pressed="false">Results</button></div>
-          <div class="button-group" role="group" aria-label="Display"><button id="bracket-view" type="button" disabled aria-pressed="true">Bracket</button><button id="table-view" type="button" disabled aria-pressed="false">Table</button></div>
+      <div class="explorer-head">
+        <div>
+          <p id="explorer-kicker" class="eyebrow">Men’s tournament</p>
+          <h2 id="explorer-title">Tournament forecasts</h2>
+          <p id="coverage-note" class="coverage-note"></p>
         </div>
+        <div class="button-group" role="group" aria-label="Tournament information"><button id="forecast-mode" type="button" disabled aria-pressed="true">Forecasts</button><button id="results-mode" type="button" disabled aria-pressed="false">Results</button></div>
+      </div>
+      <div class="controls">
+        <div class="field"><span id="competition-label" class="field-label">Competition</span><div class="button-group" role="group" aria-labelledby="competition-label"><button id="mens" type="button" aria-pressed="true" disabled>Men</button><button id="womens" type="button" aria-pressed="false" disabled>Women</button></div></div>
+        <label class="field year-field" for="year"><span class="field-label">Year</span><select id="year" aria-label="Tournament year" disabled></select></label><span id="year-coverage" class="sr-only"></span>
+        <label class="field source-field" for="source"><span class="field-label">Source</span><select id="source" disabled></select></label>
+        <div class="field view-field"><span id="view-label" class="field-label">View</span><div class="button-group" role="group" aria-labelledby="view-label"><button id="bracket-view" type="button" disabled aria-pressed="true">Bracket</button><button id="table-view" type="button" disabled aria-pressed="false">Table</button></div></div>
       </div>
       <p id="loading" class="loading" role="status">Loading tournament data…</p>
       <div id="workspace" hidden>
-        <p id="coverage-note" class="coverage-note"></p>
         <div id="timeline" class="timeline">
-          <div class="timeline-heading"><h3 id="snapshot-title"></h3></div><button id="play" class="secondary" type="button" aria-label="Play tournament">▶ <span>Play</span></button>
+          <button id="play" class="secondary" type="button" aria-label="Play tournament">▶ <span>Play</span></button>
+          <p id="snapshot-title" class="snapshot-title"></p>
           <div id="snapshot" class="snapshot-track" role="slider" tabindex="0" aria-label="Forecast snapshot" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"></div>
         </div>
         <p id="single-snapshot" class="single-snapshot" hidden></p>
         <div id="results-heading" class="results-heading" hidden></div>
-        <p id="explore-help" class="explore-help"></p>
         <div id="bracket-panel"></div>
         <div id="table-panel" hidden></div>
         <div id="first-four-panel"></div>
       </div>
-      <section id="cancelled" class="cancelled" hidden><p class="eyebrow">2020 tournament</p><h2>A March without a bracket.</h2><p>The NCAA cancelled the 2020 men’s and women’s basketball tournaments because of COVID-19. There was no official field, no games, and no champion.</p><p>Choose another year to explore a tournament. A missing season is part of the history—not a gap to fill with predictions.</p><a href="https://www.ncaa.com/history/basketball-men/d1" target="_blank" rel="noreferrer">See the NCAA’s championship history</a></section>
+      <section id="cancelled" class="cancelled" hidden><h2>A March without a bracket.</h2><p>The NCAA cancelled the 2020 men’s and women’s basketball tournaments because of COVID-19. There was no official field, no games, and no champion.</p><p>Choose another year to explore a tournament. A missing season is part of the history—not a gap to fill with predictions.</p><a href="https://www.ncaa.com/history/basketball-men/d1" target="_blank" rel="noreferrer">See the NCAA’s championship history</a></section>
     </section>
 
   </main>

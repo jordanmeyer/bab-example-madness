@@ -21,7 +21,7 @@ const loadAbout=async()=>{
 try {
  await choose(2023);
  await switchTo('womens');
- check('Toggle preserves 2023 and identifies Women', $('#year').value==='2023'&&$('#womens').getAttribute('aria-pressed')==='true'&&$('.bracket-status').textContent.startsWith('Women’s'));
+ check('Toggle preserves 2023 and identifies Women', $('#year').value==='2023'&&$('#womens').getAttribute('aria-pressed')==='true'&&$('#explorer-kicker').textContent.startsWith('Women’s'));
  const sc=$('.team-node[data-round="0"][data-team="2579"]'),box=sc.getBoundingClientRect();
  sc.dispatchEvent(new PointerEvent('pointermove',{bubbles:true,clientX:(box.left+box.right)/2,clientY:(box.top+box.bottom)/2}));
  check('Women’s initial hover traces six uncertain rounds',doc.querySelectorAll('.active-route path:not(.retiring)').length===6&&$('.title-probability').textContent==='64%');
@@ -49,7 +49,7 @@ try {
  $('#play').click();await switchTo('womens');check('Competition switch stops playback',$('#play').getAttribute('aria-label')==='Play tournament'&&$('#snapshot').getAttribute('aria-valuenow')==='0');
  check('Women 2023 cache restores South Carolina',$('#title-leaders').textContent.startsWith('South Carolina64%'));
  $('#mens').click();$('#year').value='2025';$('#year').dispatchEvent(new Event('change',{bubbles:true}));$('#womens').click();await wait(loaded);
- check('Rapid gender/year changes settle on requested women’s year',$('.bracket-status').textContent.startsWith('Women’s · 2025')&&$('#source').value==='torvik'&&!$('#forecast-mode').disabled);
+ check('Rapid gender/year changes settle on requested women’s year',$('#explorer-kicker').textContent.startsWith('Women’s')&&$('#explorer-title').textContent.startsWith('2025')&&$('#source').value==='torvik'&&!$('#forecast-mode').disabled);
  await choose(2023);$('#table-view').click();frame.style.width='375px';await wait(()=>win.innerWidth===375);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
  check('Phone toggle and page fit',doc.documentElement.scrollWidth===375&&$('#womens').getBoundingClientRect().right<=375);
  $('#mens').focus();$('#mens').click();await wait(loaded);check('Phone Men switch preserves year/table',$('#year').value==='2023'&&!$('#table-panel').hidden&&$('#mens').getAttribute('aria-pressed')==='true');

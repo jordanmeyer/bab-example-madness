@@ -45,7 +45,7 @@ async function loadYear(year, competition = gender) {
   $('#cancelled').hidden = true;
   $('#loading').hidden = false;
   $('#loading').textContent = `Loading the ${year} ${competitionName()} tournament…`;
-  document.querySelectorAll('.toolbar button:not(#mens):not(#womens)').forEach(button=>button.disabled=true);
+  document.querySelectorAll('#forecast-mode,#results-mode,#bracket-view,#table-view').forEach(button=>button.disabled=true);
   try {
     if (!cache.has(key)) {
       const response = await fetch(`${import.meta.env.BASE_URL}data/${entry.file}?v=${DATA_REVISION}`);
@@ -69,6 +69,9 @@ async function loadYear(year, competition = gender) {
     $('#cancelled a').href = `https://www.ncaa.com/history/basketball-${competition === 'womens' ? 'women' : 'men'}/d1`;
     updateAboutLinks();
     if (data.status === 'cancelled') {
+      renderHeading();
+      $('#coverage-note').hidden = false;
+      $('#coverage-note').textContent = $('#year-coverage').textContent;
       $('#cancelled').hidden = false;
       $('#explorer').setAttribute('aria-busy', 'false');
       announce(`${year}: tournament cancelled. No field or games.`);
@@ -103,8 +106,15 @@ function snapshotRange() {
   return { finalDate, start: snapshotDay(data.forecasts[0].date)-.5, end: Math.max(snapshotDay(data.forecasts.at(-1).date),snapshotDay(finalDate))+.5 };
 }
 
+// The heading names what the controls currently show.
+function renderHeading() {
+  $('#explorer-kicker').textContent = `${competitionName()} tournament`;
+  $('#explorer-title').textContent = `${data.year} ${data.status === 'cancelled' ? 'tournament' : mode === 'forecast' ? 'forecasts' : 'results'}`;
+}
+
 function render() {
   refreshProbabilities();
+  renderHeading();
   $('#forecast-mode').disabled = !data.forecasts?.length;
   $('#forecast-mode').setAttribute('aria-pressed', mode === 'forecast');
   $('#results-mode').setAttribute('aria-pressed', mode === 'results');
@@ -140,7 +150,6 @@ function render() {
     const champion = data.teams.find(team => currentP(team.id)?.[6] === 1);
     $('#results-heading').innerHTML = `<strong>${data.year} champion: ${escape(champion?.name ?? 'Not recorded')}.</strong> Every stage below represents a completed result.`;
   }
-  $('#explore-help').textContent = view === 'bracket' ? 'Move over the bracket to preview. Arrow keys move between slots.' : mode === 'forecast' ? 'Sort a stage to compare chances.' : 'Checkmarks show stages reached.';
   $('#bracket-panel').hidden = view !== 'bracket';
   $('#table-panel').hidden = view !== 'table';
   if (view === 'bracket') renderBracket();
@@ -198,7 +207,7 @@ function renderBracket() {
   const columns=[...leftColumns,center,...leftColumns.map(x=>bracketWidth-x).reverse()];
   const coverage=mode==='forecast'?snapshotStatus(data,snapshotIndex):null;
   const status=!coverage?'Completed results':!coverage.throughDate?'Pre-tournament forecast':coverage.partial?coverage.label:`Through ${dateLabel(coverage.throughDate)} games`;
-  $('#bracket-panel').innerHTML=`<p class="bracket-scroll-hint">Scroll to see the full bracket, or choose Table.</p><div class="bracket-scroll"><div class="bracket-map"><div class="round-labels">${headings.map((label,index)=>`<span style="left:${columns[index]}px">${label}</span>`).join('')}</div><div class="bracket-tree"><svg class="connectors" viewBox="0 0 ${bracketWidth} ${BRACKET_HEIGHT}" aria-hidden="true"><g class="bracket-backbone">${lines}</g><g class="active-route"></g><g class="route-probabilities"></g></svg>${data.regionOrder.map((name,index)=>`<h3 class="region-name ${index>1?'right':''}" style="top:${index%2?520:8}px">${escape(name)}</h3>`).join('')}${nodes}<p class="bracket-status">${competitionName()} · ${data.year}<br><span>${escape(status)}</span>${mode==='forecast'&&reconstructed()?'<br><strong>Reconstructed model</strong>':''}</p><div class="title-forecast"><p id="title-team"></p><div class="title-probability"></div><p class="center-note"></p><ol id="title-leaders"></ol></div></div></div></div>`;
+  $('#bracket-panel').innerHTML=`<p class="bracket-scroll-hint">Scroll to see the full bracket, or choose Table.</p><div class="bracket-scroll"><div class="bracket-map"><div class="round-labels">${headings.map((label,index)=>`<span style="left:${columns[index]}px">${label}</span>`).join('')}</div><div class="bracket-tree"><svg class="connectors" viewBox="0 0 ${bracketWidth} ${BRACKET_HEIGHT}" aria-hidden="true"><g class="bracket-backbone">${lines}</g><g class="active-route"></g><g class="route-probabilities"></g></svg>${data.regionOrder.map((name,index)=>`<h3 class="region-name ${index>1?'right':''}" style="top:${index%2?520:8}px">${escape(name)}</h3>`).join('')}${nodes}<p class="bracket-status"><span>${escape(status)}</span>${mode==='forecast'&&reconstructed()?'<br><strong>Reconstructed model</strong>':''}<small class="bracket-hint">Move over the bracket to preview. Arrow keys move between slots.</small></p><div class="title-forecast"><p id="title-team"></p><div class="title-probability"></div><p class="center-note"></p><ol id="title-leaders"></ol></div></div></div></div>`;
   slots=[...$('#bracket-panel').querySelectorAll('.team-node')].map(element=>({element,x:Number(element.dataset.x),y:Number(element.dataset.y),round:Number(element.dataset.round),id:element.dataset.team}));
   slots[0].element.tabIndex=0;
   previewId=undefined;
