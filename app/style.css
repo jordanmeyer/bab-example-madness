@@ -90,6 +90,7 @@ h3 { font-size: 1.8rem; }
 .title-forecast { position: absolute; top: 210px; left: calc(50% - 72px); width: 144px; text-align: center; color: var(--duke-navy-blue); background: white; padding: .4rem 0; pointer-events: none; transition: opacity .25s; }
 .title-forecast.drawing { opacity: 0; transition: none; }
 .title-forecast.team-forecast { top: 342px; }
+.title-forecast:has(#title-leaders li) { top: 450px; transform: translateY(-100%); }
 #title-leaders { list-style: none; padding: 0; margin: .7rem 0 0; font-size: 12px; }
 #title-leaders li { display: flex; justify-content: space-between; gap: 6px; padding: .25rem 0; border-bottom: 1px solid var(--line); text-align: left; }
 #title-leaders li:first-child { border-top: 1px solid var(--line); }
