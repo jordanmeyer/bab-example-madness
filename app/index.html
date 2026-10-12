@@ -7,9 +7,13 @@
   <meta name="description" content="Explore NCAA tournament probabilities from multiple sources, reconstructed daily updates, historical blends, and results from 2016 onward.">
   <title>NCAA Tournament Forecasts</title>
 </head>
-<body>
+<body id="top">
   <a class="skip-link" href="#explorer">Skip to tournament explorer</a>
-  <header class="masthead"><h1><a href="#" class="wordmark">NCAA Tournament Forecasts</a></h1></header>
+  <header class="masthead">
+    <div class="site-wrap masthead-inner">
+      <h1><a href="./" class="wordmark">NCAA Tournament Forecasts</a></h1>
+    </div>
+  </header>
   <main>
     <section class="intro">
       <p class="dek">Compare tournament forecasts and see how each team’s chances change as games are played.</p>
@@ -42,8 +46,35 @@
       </div>
       <section id="cancelled" class="cancelled" hidden><p class="eyebrow">2020 tournament</p><h2>A March without a bracket.</h2><p>The NCAA cancelled the 2020 men’s and women’s basketball tournaments because of COVID-19. There was no official field, no games, and no champion.</p><p>Choose another year to explore a tournament. A missing season is part of the history—not a gap to fill with predictions.</p><a href="https://www.ncaa.com/history/basketball-men/d1" target="_blank" rel="noreferrer">See the NCAA’s championship history</a></section>
     </section>
-    <section class="about" id="about"><details><summary>Reading the evidence</summary><p>Forecast percentages are a team’s chance of <em>reaching</em> each stage from the selected snapshot. They are not its chance of winning only the next game. A checkmark means the stage was already reached; a dash means zero chance.</p><p id="about-coverage">Forecast and result coverage varies by year. The selected year’s sources appear below.</p><p><a href="./DATA-NOTICES.txt">Data credits &amp; licenses</a> identifies the original sources, this app’s transformations, and the terms that apply to each source.</p><p>This independent educational recreation takes its interaction pattern from <a href="https://web.archive.org/web/20240411121651/https://projects.fivethirtyeight.com/madness-2015/index.html#mens" target="_blank" rel="noreferrer">FiveThirtyEight’s 2015 tournament explorer</a>.</p></details><details id="sources"><summary>Sources, coverage &amp; downloads</summary><div id="source-list"></div></details><details id="ensemble-review"><summary>How well does the ensemble predict?</summary><div id="ensemble-comparison"></div></details><details><summary>How this was built</summary><p>The request: recreate the archived tournament dashboard, with a selector for every year from 2016 onward.</p><p>The implementation uses native HTML for an accessible bracket and table, Apache ECharts for team forecast history, and locally bundled data and fonts. Complete opening fields from each available source are fitted to a bracket model, then updated using completed results. An equal-source average and a prior-season logistic blend are available where the data support them. FiveThirtyEight’s source selection uses its published historical snapshots; other sources and both blends use reconstructed updates.</p><p><a id="source-link" href="./build-story.html">Read the build story</a> · <a href="https://github.com/jordanmeyer/bab-example-madness">Source repository</a> · <a href="./THIRD-PARTY-NOTICES.txt">Library notices</a></p></details></section>
+
   </main>
+  <footer class="site-footer">
+    <div class="site-wrap footer-main">
+      <div class="footer-brand">
+        <p class="eyebrow">Tournament explorer</p>
+        <a class="wordmark" href="./">NCAA Tournament Forecasts</a>
+        <p>Compare forecasts and follow each team’s chances through the tournament.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer">
+        <div>
+          <h2>Explore</h2>
+          <a href="./">Tournament forecasts</a>
+          <a class="about-link" href="./about.html">About</a>
+        </div>
+        <div>
+          <h2>Project</h2>
+          <a href="https://github.com/jordanmeyer/bab-example-madness">Source on GitHub</a>
+          <a href="./DATA-NOTICES.txt">Data credits</a>
+          <a href="./THIRD-PARTY-NOTICES.txt">Library notices</a>
+        </div>
+      </nav>
+    </div>
+    <div class="site-wrap footer-base">
+      <p>Built with the <a href="https://jordanmeyer.github.io/decision-999/build/">Web Application Builder</a> plugin.</p>
+      <a href="#top">Back to top</a>
+      <p class="footer-disclosure">Independent educational recreation. Not affiliated with FiveThirtyEight, the NCAA, or any university.</p>
+    </div>
+  </footer>
   <div id="announcement" class="sr-only" role="status" aria-live="polite"></div>
   <script type="module" src="./main.js"></script>
 </body>

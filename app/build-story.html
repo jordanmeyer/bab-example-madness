@@ -8,9 +8,13 @@
   <title>How this was built · NCAA Tournament Forecasts</title>
   <link rel="stylesheet" href="./style.css">
 </head>
-<body>
+<body id="top">
   <a class="skip-link" href="#story">Skip to the build story</a>
-  <header class="masthead"><a class="wordmark" href="./">NCAA Tournament Forecasts</a><a href="./">Open explorer</a></header>
+  <header class="masthead">
+    <div class="site-wrap masthead-inner">
+      <a href="./" class="wordmark">NCAA Tournament Forecasts</a>
+    </div>
+  </header>
   <main id="story" class="story">
     <section class="intro"><div><p class="eyebrow">How this was built</p><h1>A bracket, with its uncertainty intact.</h1><p class="dek">The planning choices and evidence behind this independent tournament explorer.</p></div></section>
     <section class="story-body">
@@ -41,6 +45,32 @@
       <p><a href="./">Return to NCAA Tournament Forecasts</a></p>
     </section>
   </main>
-  <footer><p>Data: FiveThirtyEight, T-Rank &amp; recorded NCAA results. <a href="./DATA-NOTICES.txt">Credits &amp; licenses</a>.<br>Independent educational recreation. Not affiliated with FiveThirtyEight, the NCAA, or any university.</p></footer>
+  <footer class="site-footer">
+    <div class="site-wrap footer-main">
+      <div class="footer-brand">
+        <p class="eyebrow">Tournament explorer</p>
+        <a class="wordmark" href="./">NCAA Tournament Forecasts</a>
+        <p>Compare forecasts and follow each team’s chances through the tournament.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer">
+        <div>
+          <h2>Explore</h2>
+          <a href="./">Tournament forecasts</a>
+          <a class="about-link" href="./about.html">About</a>
+        </div>
+        <div>
+          <h2>Project</h2>
+          <a href="https://github.com/jordanmeyer/bab-example-madness">Source on GitHub</a>
+          <a href="./DATA-NOTICES.txt">Data credits</a>
+          <a href="./THIRD-PARTY-NOTICES.txt">Library notices</a>
+        </div>
+      </nav>
+    </div>
+    <div class="site-wrap footer-base">
+      <p>Built with the <a href="https://jordanmeyer.github.io/decision-999/build/">Web Application Builder</a> plugin.</p>
+      <a href="#top">Back to top</a>
+      <p class="footer-disclosure">Independent educational recreation. Not affiliated with FiveThirtyEight, the NCAA, or any university.</p>
+    </div>
+  </footer>
 </body>
 </html>

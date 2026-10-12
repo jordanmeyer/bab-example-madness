@@ -9,6 +9,13 @@ const wait=async fn=>{for(let i=0;i<500;i++){if(fn())return;await new Promise(r=
 await wait(()=>frame.contentDocument.querySelector('.team-node'));
 const doc=frame.contentDocument,$=s=>doc.querySelector(s);
 const choose=(selector,value)=>{const element=$(selector);element.value=value;element.dispatchEvent(new Event('change',{bubbles:true}));};
+const evidence=document.createElement('iframe');
+evidence.title='About tournament evidence';document.body.append(evidence);
+const loadAbout=async()=>{
+ await new Promise(resolve=>{evidence.onload=resolve;evidence.src=$('.about-link').href;});
+ await wait(()=>evidence.contentDocument.querySelector('#evidence-status')?.textContent.match(/^(Men’s|Women’s) /));
+ return evidence.contentDocument;
+};
 try {
  for(const gender of ['mens','womens']) {
   $(`#${gender}`).click();await wait(()=>$('#explorer').getAttribute('aria-busy')==='false');
@@ -29,7 +36,8 @@ try {
     }
    }
    check(`${gender} ${year}: ${values} displayed probabilities match published snapshots`,true);
-   check(`${gender} ${year}: published label`, $('#coverage-note').textContent.includes('Published historical forecasts')&&!$('#about-coverage').textContent.includes('selected timeline recomputes'));
+   const about=await loadAbout();
+   check(`${gender} ${year}: published label`, $('#coverage-note').textContent.includes('Published historical forecasts')&&about.querySelector('#about-coverage').textContent.includes(`${data.forecasts.length} published snapshots`));
    const other=[...$('#source').options].find(o=>o.value!=='fivethirtyeight');
    if(other){choose('#source',other.value);check(`${gender} ${year}: other source is reconstructed`,$('#coverage-note').textContent.includes('Based on pre-tournament forecasts; recalculated after completed games.'));choose('#source','fivethirtyeight');check(`${gender} ${year}: archive survives switching`,Number($('#snapshot').getAttribute('aria-valuemax'))===data.forecasts.length-1&&$('#coverage-note').textContent.includes('Published historical'));}
    $('#results-mode').click();check(`${gender} ${year}: results remain available`,$('#results-heading').textContent.includes(`${year} champion`));

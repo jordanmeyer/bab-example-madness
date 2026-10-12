@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#012169">
+  <meta name="description" content="How to read NCAA Tournament Forecasts, where its data comes from, and how its models are evaluated.">
+  <title>About · NCAA Tournament Forecasts</title>
+</head>
+<body id="top">
+  <a class="skip-link" href="#about-main">Skip to About</a>
+  <header class="masthead">
+    <div class="site-wrap masthead-inner">
+      <a href="./" class="wordmark">NCAA Tournament Forecasts</a>
+    </div>
+  </header>
+  <main id="about-main" class="about-page">
+    <section class="about-hero">
+      <div class="site-wrap">
+        <p class="eyebrow">About the explorer</p>
+        <h1>Behind the forecasts.</h1>
+        <p>How to read the odds, where the data comes from, and how the models are checked.</p>
+        <a href="./">Return to tournament forecasts</a>
+      </div>
+    </section>
+    <div class="site-wrap about-layout">
+      <nav class="about-contents" aria-label="On this page">
+        <p class="eyebrow">On this page</p>
+        <a href="#reading">Reading the evidence</a>
+        <a href="#sources">Sources &amp; downloads</a>
+        <a href="#ensemble-review">Ensemble performance</a>
+        <a href="#making">How this was built</a>
+      </nav>
+      <div class="about-content">
+        <section class="evidence-selection" aria-labelledby="selection-title">
+          <h2 id="selection-title">Choose a tournament</h2>
+          <p>Source coverage and model checks vary by competition and year.</p>
+          <div class="evidence-controls">
+            <label>Competition<select id="competition" disabled><option value="mens">Men</option><option value="womens">Women</option></select></label>
+            <label>Year<select id="year" disabled></select></label>
+            <label>Source<select id="source" disabled></select></label>
+          </div>
+          <p id="evidence-status" role="status">Loading tournament evidence…</p>
+        </section>
+        <section id="reading" class="about-section" aria-labelledby="reading-title">
+          <h2 id="reading-title">Reading the evidence</h2>
+          <p>Forecast percentages are a team’s chance of <em>reaching</em> each stage from the selected snapshot. They are not its chance of winning only the next game. A checkmark means the stage was already reached; a dash means zero chance.</p><p id="about-coverage">Forecast and result coverage varies by year. The selected year’s sources appear below.</p><p><a href="./DATA-NOTICES.txt">Data credits &amp; licenses</a> identifies the original sources, this app’s transformations, and the terms that apply to each source.</p><p>This independent educational recreation takes its interaction pattern from <a href="https://web.archive.org/web/20240411121651/https://projects.fivethirtyeight.com/madness-2015/index.html#mens" target="_blank" rel="noreferrer">FiveThirtyEight’s 2015 tournament explorer</a>.</p>
+        </section>
+        <section id="sources" class="about-section" aria-labelledby="sources-title">
+          <h2 id="sources-title">Sources, coverage &amp; downloads</h2>
+          <div id="source-list"></div>
+        </section>
+        <section id="ensemble-review" class="about-section" aria-labelledby="ensemble-review-title">
+          <h2 id="ensemble-review-title">How well does the ensemble predict?</h2>
+          <div id="ensemble-comparison"></div>
+        </section>
+        <section id="making" class="about-section" aria-labelledby="making-title">
+          <h2 id="making-title">How this was built</h2>
+          <p>The request: recreate the archived tournament dashboard, with a selector for every year from 2016 onward.</p><p>The implementation uses native HTML for an accessible bracket and table, Apache ECharts for team forecast history, and locally bundled data and fonts. Complete opening fields from each available source are fitted to a bracket model, then updated using completed results. An equal-source average and a prior-season logistic blend are available where the data support them. FiveThirtyEight’s source selection uses its published historical snapshots; other sources and both blends use reconstructed updates.</p><p><a id="source-link" href="./build-story.html">Read the build story</a> · <a href="https://github.com/jordanmeyer/bab-example-madness">Source repository</a> · <a href="./THIRD-PARTY-NOTICES.txt">Library notices</a></p>
+        </section>
+      </div>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="site-wrap footer-main">
+      <div class="footer-brand">
+        <p class="eyebrow">Tournament explorer</p>
+        <a class="wordmark" href="./">NCAA Tournament Forecasts</a>
+        <p>Compare forecasts and follow each team’s chances through the tournament.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer">
+        <div>
+          <h2>Explore</h2>
+          <a href="./">Tournament forecasts</a>
+          <a class="about-link" href="./about.html">About</a>
+        </div>
+        <div>
+          <h2>Project</h2>
+          <a href="https://github.com/jordanmeyer/bab-example-madness">Source on GitHub</a>
+          <a href="./DATA-NOTICES.txt">Data credits</a>
+          <a href="./THIRD-PARTY-NOTICES.txt">Library notices</a>
+        </div>
+      </nav>
+    </div>
+    <div class="site-wrap footer-base">
+      <p>Built with the <a href="https://jordanmeyer.github.io/decision-999/build/">Web Application Builder</a> plugin.</p>
+      <a href="#top">Back to top</a>
+      <p class="footer-disclosure">Independent educational recreation. Not affiliated with FiveThirtyEight, the NCAA, or any university.</p>
+    </div>
+  </footer>
+  <script type="module" src="./about.js"></script>
+</body>
+</html>

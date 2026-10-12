@@ -11,6 +11,6 @@ export default defineConfig(({ mode }) => ({
   preview: { host: '127.0.0.1', strictPort: true },
   build: {
     outDir: '../dist', emptyOutDir: true,
-    rolldownOptions: { input: { main: resolve(import.meta.dirname, 'app/index.html'), story: resolve(import.meta.dirname, 'app/build-story.html') } },
+    rolldownOptions: { input: { main: resolve(import.meta.dirname, 'app/index.html'), story: resolve(import.meta.dirname, 'app/build-story.html'), about: resolve(import.meta.dirname, 'app/about.html') } },
   },
 }));

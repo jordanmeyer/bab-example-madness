@@ -11,6 +11,13 @@ const loaded=()=>$('#explorer').getAttribute('aria-busy')==='false';
 const choose=async year=>{$('#year').value=year;$('#year').dispatchEvent(new Event('change',{bubbles:true}));await wait(loaded);};
 const switchTo=async gender=>{$(`#${gender}`).click();await wait(loaded);};
 const fit=label=>{const failed=[];for(const node of doc.querySelectorAll('.team-node:not(.empty)')){const range=doc.createRange();range.selectNodeContents(node.querySelector('.node-name'));const text=range.getBoundingClientRect(),box=node.getBoundingClientRect();if(text.left<box.left-.2||text.right>box.right+.2)failed.push(node.dataset.name);}check(`${label}: names fit`,!failed.length,failed);};
+const evidence=document.createElement('iframe');
+evidence.title='About tournament evidence';document.body.append(evidence);
+const loadAbout=async()=>{
+ await new Promise(resolve=>{evidence.onload=resolve;evidence.src=$('.about-link').href;});
+ await wait(()=>evidence.contentDocument.querySelector('#evidence-status')?.textContent.match(/^(Men’s|Women’s) /));
+ return evidence.contentDocument;
+};
 try {
  await choose(2023);
  await switchTo('womens');
@@ -22,19 +29,21 @@ try {
  check('Women 2023 initially favors South Carolina at 64%',$('#title-leaders').textContent.startsWith('South Carolina64%'));
  for(const year of [2016,2017,2018,2019,2021,2022,2023,2024,2025,2026]) {
   await choose(year);$('#bracket-view').click();const data=await(await fetch(`/data/womens/${year}.json`)).json();
-  check(`${year}: women’s source download`, $('#source-list a[download]').getAttribute('href').endsWith(`/womens/${year}.json`));
+  const about=await loadAbout();
+  check(`${year}: women’s source download`, about.querySelector('#source-list a[download]').getAttribute('href').endsWith(`/womens/${year}.json`));
   check(`${year}: correct First Four visibility`,Boolean($('.first-four'))===(year>=2022));
   fit(`${year} initial`);
-  if(data.forecasts.length) {
+  const forecasts=$('#source').value==='fivethirtyeight'?data.forecasts:data.forecastOptions.find(option=>option.id===$('#source').value)?.forecasts;
+  if(forecasts?.length) {
    $('#snapshot').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));fit(`${year} last forecast`);
-   check(`${year}: timeline reaches actual final snapshot`,Number($('#snapshot').getAttribute('aria-valuenow'))===data.forecasts.length-1);
+   check(`${year}: timeline reaches actual final snapshot`,Number($('#snapshot').getAttribute('aria-valuenow'))===forecasts.length-1);
    const team=data.teams.find(t=>t.seed===1);$(`.team-node[data-round="0"][data-team="${team.id}"]`).click();
    check(`${year}: forecast history renders`,Boolean($('#history-chart svg')));$('#clear-pin').click();
   } else check(`${year}: results-only is explicit`,$('#forecast-mode').disabled&&!$('#coverage-note').hidden&&$('#timeline').hidden&&$('#coverage-note').textContent.includes('Results only'));
   $('#results-mode').click();fit(`${year} results`);
   check(`${year}: champion matches women’s source`,$('.team-node[data-round="6"]').dataset.team===data.championTeamId);
   const name=$('.team-node[data-round="6"] .node-name').getBoundingClientRect(),tree=$('.bracket-tree').getBoundingClientRect();
-  check(`${year}: champion is centered on title stem`,Math.abs((name.left+name.right)/2-tree.left-502)<.2);
+  check(`${year}: champion is centered on title stem`,Math.abs((name.left+name.right)/2-tree.left-tree.width/2)<.2);
  }
  await choose(2020);check('Women 2020 has no invented tournament',!$('#cancelled').hidden&&$('#workspace').hidden&&!$('#mens').disabled&&!$('#womens').disabled);
  await switchTo('mens');check('Men 2020 stays cancelled and switchable',!$('#cancelled').hidden&&!$('#womens').disabled);
@@ -42,7 +51,7 @@ try {
  $('#play').click();await switchTo('womens');check('Competition switch stops playback and clears pins',$('#play').getAttribute('aria-label')==='Play tournament'&&$('#clear-pin').hidden&&$('#snapshot').getAttribute('aria-valuenow')==='0');
  check('Women 2023 cache restores South Carolina',$('#title-leaders').textContent.startsWith('South Carolina64%'));
  $('#mens').click();$('#year').value='2025';$('#year').dispatchEvent(new Event('change',{bubbles:true}));$('#womens').click();await wait(loaded);
- check('Rapid gender/year changes settle on requested women’s year',$('.bracket-status').textContent.startsWith('Women’s · 2025')&&$('.team-node[data-round="6"]').dataset.team==='41'&&$('#forecast-mode').disabled);
+ check('Rapid gender/year changes settle on requested women’s year',$('.bracket-status').textContent.startsWith('Women’s · 2025')&&$('#source').value==='torvik'&&!$('#forecast-mode').disabled);
  await choose(2023);$('#table-view').click();frame.style.width='375px';await wait(()=>win.innerWidth===375);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
  check('Phone toggle and page fit',doc.documentElement.scrollWidth===375&&$('#womens').getBoundingClientRect().right<=375);
  $('#mens').focus();$('#mens').click();await wait(loaded);check('Phone Men switch preserves year/table',$('#year').value==='2023'&&!$('#table-panel').hidden&&$('#mens').getAttribute('aria-pressed')==='true');
