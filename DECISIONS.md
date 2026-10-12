@@ -30,3 +30,7 @@ The user rejected connected central cards. One shared coordinate tree now owns a
 Use 37 complete opening fields; exclude partial ESPN and late Neil Paine data per the user's clarification. Maximum-entropy bracket inversion identifies a fixed matchup matrix from rounded advancement marginals; subsequent dates condition only on completed games. Published updates are not claimed. Preserve originals, disclose rounding and missing First Four assumptions, and retain exact provenance.
 
 Fit men and women separately using strictly earlier years, equal seasonal weights, fixed ridge 0.02, and no intercept. Require previous observations for every current source before exposing the all-source ensemble. Historical missing features use the game-specific mean available log-odds. Validate chronologically and report negative improvement. See SOURCE-MODEL.md for reproducible definitions and limitations.
+
+## October 11, 2026 — no pinned team detail
+
+The user removed click-to-pin: selecting a team no longer opens a detail section or adds a pinned filter. Hover and keyboard focus preview a route; a tap previews on touch, and Escape clears. The forecast-history chart went with the detail section, so Apache ECharts and its theme were removed.

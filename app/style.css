@@ -38,7 +38,7 @@ main.page { width: auto; }
 .intro { padding: 1.25rem 0 1rem; }
 .eyebrow { display: flex; align-items: center; gap: .75rem; color: var(--duke-navy-blue); font: 600 .75rem/1.4 var(--duke-font-body); letter-spacing: .12em; text-transform: uppercase; margin-bottom: .75rem; }
 .eyebrow::before { content: ''; flex: none; width: 1.5rem; height: 2px; background: var(--duke-copper); }
-.big-probability + .eyebrow::before, .about-contents .eyebrow::before { content: none; }
+.about-contents .eyebrow::before { content: none; }
 .dek { max-width: none; font-size: 1.0625rem; line-height: 1.55; margin-bottom: 0; }
 .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; border-top: 3px solid var(--duke-navy-blue); border-bottom: 1px solid var(--line); padding: .5rem 0; }
 .year-field, .source-field { display: flex; gap: .5rem; align-items: center; font-size: 13px; color: var(--duke-graphite); }
@@ -70,9 +70,7 @@ button.secondary:hover:not(:disabled) { background: var(--duke-royal-blue); bord
 .single-snapshot { padding: .7rem 1rem; background: var(--duke-whisper-gray); font-size: 13px; margin: 0; }
 .results-heading { background: var(--duke-whisper-gray); border-bottom: 1px solid var(--line); padding: .65rem 1rem; font-size: .85rem; }
 .results-heading strong { color: var(--duke-navy-blue); }
-.explore-help { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .5rem 0; }
-.explore-help > p { margin: 0; font-size: 13px; color: var(--duke-graphite); flex: 1; }
-.pinned-chip { font-size: 12px; padding: .25rem .6rem; min-height: 32px; background: var(--duke-ginger-beer); white-space: nowrap; }
+.explore-help { margin: 0; padding: .5rem 0; font-size: 13px; color: var(--duke-graphite); }
 .bracket-scroll { overflow-x: auto; }
 .bracket-scroll-hint { display: none; color: var(--duke-graphite); font-size: 12px; }
 .bracket-map { width: 100%; min-width: 1004px; margin: auto; }
@@ -131,7 +129,7 @@ th { font-weight: 600; color: var(--duke-navy-blue); }
 .odds-table thead th { position: sticky; top: 0; background: white; z-index: 1; border-bottom: 2px solid var(--duke-navy-blue); }
 th:first-child, td:first-child { text-align: left; }
 .odds-table th button { border: 0; padding: 2px 0; min-height: 28px; font-size: 12px; text-align: inherit; width: 100%; background: none; }
-.odds-table th button:hover:not(:disabled), .odds-table .team-column button:hover:not(:disabled) { box-shadow: none; text-decoration: underline; text-underline-offset: .2em; }
+.odds-table th button:hover:not(:disabled) { box-shadow: none; text-decoration: underline; text-underline-offset: .2em; }
 .odds-table th button span { position: relative; }
 .odds-table th[aria-sort] button span::after { content: '↕'; position: absolute; left: 100%; padding-left: 1px; visibility: hidden; }
 .odds-table th[aria-sort]:hover button span::after, .odds-table th[aria-sort]:focus-within button span::after, .odds-table th[aria-sort="ascending"] button span::after, .odds-table th[aria-sort="descending"] button span::after { visibility: visible; }
@@ -139,9 +137,6 @@ th:first-child, td:first-child { text-align: left; }
 .odds-table th[aria-sort="descending"] button span::after { content: '↓'; }
 .odds-table .team-column { text-align: left; min-width: 164px; position: sticky; left: 0; background: white; }
 .odds-table thead .team-column { z-index: 2; }
-.odds-table .team-column button { border: 0; background: none; padding: .2rem 0; color: var(--duke-navy-blue); text-align: left; min-height: 28px; }
-.odds-table tr.selected .team-column { background: var(--duke-ginger-beer); box-shadow: inset 3px 0 var(--duke-navy-blue); }
-.odds-table tr.selected .team-column button { font-weight: 600; }
 .table-seed { font-size: 12px; color: var(--duke-graphite); }
 .text-column { text-align: left; }
 .title-column { border-left: 2px solid var(--duke-graphite); font-weight: 600; }
@@ -150,26 +145,6 @@ th:first-child, td:first-child { text-align: left; }
 .odds-medium { background: var(--duke-shale-blue); color: white; }
 .odds-high { background: var(--duke-prussian-blue); color: white; }
 .odds-very-high { background: var(--duke-navy-blue); color: white; }
-.team-detail { border-top: 3px solid var(--duke-navy-blue); margin-top: 2rem; padding: 1.7rem 0 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 2rem; scroll-margin-top: 1rem; }
-.team-detail h2 { font-size: 2.8rem; margin-bottom: .4rem; }
-.team-detail .team-summary { font-size: .9375rem; max-width: 30rem; }
-.team-detail .team-meta { font-size: .8125rem; color: var(--duke-graphite); margin-bottom: 1rem; }
-.big-probability { font-family: var(--duke-font-heading); color: var(--duke-navy-blue); font-size: 3.6rem; line-height: 1; font-variant-numeric: lining-nums tabular-nums; margin: .7rem 0 .4rem; }
-.stage-strip { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 1rem .75rem; margin: 1.5rem 0 0; }
-.stage-strip div { display: flex; flex-direction: column-reverse; justify-content: flex-end; border-top: 1px solid var(--line); padding-top: .75rem; }
-.stage-strip dt { margin-top: .35rem; font-size: 12px; color: var(--duke-graphite); line-height: 1.3; }
-.stage-strip dd { margin: 0; font: 1.75rem/1.1 var(--duke-font-heading); color: var(--duke-navy-blue); font-variant-numeric: lining-nums tabular-nums; }
-.history-heading { display: flex; gap: 1rem; justify-content: space-between; align-items: baseline; }
-.history-heading h3 { margin-bottom: .3rem; font-size: 1.6rem; }
-.history-heading span { color: var(--duke-graphite); font-size: 12px; }
-#history-chart { height: 250px; width: 100%; }
-.chart-note { color: var(--duke-graphite); font-size: 13px; margin: .3rem 0 .8rem; }
-.history-details { font-size: .76rem; }
-.history-details .table-scroll { margin-top: .7rem; max-height: 260px; }
-.game-list { list-style: none; padding: 0; margin: 1rem 0; }
-.game-list li { border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 80px 1fr auto; gap: 1rem; padding: .65rem 0; font-size: .81rem; }
-.game-list small { color: var(--duke-graphite); font-size: 12px; }
-.game-list strong { color: var(--duke-navy-blue); white-space: nowrap; font-variant-numeric: lining-nums tabular-nums; }
 details { border-top: 1px solid var(--line); padding: .85rem 0; }
 summary { cursor: pointer; color: var(--duke-navy-blue); font-weight: 600; font-size: 13px; }
 summary:hover { text-decoration: underline; text-underline-offset: .2em; }
@@ -225,25 +200,16 @@ details p:first-of-type { margin-top: 1rem; }
   .date-tick:not(.first):not(.last):not(.current) .tick-label { display: none; }
   .date-tick.unavailable .tick-label { display: none; }
   .date-tick.current:not(.first):not(.last) .tick-label { position: absolute; top: 34px; left: 50%; transform: translateX(-50%); }
-  .table-scroll, .history-details .table-scroll { max-height: none; }
-  .explore-help { flex-wrap: wrap; gap: .35rem; padding: .45rem 0; }
-  .explore-help > p { flex-basis: 100%; font-size: 12px; }
-  .pinned-chip { order: 2; }
+  .table-scroll { max-height: none; }
+  .explore-help { padding: .45rem 0; font-size: 12px; }
   .first-four { display: block; }
   .first-four h3 { margin-bottom: .8rem; }
   .play-in-games { gap: .7rem; }
-  .odds-table .team-column { min-width: 115px; width: 115px; max-width: 115px; white-space: normal; }
-  .odds-table .team-column button { white-space: normal; font-size: 12px; }
+  .odds-table .team-column { min-width: 115px; width: 115px; max-width: 115px; white-space: normal; font-size: 12px; }
   .odds-table th, .odds-table td { padding: 1px 8px; }
   .odds-table thead th { white-space: normal; min-width: 65px; }
   .odds-table caption { font-size: 12px; padding: .5rem .6rem; }
   .odds-table caption span { display: inline-block; position: sticky; left: .6rem; max-width: calc(100vw - 2rem - 22px); }
-  .team-detail { display: block; padding-top: 1.2rem; margin-top: 1.2rem; }
-  .team-detail h2 { font-size: 2.4rem; }
-  .team-detail .history { margin-top: 1.8rem; }
-  .stage-strip { grid-template-columns: repeat(4,minmax(0,1fr)); }
-  .stage-strip dd { font-size: 1.5rem; }
-  .game-list li { gap: .6rem; grid-template-columns: 65px 1fr auto; font-size: 12px; }
   .cancelled { padding: 2rem 0; }
   .cancelled h2 { font-size: 2.5rem; }
 }

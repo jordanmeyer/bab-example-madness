@@ -37,8 +37,6 @@ try {
   if(forecasts?.length) {
    $('#snapshot').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));fit(`${year} last forecast`);
    check(`${year}: timeline reaches actual final snapshot`,Number($('#snapshot').getAttribute('aria-valuenow'))===forecasts.length-1);
-   const team=data.teams.find(t=>t.seed===1);$(`.team-node[data-round="0"][data-team="${team.id}"]`).click();
-   check(`${year}: forecast history renders`,Boolean($('#history-chart svg')));$('#clear-pin').click();
   } else check(`${year}: results-only is explicit`,$('#forecast-mode').disabled&&!$('#coverage-note').hidden&&$('#timeline').hidden&&$('#coverage-note').textContent.includes('Results only'));
   $('#results-mode').click();fit(`${year} results`);
   check(`${year}: champion matches women’s source`,$('.team-node[data-round="6"]').dataset.team===data.championTeamId);
@@ -48,7 +46,7 @@ try {
  await choose(2020);check('Women 2020 has no invented tournament',!$('#cancelled').hidden&&$('#workspace').hidden&&!$('#mens').disabled&&!$('#womens').disabled);
  await switchTo('mens');check('Men 2020 stays cancelled and switchable',!$('#cancelled').hidden&&!$('#womens').disabled);
  await choose(2023);$('#bracket-view').click();check('Men 2023 cache restores Houston favorite',$('#title-leaders').textContent.startsWith('Houston22%'));
- $('#play').click();await switchTo('womens');check('Competition switch stops playback and clears pins',$('#play').getAttribute('aria-label')==='Play tournament'&&$('#clear-pin').hidden&&$('#snapshot').getAttribute('aria-valuenow')==='0');
+ $('#play').click();await switchTo('womens');check('Competition switch stops playback',$('#play').getAttribute('aria-label')==='Play tournament'&&$('#snapshot').getAttribute('aria-valuenow')==='0');
  check('Women 2023 cache restores South Carolina',$('#title-leaders').textContent.startsWith('South Carolina64%'));
  $('#mens').click();$('#year').value='2025';$('#year').dispatchEvent(new Event('change',{bubbles:true}));$('#womens').click();await wait(loaded);
  check('Rapid gender/year changes settle on requested women’s year',$('.bracket-status').textContent.startsWith('Women’s · 2025')&&$('#source').value==='torvik'&&!$('#forecast-mode').disabled);

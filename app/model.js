@@ -33,10 +33,6 @@ export function resultPath(data, teamId) {
   return p;
 }
 
-export function teamHistory(data, teamId) {
-  return (data.forecasts ?? []).map((snapshot, index) => ({ date: snapshot.date, index, p: probabilitiesFor(data, index, teamId) }));
-}
-
 export function teamsAtSlot(data, region, slot) {
   return data.teams.filter(team => team.region === region && team.bracketSlot === slot);
 }

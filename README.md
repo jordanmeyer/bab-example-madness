@@ -58,7 +58,7 @@ Open `http://127.0.0.1:9741/tests/` for the visible browser test results. The te
 
 ## Files and dependencies
 
-The approved direct library is Apache ECharts 6.1.0, used only for the forecast-history line chart. Vite 8.3.4 produces static output. Dependencies are pinned in `package.json` and `package-lock.json`; lifecycle scripts are disabled. Native HTML/SVG handles the bracket and table. Campus Designer supplies locally bundled EB Garamond and Open Sans with license notices; no font substitution was needed.
+The app has no runtime dependencies. Vite 8.3.4 produces static output. Dependencies are pinned in `package.json` and `package-lock.json`; lifecycle scripts are disabled. Native HTML/SVG handles the bracket and table. Campus Designer supplies locally bundled EB Garamond and Open Sans with license notices; no font substitution was needed.
 
 `app/public/data/` contains the normalized yearly datasets. `data-inputs/opening-sources.json` retains 37 complete opening fields, published values, source links and explicit team joins. The three older rating sets are retained as original evidence. `data-preparation/` and `scripts/derive-forecasts.mjs` reproduce the transformation. Python is optional maintainer tooling for reacquiring original datasets; it is not needed to install dependencies, run the app, build it, or visit it.
 

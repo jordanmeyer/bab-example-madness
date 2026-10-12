@@ -24,7 +24,7 @@ const joins=()=>[...route().querySelectorAll('ellipse:not(.retiring)')];
 const style=node=>win.getComputedStyle(node);
 const width=node=>parseFloat(style(node).strokeWidth);
 const currentAnimations=()=>[...route().children].flatMap(node=>node.getAnimations());
-function select(id){if(!id){doc.querySelector('#clear-pin').click();return;}(doc.querySelector(`.play-in [data-team="${id}"]`)??doc.querySelector(`.team-node[data-round="0"][data-team="${id}"]`)).click();}
+function select(id){if(!id){doc.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Escape'}));return;}(doc.querySelector(`.play-in [data-team="${id}"]`)??doc.querySelector(`.team-node[data-round="0"][data-team="${id}"]`)).click();}
 async function freeze(time){for(const animation of currentAnimations()){animation.pause();animation.currentTime=time;}await tick();}
 async function finish(){for(const animation of currentAnimations())animation.finish();await tick();}
 function snapshot(node){const clone=node.cloneNode(false),computed=style(node);clone.removeAttribute('style');for(const property of ['fill','stroke','stroke-width','stroke-linecap','stroke-linejoin','stroke-dasharray','stroke-dashoffset','visibility','display'])clone.setAttribute(property,computed.getPropertyValue(property));if(node.tagName==='ellipse'){clone.setAttribute('rx',computed.rx);clone.setAttribute('ry',computed.ry);}return clone;}
@@ -141,7 +141,7 @@ try{
     assert(Number(first.dataset.stage)>1,'Expected already-completed rounds to be skipped.');
     slider.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Home',bubbles:true}));
   });
-  await check('Clearing selection removes every retired path and corner',async()=>{doc.querySelector('#clear-pin').click();await finish();assert(!route().children.length,'Route elements remain after clearing.');});
+  await check('Escape removes every retired path and corner',async()=>{doc.dispatchEvent(new win.KeyboardEvent('keydown',{key:'Escape'}));await finish();assert(!route().children.length,'Route elements remain after clearing.');});
   select('333');await finish();
 }catch(error){await check('Application/harness initialization',()=>{throw error;});}
 const passed=results.filter(result=>result.pass).length,summary=document.querySelector('#summary');summary.textContent=`${passed}/${results.length} rendered checks passed`;summary.className=passed===results.length?'pass':'fail';
